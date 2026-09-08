@@ -1,0 +1,22 @@
+/* ---------------------------------------------------------------
+   Mechanified · tokens de diseño
+   Identidad propia. Estos valores son el punto único de verdad del
+   sistema visual; los componentes nunca declaran colores literales.
+   Se completa en la Fase 5.
+   --------------------------------------------------------------- */
+
+:root {
+  /* Tipografía */
+  --mch-fuente-base: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mch-fuente-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', monospace;
+
+  /* Espaciado, escala de 4px */
+  --mch-esp-1: 0.25rem;
+  --mch-esp-2: 0.5rem;
+  --mch-esp-3: 0.75rem;
+  --mch-esp-4: 1rem;
+  --mch-esp-6: 1.5rem;
+  --mch-esp-8: 2rem;
+
+  --mch-radio: 0.5rem;
+}

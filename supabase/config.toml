@@ -1,0 +1,50 @@
+# Configuración del entorno local de Supabase para Mechanified.
+project_id = "mechanified"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[db.pooler]
+enabled = false
+
+[studio]
+enabled = true
+port = 54323
+
+# Captura de correos salientes en desarrollo (no sale nada a internet).
+[inbucket]
+enabled = true
+port = 54324
+
+[storage]
+enabled = true
+file_size_limit = "25MiB"
+
+[auth]
+enabled = true
+site_url = "http://localhost:5173"
+additional_redirect_urls = ["http://localhost:5173"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+enable_confirmations = false
+double_confirm_changes = true
+
+# Inyecta taller_id y rol como claims del access token.
+# Sin este hook las políticas RLS no pueden resolver el tenant y
+# todo queda denegado por defecto (falla cerrada, que es lo correcto).
+[auth.hook.custom_access_token]
+enabled = true
+uri = "pg-functions://postgres/public/mch_hook_access_token"
