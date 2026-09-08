@@ -49,28 +49,56 @@ mismo predicado que trae el archivo. El resto del esquema no depende de ellas.
 
 ### 2. Backend
 
-```bash
+```powershell
 cd backend
-python -m venv .venv && .venv\Scripts\activate     # Windows
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1        # PowerShell
 pip install -e ".[dev]"
-copy .env.example .env                             # y completar valores
+copy .env.example .env              # y completar valores
 uvicorn app.main:app --reload
 ```
 
-Documentación interactiva de la API en http://localhost:8000/docs
+- API: http://localhost:8000
+- Documentación interactiva: http://localhost:8000/docs
+- Sonda: http://localhost:8000/salud
+
+Pruebas y calidad, lo mismo que corre el CI:
+
+```powershell
+pytest tests/unit -v
+ruff check .
+ruff format --check .
+```
+
+> Verificado con Python 3.14.5. Las dependencias declaran pisos de versión, no
+> anclajes, así que resuelven a builds con binarios para el intérprete instalado
+> (asyncpg 0.31, pydantic 2.13, FastAPI 0.141 en 3.14).
 
 ### 3. Web
 
-```bash
+```powershell
 cd web
 npm install
 copy .env.example .env
 npm run dev
 ```
 
+Queda en http://localhost:5173
+
+```powershell
+npm run typecheck
+npm run build
+```
+
+> `npm run lint` todavía no funciona: falta el archivo de configuración de
+> ESLint, que llega con la Fase 5.
+
 ### 4. Móvil
 
-```bash
+Requiere el SDK de Flutter, que se instala aparte. Solo hace falta a partir de
+la Fase 6.
+
+```powershell
 cd mobile
 flutter create . --org com.mechanified --platforms android,ios
 flutter pub get
