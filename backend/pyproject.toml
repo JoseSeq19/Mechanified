@@ -6,7 +6,7 @@ requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.115",
     "uvicorn[standard]>=0.32",
-    "pydantic>=2.9",
+    "pydantic[email]>=2.9",
     "pydantic-settings>=2.6",
     "sqlalchemy[asyncio]>=2.0.36",
     "asyncpg>=0.30",
@@ -37,11 +37,24 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "UP", "B", "SIM", "RUF"]
-# N815: permitimos identificadores de dominio en español en esquemas Pydantic.
-ignore = ["RUF001", "RUF002", "RUF003"]
+ignore = [
+    # Acentos y signos del español en identificadores, cadenas y comentarios.
+    "RUF001", "RUF002", "RUF003",
+    # B008: llamar a Depends()/Header() en los argumentos por defecto es
+    # precisamente cómo se declaran las dependencias en FastAPI.
+    "B008",
+    # N818: exige el sufijo "Error" en las excepciones. Nuestro dominio está en
+    # español y usa el prefijo (ErrorPermiso, ErrorNoEncontrado).
+    "N818",
+]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+# Un solo bucle de eventos para toda la sesión de pruebas. El motor de
+# SQLAlchemy es un singleton con pool de conexiones atadas al bucle que las
+# creó; con un bucle por prueba, la segunda encuentra conexiones muertas.
+asyncio_default_fixture_loop_scope = "session"
+asyncio_default_test_loop_scope = "session"
 testpaths = ["tests"]
 markers = [
     "integration: requiere Supabase local levantado (supabase start)",

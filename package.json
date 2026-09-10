@@ -1,0 +1,13 @@
+{
+  "name": "mechanified",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Arranque conjunto del monorepo. El código vive en backend/, web/ y mobile/.",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build": "npm --prefix web run build",
+    "typecheck": "npm --prefix web run typecheck",
+    "instalar": "npm --prefix web install"
+  }
+}

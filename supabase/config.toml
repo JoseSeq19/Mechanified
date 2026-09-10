@@ -35,9 +35,20 @@ site_url = "http://localhost:5173"
 additional_redirect_urls = ["http://localhost:5173"]
 jwt_expiry = 3600
 enable_refresh_token_rotation = true
+
+# OJO, comprobado a las malas: poner esto en false NO deja solo "sin registro",
+# apaga el proveedor de correo entero y nadie puede iniciar sesión, ni siquiera
+# los usuarios que el administrador ya creó ("Email logins are disabled").
+#
+# En Mechanified el autoregistro no debería existir —los usuarios los da de alta
+# el administrador del taller— pero eso se apaga desde el panel, en
+# Authentication > Sign In / Providers > Email > "Allow new users to sign up",
+# que es un interruptor distinto y más fino que este.
 enable_signup = true
 
 [auth.email]
+# No existe una llave `enabled` en esta sección: el CLI rechaza el archivo
+# entero con "'auth.email' has invalid keys: enabled".
 enable_signup = true
 enable_confirmations = false
 double_confirm_changes = true

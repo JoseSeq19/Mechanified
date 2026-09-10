@@ -1,22 +1,111 @@
 /* ---------------------------------------------------------------
    Mechanified · tokens de diseño
-   Identidad propia. Estos valores son el punto único de verdad del
-   sistema visual; los componentes nunca declaran colores literales.
-   Se completa en la Fase 5.
+   Punto único de verdad del sistema visual. Ningún componente declara
+   un color literal: todos salen de aquí.
+
+   La identidad es propia: petróleo como color de marca (un verde azulado
+   profundo, sobrio, que aguanta bien las superficies claras de un panel de
+   trabajo) y ámbar como color de señal, reservado para lo que exige
+   atención. Nada de azul corporativo genérico.
    --------------------------------------------------------------- */
 
 :root {
-  /* Tipografía */
-  --mch-fuente-base: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --mch-fuente-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', monospace;
+  color-scheme: light;
 
-  /* Espaciado, escala de 4px */
+  /* --- Marca --- */
+  --mch-petroleo-900: #06282c;
+  --mch-petroleo-800: #0a4046;
+  --mch-petroleo-700: #0f5c63;
+  --mch-petroleo-600: #167b83;
+  --mch-petroleo-100: #dceceb;
+  --mch-petroleo-050: #eff6f5;
+
+  --mch-ambar-700: #a35a11;
+  --mch-ambar-600: #c9761a;
+  --mch-ambar-100: #fbeed8;
+
+  /* --- Neutros --- */
+  --mch-tinta: #10191c;
+  --mch-tinta-media: #4a5a5e;
+  --mch-tinta-suave: #7a8b8f;
+  --mch-linea: #dde4e4;
+  --mch-linea-suave: #ebefef;
+  --mch-superficie: #ffffff;
+  --mch-lienzo: #f4f7f6;
+
+  /* --- Semánticos --- */
+  --mch-exito: #1f7a4d;
+  --mch-exito-fondo: #e4f2ea;
+  --mch-alerta: #b3541e;
+  --mch-alerta-fondo: #fbeadf;
+  --mch-error: #a32b2b;
+  --mch-error-fondo: #f8e5e5;
+
+  /* --- Roles --- */
+  --mch-fondo: var(--mch-lienzo);
+  --mch-texto: var(--mch-tinta);
+  --mch-texto-secundario: var(--mch-tinta-media);
+  --mch-marca: var(--mch-petroleo-700);
+  --mch-marca-hover: var(--mch-petroleo-800);
+  --mch-marca-tenue: var(--mch-petroleo-050);
+  --mch-borde: var(--mch-linea);
+  --mch-panel: var(--mch-superficie);
+  --mch-rail: var(--mch-petroleo-900);
+  --mch-rail-texto: #c9dedd;
+
+  /* --- Tipografía --- */
+  --mch-fuente-base:
+    'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --mch-fuente-mono:
+    'JetBrains Mono', ui-monospace, 'Cascadia Code', 'Consolas', monospace;
+
+  --mch-txt-xs: 0.75rem;
+  --mch-txt-sm: 0.8125rem;
+  --mch-txt-md: 0.9375rem;
+  --mch-txt-lg: 1.125rem;
+  --mch-txt-xl: 1.5rem;
+
+  /* --- Espaciado, escala de 4px --- */
   --mch-esp-1: 0.25rem;
   --mch-esp-2: 0.5rem;
   --mch-esp-3: 0.75rem;
   --mch-esp-4: 1rem;
+  --mch-esp-5: 1.25rem;
   --mch-esp-6: 1.5rem;
   --mch-esp-8: 2rem;
+  --mch-esp-12: 3rem;
 
-  --mch-radio: 0.5rem;
+  /* --- Forma --- */
+  --mch-radio-sm: 4px;
+  --mch-radio: 7px;
+  --mch-radio-lg: 12px;
+
+  --mch-sombra-sm: 0 1px 2px rgb(16 25 28 / 0.06);
+  --mch-sombra: 0 2px 8px rgb(16 25 28 / 0.08);
+  --mch-sombra-lg: 0 12px 32px rgb(16 25 28 / 0.18);
+
+  --mch-foco: 0 0 0 3px rgb(22 123 131 / 0.28);
+  --mch-transicion: 130ms ease;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+
+    --mch-fondo: #0c1416;
+    --mch-panel: #131e21;
+    --mch-texto: #e6efee;
+    --mch-texto-secundario: #9bb0b1;
+    --mch-borde: #243437;
+    --mch-marca: #2a9aa2;
+    --mch-marca-hover: #35b3bb;
+    --mch-marca-tenue: #14282b;
+    --mch-rail: #081114;
+    --mch-rail-texto: #9bb9b8;
+
+    --mch-exito-fondo: #102b1f;
+    --mch-alerta-fondo: #2e1c10;
+    --mch-error-fondo: #2e1414;
+    --mch-ambar-600: #d98c33;
+  }
 }
