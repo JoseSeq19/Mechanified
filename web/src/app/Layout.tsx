@@ -5,12 +5,11 @@ import { ETIQUETA_ROL, useSesion } from './sesion';
 
 /** Módulos aún no construidos. Se listan para que el alcance quede visible. */
 const PROXIMAMENTE = [
-  'Órdenes de servicio',
-  'Vehículos',
   'Diagnósticos',
   'Repuestos',
   'Presupuestos',
   'Control de calidad',
+  'Informes',
 ];
 
 export function Layout() {
@@ -23,6 +22,12 @@ export function Layout() {
 
         <nav className="mch-nav">
           <span className="mch-nav__titulo">Taller</span>
+          <NavLink to="/ordenes" className="mch-nav__enlace">
+            Órdenes
+          </NavLink>
+          <NavLink to="/vehiculos" className="mch-nav__enlace">
+            Vehículos
+          </NavLink>
           <NavLink to="/clientes" className="mch-nav__enlace">
             Clientes
           </NavLink>

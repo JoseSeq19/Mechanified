@@ -14,6 +14,7 @@ from app.core.database import comprobar_conexion
 from app.core.exceptions import registrar_manejadores
 from app.modules.clientes.router import router as router_clientes
 from app.modules.ordenes.router import router as router_ordenes
+from app.modules.usuarios.router import router as router_usuarios
 from app.modules.vehiculos.router import router as router_vehiculos
 
 cfg = obtener_configuracion()
@@ -47,6 +48,7 @@ registrar_manejadores(app)
 app.include_router(router_clientes)
 app.include_router(router_vehiculos)
 app.include_router(router_ordenes)
+app.include_router(router_usuarios)
 
 
 @app.get("/salud", tags=["sistema"])

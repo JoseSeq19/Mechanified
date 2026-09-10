@@ -4,6 +4,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Cargando } from '@/components/ui';
 import { PaginaLogin } from '@/features/auth/PaginaLogin';
 import { PaginaClientes } from '@/features/clientes/PaginaClientes';
+import { PaginaOrden } from '@/features/ordenes/PaginaOrden';
+import { PaginaOrdenes } from '@/features/ordenes/PaginaOrdenes';
+import { PaginaVehiculos } from '@/features/vehiculos/PaginaVehiculos';
 import { Layout } from './Layout';
 import { ProveedorSesion, useSesion } from './sesion';
 
@@ -28,8 +31,11 @@ function Rutas() {
   return (
     <Routes>
       <Route element={<Layout />}>
+        <Route path="/ordenes" element={<PaginaOrdenes />} />
+        <Route path="/ordenes/:ordenId" element={<PaginaOrden />} />
+        <Route path="/vehiculos" element={<PaginaVehiculos />} />
         <Route path="/clientes" element={<PaginaClientes />} />
-        <Route path="*" element={<Navigate to="/clientes" replace />} />
+        <Route path="*" element={<Navigate to="/ordenes" replace />} />
       </Route>
     </Routes>
   );
