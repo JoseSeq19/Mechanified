@@ -1,9 +1,13 @@
 /* Mechanified · armazón de la aplicación. */
 
+/* El armazón ocupa exactamente la ventana y no se desplaza: lo que se desplaza
+   es el contenido, por dentro. Así el tablero puede ocupar el alto disponible
+   sin que la página entera crezca por debajo. */
 .mch-app {
   display: grid;
   grid-template-columns: 232px 1fr;
-  min-height: 100dvh;
+  height: 100dvh;
+  overflow: hidden;
 }
 
 .mch-rail {
@@ -13,6 +17,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--mch-esp-6);
+  overflow-y: auto;
 }
 
 .mch-rail .mch-marca {
@@ -111,15 +116,30 @@
   background: rgb(255 255 255 / 0.09);
 }
 
+/* Sin tope de ancho. Lo tenía en 1180px, que es una medida pensada para leer
+   texto, y aquí no se lee texto: se mira un tablero. En una pantalla ancha eso
+   dejaba casi la mitad del espacio vacío mientras el tablero se desplazaba
+   lateralmente. Las vistas que sí ganan con un ancho acotado lo declaran
+   ellas (ver .mch-ficha).
+
+   Columna flexible: la cabecera crece lo que necesite y el resto —el tablero—
+   se queda con el alto que sobra, en vez de medir solo lo que miden sus
+   tarjetas. */
 .mch-contenido {
   padding: var(--mch-esp-8);
-  max-width: 1180px;
   width: 100%;
+  min-width: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 @media (max-width: 760px) {
   .mch-app {
     grid-template-columns: 1fr;
+    /* La barra arriba con su alto natural; el contenido se queda con el resto
+       y se desplaza por dentro, igual que en escritorio. */
+    grid-template-rows: auto minmax(0, 1fr);
   }
 
   .mch-rail {

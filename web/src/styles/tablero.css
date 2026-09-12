@@ -4,18 +4,28 @@
   display: flex;
   gap: var(--mch-esp-4);
   overflow-x: auto;
-  padding-bottom: var(--mch-esp-4);
-  align-items: flex-start;
+  padding-bottom: var(--mch-esp-2);
+  /* A la misma altura, no cada una midiendo lo que miden sus tarjetas: un
+     tablero con columnas de alturas distintas se lee como una lista rota. */
+  align-items: stretch;
+  /* Se queda con el alto que sobra bajo la cabecera. */
+  flex: 1 1 auto;
+  min-height: 320px;
 }
 
 .mch-columna {
-  flex: 0 0 268px;
+  /* Se reparten el ancho disponible en lugar de medir 268px fijos. Con una base
+     de 200px las siete caben sin desplazamiento en una pantalla de ~1600px y se
+     estiran si hay más sitio; por debajo, el tablero se desplaza, que es
+     preferible a estrujar las tarjetas hasta que no se lean. */
+  flex: 1 0 200px;
+  min-width: 200px;
   background: var(--mch-panel);
   border: 1px solid var(--mch-borde);
   border-radius: var(--mch-radio-lg);
   display: flex;
   flex-direction: column;
-  max-height: calc(100dvh - 230px);
+  min-height: 0;
 }
 
 .mch-columna__cabecera {
@@ -61,6 +71,10 @@
   display: flex;
   flex-direction: column;
   gap: var(--mch-esp-3);
+  /* Es lo que se desplaza cuando una columna acumula muchas órdenes; la
+     cabecera con el conteo se queda fija arriba. */
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
 }
 
@@ -146,11 +160,14 @@
 
 /* --- Ficha -------------------------------------------------------------- */
 
+/* La ficha sí se acota: aquí se lee texto, y una línea de 1600px cansa. Es la
+   excepción al ancho libre del contenido. */
 .mch-ficha {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
+  grid-template-columns: minmax(0, 1fr) 340px;
   gap: var(--mch-esp-6);
   align-items: start;
+  max-width: 1320px;
 }
 
 @media (max-width: 980px) {
