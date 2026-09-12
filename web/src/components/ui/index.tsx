@@ -199,3 +199,37 @@ export function Cargando({ texto = 'Cargando…' }: { texto?: string }) {
     </div>
   );
 }
+
+/* --- Sección ------------------------------------------------------------ */
+
+/**
+ * Bloque con cabecera, resumen y una acción a la derecha.
+ *
+ * La ficha de orden apila varios (diagnóstico, mano de obra, repuestos) y todos
+ * tienen la misma forma; sin esto, cada panel repetiría la misma cabecera con
+ * estilos en línea ligeramente distintos.
+ */
+export function Seccion({
+  titulo,
+  resumen,
+  accion,
+  children,
+}: {
+  titulo: string;
+  resumen?: ReactNode;
+  accion?: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <section className="mch-panel">
+      <header className="mch-seccion__cabecera">
+        <div>
+          <h2 className="mch-seccion__titulo">{titulo}</h2>
+          {resumen && <p className="mch-seccion__resumen">{resumen}</p>}
+        </div>
+        {accion}
+      </header>
+      {children}
+    </section>
+  );
+}

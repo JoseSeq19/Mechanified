@@ -6,7 +6,8 @@ import { Aviso, Boton, Cargando, Vacio } from '@/components/ui';
 import { ErrorApi } from '@/lib/api';
 import { useSesion } from '@/app/sesion';
 import { FormularioOrden } from './FormularioOrden';
-import { ETIQUETA, TONO, formatearMoneda, haceCuanto } from './estados';
+import { formatearMoneda, haceCuanto } from '@/lib/formato';
+import { ETIQUETA, TONO } from './estados';
 import {
   crearOrden,
   listarOrdenes,

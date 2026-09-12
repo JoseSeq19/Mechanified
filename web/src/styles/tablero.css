@@ -259,3 +259,98 @@
   gap: var(--mch-esp-2);
   padding: var(--mch-esp-4) var(--mch-esp-5);
 }
+
+/* --- Secciones de la ficha ---------------------------------------------- */
+
+.mch-seccion__cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mch-esp-4);
+  flex-wrap: wrap;
+  padding: var(--mch-esp-4) var(--mch-esp-5);
+  border-bottom: 1px solid var(--mch-borde);
+}
+
+.mch-seccion__titulo {
+  font-size: var(--mch-txt-md);
+  font-weight: 620;
+}
+
+.mch-seccion__resumen {
+  margin: 2px 0 0;
+  font-size: var(--mch-txt-xs);
+  color: var(--mch-texto-secundario);
+}
+
+/* Fila de una lista de trabajo o de piezas. */
+.mch-linea {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--mch-esp-4);
+  padding: var(--mch-esp-3) var(--mch-esp-5);
+  border-bottom: 1px solid var(--mch-linea-suave);
+}
+
+.mch-linea:last-child {
+  border-bottom: none;
+}
+
+.mch-linea__detalle {
+  font-size: var(--mch-txt-xs);
+  color: var(--mch-texto-secundario);
+}
+
+.mch-linea__importe {
+  font-variant-numeric: tabular-nums;
+  font-weight: 560;
+  white-space: nowrap;
+}
+
+.mch-total {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--mch-esp-4);
+  padding: var(--mch-esp-3) var(--mch-esp-5);
+  border-top: 1px solid var(--mch-borde);
+  background: var(--mch-marca-tenue);
+  border-radius: 0 0 var(--mch-radio-lg) var(--mch-radio-lg);
+  font-size: var(--mch-txt-sm);
+  font-weight: 620;
+}
+
+/* Hallazgos del diagnóstico. */
+.mch-hallazgo {
+  display: flex;
+  align-items: baseline;
+  gap: var(--mch-esp-3);
+  padding: var(--mch-esp-2) 0;
+}
+
+.mch-hallazgo__sistema {
+  font-size: var(--mch-txt-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--mch-texto-secundario);
+  flex: none;
+  min-width: 92px;
+}
+
+.mch-sev {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin-top: 6px;
+}
+
+.mch-sev--leve {
+  background: var(--mch-tinta-suave);
+}
+.mch-sev--moderada {
+  background: var(--mch-ambar-600);
+}
+.mch-sev--critica {
+  background: var(--mch-error);
+}

@@ -149,3 +149,42 @@ export interface Pagina<T> {
   limite: number;
   desplazamiento: number;
 }
+
+/**
+ * Cliente para las rutas públicas, sin token de sesión.
+ *
+ * Existe aparte del normal por la misma razón que el backend tiene dos routers:
+ * lo que abre un cliente desde su enlace no debe arrastrar por descuido la
+ * identidad de quien tenga sesión abierta en ese navegador. Aquí la
+ * autorización es el token de la URL y nada más.
+ */
+async function peticionPublica<T>(ruta: string, opciones: RequestInit = {}): Promise<T> {
+  let respuesta: Response;
+  try {
+    respuesta = await fetch(`${BASE}/publico${ruta}`, {
+      ...opciones,
+      headers: { 'Content-Type': 'application/json', ...opciones.headers },
+    });
+  } catch {
+    throw construirError(0, null);
+  }
+
+  const texto = await respuesta.text();
+  let cuerpo: unknown = null;
+  if (texto) {
+    try {
+      cuerpo = JSON.parse(texto);
+    } catch {
+      cuerpo = { detail: texto };
+    }
+  }
+
+  if (!respuesta.ok) throw construirError(respuesta.status, cuerpo);
+  return cuerpo as T;
+}
+
+export const apiPublica = {
+  get: <T>(ruta: string) => peticionPublica<T>(ruta),
+  post: <T>(ruta: string, cuerpo: unknown) =>
+    peticionPublica<T>(ruta, { method: 'POST', body: JSON.stringify(cuerpo) }),
+};

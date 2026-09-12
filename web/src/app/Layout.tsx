@@ -4,13 +4,7 @@ import { Aviso, Marca } from '@/components/ui';
 import { ETIQUETA_ROL, useSesion } from './sesion';
 
 /** Módulos aún no construidos. Se listan para que el alcance quede visible. */
-const PROXIMAMENTE = [
-  'Diagnósticos',
-  'Repuestos',
-  'Presupuestos',
-  'Control de calidad',
-  'Informes',
-];
+const PROXIMAMENTE = ['Control de calidad', 'Informes'];
 
 export function Layout() {
   const { sesion, claims, salir } = useSesion();
@@ -27,6 +21,9 @@ export function Layout() {
           </NavLink>
           <NavLink to="/vehiculos" className="mch-nav__enlace">
             Vehículos
+          </NavLink>
+          <NavLink to="/repuestos" className="mch-nav__enlace">
+            Repuestos
           </NavLink>
           <NavLink to="/clientes" className="mch-nav__enlace">
             Clientes

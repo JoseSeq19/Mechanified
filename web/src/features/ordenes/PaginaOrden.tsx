@@ -5,14 +5,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Aviso, Boton, Campo, Cargando, Dialogo, Distintivo, Selector } from '@/components/ui';
 import { ErrorApi } from '@/lib/api';
 import { listarUsuarios } from '@/features/usuarios/api';
-import {
-  ETIQUETA,
-  EXIGE_COMENTARIO,
-  TONO,
-  formatearFecha,
-  formatearMoneda,
-  haceCuanto,
-} from './estados';
+import { PanelDiagnostico } from '@/features/diagnosticos/PanelDiagnostico';
+import { PanelManoObra } from '@/features/diagnosticos/PanelManoObra';
+import { PanelPresupuestos } from '@/features/presupuestos/PanelPresupuestos';
+import { PanelRepuestos } from '@/features/repuestos/PanelRepuestos';
+import { formatearFecha, formatearMoneda, haceCuanto } from '@/lib/formato';
+import { ETIQUETA, EXIGE_COMENTARIO, TONO } from './estados';
 import {
   cambiarEstado,
   editarOrden,
@@ -90,6 +88,7 @@ export function PaginaOrden() {
   }
 
   const o: Orden = orden.data;
+  const cerrada = TONO[o.estado] === 'cerrado';
   const exigeMotivo = transicion ? EXIGE_COMENTARIO.has(transicion) : false;
 
   return (
@@ -235,6 +234,14 @@ export function PaginaOrden() {
               </Boton>
             </div>
           </div>
+
+          {/* Lo que el taller va acumulando sobre la orden. Los tres paneles
+              refrescan la ficha al cambiar algo, porque el total de la cabecera
+              lo recalcula un trigger de Postgres. */}
+          <PanelDiagnostico ordenId={ordenId} cerrada={cerrada} />
+          <PanelManoObra ordenId={ordenId} cerrada={cerrada} onCambio={refrescar} />
+          <PanelRepuestos ordenId={ordenId} cerrada={cerrada} onCambio={refrescar} />
+          <PanelPresupuestos ordenId={ordenId} cerrada={cerrada} onCambio={refrescar} />
         </div>
 
         <div className="mch-panel">

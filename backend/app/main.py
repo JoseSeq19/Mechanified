@@ -15,6 +15,8 @@ from app.core.exceptions import registrar_manejadores
 from app.modules.clientes.router import router as router_clientes
 from app.modules.diagnosticos.router import router as router_diagnosticos
 from app.modules.ordenes.router import router as router_ordenes
+from app.modules.presupuestos.router import router as router_presupuestos
+from app.modules.presupuestos.router import router_publico as router_publico
 from app.modules.repuestos.router import router as router_repuestos
 from app.modules.usuarios.router import router as router_usuarios
 from app.modules.vehiculos.router import router as router_vehiculos
@@ -53,6 +55,8 @@ app.include_router(router_ordenes)
 app.include_router(router_usuarios)
 app.include_router(router_diagnosticos)
 app.include_router(router_repuestos)
+app.include_router(router_presupuestos)
+app.include_router(router_publico)
 
 
 @app.get("/salud", tags=["sistema"])

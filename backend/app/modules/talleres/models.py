@@ -22,6 +22,11 @@ class Taller(Base):
     id: Mapped[UUID] = mapped_column(primary_key=True)
     nombre: Mapped[str] = mapped_column(Text, nullable=False)
     slug: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Se muestran al cliente en el presupuesto que recibe por enlace, para que
+    #: sepa a quién llamar si tiene dudas.
+    telefono: Mapped[str | None] = mapped_column(Text)
+    email: Mapped[str | None] = mapped_column(Text)
+    direccion: Mapped[str | None] = mapped_column(Text)
     zona_horaria: Mapped[str] = mapped_column(Text, nullable=False)
     moneda: Mapped[str] = mapped_column(Text, nullable=False)
 
