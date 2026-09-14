@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { Cargando } from '@/components/ui';
 import { PaginaLogin } from '@/features/auth/PaginaLogin';
+import { PaginaPlantillas } from '@/features/calidad/PaginaPlantillas';
 import { PaginaClientes } from '@/features/clientes/PaginaClientes';
 import { PaginaOrden } from '@/features/ordenes/PaginaOrden';
 import { PaginaOrdenes } from '@/features/ordenes/PaginaOrdenes';
@@ -40,6 +41,7 @@ function RutasPrivadas() {
         <Route path="/ordenes/:ordenId" element={<PaginaOrden />} />
         <Route path="/vehiculos" element={<PaginaVehiculos />} />
         <Route path="/repuestos" element={<PaginaRepuestos />} />
+        <Route path="/calidad" element={<PaginaPlantillas />} />
         <Route path="/clientes" element={<PaginaClientes />} />
         <Route path="*" element={<Navigate to="/ordenes" replace />} />
       </Route>

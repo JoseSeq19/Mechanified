@@ -8,6 +8,7 @@ import { listarUsuarios } from '@/features/usuarios/api';
 import { PanelDiagnostico } from '@/features/diagnosticos/PanelDiagnostico';
 import { PanelManoObra } from '@/features/diagnosticos/PanelManoObra';
 import { PanelPresupuestos } from '@/features/presupuestos/PanelPresupuestos';
+import { PanelCalidad } from '@/features/calidad/PanelCalidad';
 import { PanelRepuestos } from '@/features/repuestos/PanelRepuestos';
 import { formatearFecha, formatearMoneda, haceCuanto } from '@/lib/formato';
 import { ETIQUETA, EXIGE_COMENTARIO, TONO } from './estados';
@@ -242,6 +243,12 @@ export function PaginaOrden() {
           <PanelManoObra ordenId={ordenId} cerrada={cerrada} onCambio={refrescar} />
           <PanelRepuestos ordenId={ordenId} cerrada={cerrada} onCambio={refrescar} />
           <PanelPresupuestos ordenId={ordenId} cerrada={cerrada} onCambio={refrescar} />
+          <PanelCalidad
+            ordenId={ordenId}
+            estado={o.estado}
+            cerrada={cerrada}
+            onCambio={refrescar}
+          />
         </div>
 
         <div className="mch-panel">

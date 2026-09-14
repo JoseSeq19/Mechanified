@@ -12,6 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import obtener_configuracion
 from app.core.database import comprobar_conexion
 from app.core.exceptions import registrar_manejadores
+from app.modules.calidad.router import router as router_calidad
 from app.modules.clientes.router import router as router_clientes
 from app.modules.diagnosticos.router import router as router_diagnosticos
 from app.modules.ordenes.router import router as router_ordenes
@@ -57,6 +58,7 @@ app.include_router(router_diagnosticos)
 app.include_router(router_repuestos)
 app.include_router(router_presupuestos)
 app.include_router(router_publico)
+app.include_router(router_calidad)
 
 
 @app.get("/salud", tags=["sistema"])
