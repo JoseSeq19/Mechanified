@@ -29,6 +29,8 @@ export const ETIQUETA_ROL: Record<Rol, string> = {
 };
 
 interface ClaimsMechanified {
+  /** Identificador del usuario. Es también el id de su perfil. */
+  sub?: string;
   taller_id?: string;
   rol?: Rol;
   email?: string;
@@ -40,6 +42,8 @@ interface ValorSesion {
   cargando: boolean;
   entrar: (correo: string, clave: string) => Promise<void>;
   salir: () => Promise<void>;
+  /** Cambia la contraseña de quien tiene la sesión abierta. */
+  cambiarClave: (clave: string) => Promise<void>;
 }
 
 const Contexto = createContext<ValorSesion | null>(null);
@@ -89,6 +93,12 @@ export function ProveedorSesion({ children }: { children: ReactNode }) {
       salir: async () => {
         await supabase.auth.signOut();
       },
+      // Va directo a Supabase, sin pasar por la API: así el backend nunca ve
+      // una contraseña. La sesión abierta es la autorización.
+      cambiarClave: async (clave) => {
+        const { error } = await supabase.auth.updateUser({ password: clave });
+        if (error) throw new Error(traducirErrorAuth(error.message));
+      },
     }),
     [sesion, cargando],
   );
@@ -104,6 +114,13 @@ function traducirErrorAuth(mensaje: string): string {
   }
   if (m.includes('email not confirmed')) return 'La cuenta aún no está confirmada.';
   if (m.includes('failed to fetch')) return 'No se pudo contactar a Supabase.';
+  if (m.includes('password should be at least')) {
+    const minimo = mensaje.match(/\d+/)?.[0] ?? '6';
+    return `La contraseña necesita al menos ${minimo} caracteres.`;
+  }
+  if (m.includes('should be different from the old password')) {
+    return 'La contraseña nueva tiene que ser distinta de la actual.';
+  }
   return mensaje;
 }
 

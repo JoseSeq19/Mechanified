@@ -354,3 +354,50 @@
 .mch-sev--critica {
   background: var(--mch-error);
 }
+
+/* --- Indicadores -------------------------------------------------------
+   Tarjetas de cifra grande para encabezar un listado. Se reparten el ancho
+   y bajan a una columna en móvil. */
+
+.mch-indicadores {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--mch-esp-4);
+}
+
+.mch-indicador {
+  background: var(--mch-panel);
+  border: 1px solid var(--mch-borde);
+  border-radius: var(--mch-radio-lg);
+  padding: var(--mch-esp-4) var(--mch-esp-5);
+  display: grid;
+  gap: var(--mch-esp-1);
+}
+
+.mch-indicador--destacado {
+  background: var(--mch-marca-tenue);
+  border-color: var(--mch-marca);
+}
+
+.mch-indicador__titulo {
+  font-size: var(--mch-txt-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--mch-texto-secundario);
+}
+
+.mch-indicador__valor {
+  font-size: var(--mch-txt-xl);
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.mch-indicador__pie {
+  font-size: var(--mch-txt-xs);
+  color: var(--mch-texto-secundario);
+}
+
+.mch-indicador__pie--alerta {
+  color: var(--mch-ambar-700);
+}

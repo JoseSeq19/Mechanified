@@ -1,0 +1,208 @@
+/* ---------------------------------------------------------------
+   Mechanified · panel del taller
+
+   Barras horizontales y tarjetas. Las reglas de los gráficos:
+
+   - Marcas finas (10px) con el extremo redondeado y anclado al cero,
+     para que la longitud se lea sin que el grosor distraiga.
+   - Separación de 2px entre tramos contiguos: sin ella, dos colores
+     pegados parecen uno solo con un degradado.
+   - Rejilla y ejes, ninguno: estas listas son cortas y el número va
+     escrito al lado de cada barra, así que un eje sobra.
+   - El ámbar solo marca lo que pide atención, y siempre acompañado de
+     texto. El color nunca es el único que informa.
+
+   El bloque se llama `mch-bloque` y no `mch-tarjeta` a propósito: ese
+   nombre ya es el de la tarjeta del tablero, y como esta hoja se carga
+   después, le estaba pisando los estilos.
+   --------------------------------------------------------------- */
+
+/* --- Selector de periodo --- */
+
+.mch-periodos {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  background: var(--mch-marca-tenue);
+  border: 1px solid var(--mch-borde);
+  border-radius: var(--mch-radio);
+}
+
+.mch-periodo {
+  padding: 0.35rem 0.75rem;
+  font: inherit;
+  font-size: var(--mch-txt-sm);
+  color: var(--mch-texto-secundario);
+  background: none;
+  border: none;
+  border-radius: var(--mch-radio-sm);
+  cursor: pointer;
+}
+
+.mch-periodo:hover {
+  color: var(--mch-texto);
+}
+
+.mch-periodo:focus-visible {
+  outline: none;
+  box-shadow: var(--mch-foco);
+}
+
+.mch-periodo--activo {
+  background: var(--mch-panel);
+  color: var(--mch-texto);
+  font-weight: 560;
+  box-shadow: var(--mch-sombra-sm);
+}
+
+/* --- Bloques --- */
+
+.mch-bloques {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--mch-esp-4);
+  margin-top: var(--mch-esp-4);
+}
+
+.mch-bloque {
+  background: var(--mch-panel);
+  border: 1px solid var(--mch-borde);
+  border-radius: var(--mch-radio-lg);
+  padding: var(--mch-esp-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--mch-esp-4);
+}
+
+.mch-bloque header {
+  display: grid;
+  gap: 2px;
+}
+
+.mch-bloque__nota {
+  margin: 0;
+  font-size: var(--mch-txt-xs);
+  color: var(--mch-texto-secundario);
+}
+
+/* --- Barras --- */
+
+.mch-barras {
+  display: grid;
+  gap: var(--mch-esp-3);
+}
+
+.mch-barra {
+  display: grid;
+  grid-template-columns: minmax(96px, 1.1fr) 2fr auto;
+  align-items: center;
+  gap: var(--mch-esp-3);
+  font-size: var(--mch-txt-sm);
+}
+
+.mch-barra__etiqueta {
+  color: var(--mch-texto-secundario);
+  display: grid;
+  gap: 1px;
+}
+
+.mch-barra__nota {
+  font-size: var(--mch-txt-xs);
+  font-style: normal;
+  color: var(--mch-ambar-700);
+}
+
+.mch-barra__pista {
+  height: 10px;
+  background: var(--mch-linea-suave);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.mch-barra__relleno {
+  display: block;
+  height: 100%;
+  background: var(--mch-marca);
+  /* Extremo redondeado solo del lado que crece: el otro queda anclado al cero. */
+  border-radius: 0 4px 4px 0;
+}
+
+.mch-barra__relleno--atencion {
+  background: var(--mch-ambar-600);
+}
+
+.mch-barra__valor {
+  font-variant-numeric: tabular-nums;
+  font-weight: 560;
+  white-space: nowrap;
+}
+
+/* --- Proporción de dos tramos --- */
+
+.mch-proporcion {
+  display: grid;
+  gap: var(--mch-esp-3);
+}
+
+.mch-proporcion__pista {
+  display: flex;
+  gap: 2px; /* el hueco que impide que los dos tramos se lean como uno */
+  height: 10px;
+}
+
+.mch-proporcion__parte {
+  background: var(--mch-marca);
+  border-radius: 4px;
+}
+
+.mch-proporcion__parte--atencion {
+  background: var(--mch-ambar-600);
+}
+
+.mch-proporcion__leyenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mch-esp-2) var(--mch-esp-4);
+  font-size: var(--mch-txt-sm);
+  color: var(--mch-texto-secundario);
+}
+
+.mch-marca-color {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 3px;
+  background: var(--mch-marca);
+  margin-right: var(--mch-esp-1);
+}
+
+.mch-marca-color--atencion {
+  background: var(--mch-ambar-600);
+}
+
+/* --- Lista de cifras --- */
+
+.mch-detalle {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: var(--mch-esp-3) var(--mch-esp-4);
+  margin: 0;
+}
+
+.mch-detalle dt {
+  font-size: var(--mch-txt-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--mch-texto-secundario);
+}
+
+.mch-detalle dd {
+  margin: 2px 0 0;
+  font-size: var(--mch-txt-lg);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.mch-detalle__alerta {
+  color: var(--mch-ambar-700);
+}

@@ -1,10 +1,11 @@
 """Mapeo de la tabla `perfiles`.
 
-El módulo de usuarios (alta, invitaciones, cambio de rol) todavía no existe,
-pero el modelo sí hace falta: las órdenes referencian al asesor y al técnico
-asignados, y la interfaz necesita mostrar sus nombres en vez de sus UUID.
+Un perfil es una persona del taller: su nombre, su rol y si sigue de alta. La
+cuenta con la que entra vive en `auth.users` y comparte identificador, así que
+la relación es 1 a 1 y el `id` es el mismo en las dos.
 
-Refleja `supabase/migrations/20260907000200_talleres_perfiles.sql`.
+Refleja `supabase/migrations/20260907000200_talleres_perfiles.sql` y la columna
+`email` que añade `20260916000100_perfiles_email.sql`.
 """
 
 from datetime import datetime
@@ -25,6 +26,10 @@ class Perfil(Base):
     taller_id: Mapped[UUID] = mapped_column(nullable=False)
 
     nombre_completo: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Copia del correo de `auth.users`, para poder listarlo bajo RLS: las
+    #: políticas de este proyecto no alcanzan el esquema de Auth. Lo mantiene el
+    #: backend al crear al usuario y al cambiarle el correo de acceso.
+    email: Mapped[str | None] = mapped_column(Text)
     telefono: Mapped[str | None] = mapped_column(Text)
     rol: Mapped[Rol] = mapped_column(
         Enum(

@@ -412,7 +412,8 @@ function DialogoPresupuesto({
                 </Boton>
               </div>
               <span className="mch-campo__ayuda">
-                Todavía no se envía solo por correo: cópialo y mándaselo tú.
+                Al enviarlo sale por correo solo, si el cliente tiene dirección registrada. El
+                estado del envío está en «Avisos al cliente», abajo en la ficha.
               </span>
             </div>
           )}

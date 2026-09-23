@@ -6,8 +6,9 @@ app no arranca, que es preferible a arrancar apuntando a un sitio equivocado.
 
 from functools import lru_cache
 from pathlib import Path
+from typing import Literal
 
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 #: Ruta absoluta a backend/.env, deducida de la ubicación de este archivo:
@@ -60,9 +61,33 @@ class Configuracion(BaseSettings):
     cors_origenes: str = "http://localhost:5173"
     url_publica_web: str = "http://localhost:5173"
 
-    # --- Notificaciones ------------------------------------------------------
-    email_remitente: str = ""
-    email_api_key: str = ""
+    # --- Correo saliente -----------------------------------------------------
+    # En `buzon` el worker no envía nada: escribe cada mensaje como archivo .eml
+    # en una carpeta local. Es el modo de desarrollo, y es deliberado que sea el
+    # que viene por omisión. Así se ve el correo exacto que recibiría el cliente
+    # sin contratar proveedor, y sobre todo sin que una prueba con datos
+    # inventados acabe escribiéndole a una dirección real.
+    email_modo: Literal["buzon", "smtp"] = "buzon"
+    #: Dirección desde la que sale el correo. El nombre visible lo pone el
+    #: taller, así que el cliente ve "Taller Norte" y no el dominio del producto.
+    email_remitente: str = "notificaciones@mechanified.local"
+    #: Carpeta del buzón de desarrollo, relativa a backend/ si no es absoluta.
+    email_buzon: str = "buzon"
+
+    smtp_host: str = ""
+    smtp_puerto: int = 587
+    smtp_usuario: str = ""
+    smtp_clave: str = ""
+    smtp_seguridad: Literal["starttls", "ssl", "ninguna"] = "starttls"
+
+    # --- Worker de notificaciones --------------------------------------------
+    # Embebido en la API mientras esto sea un despliegue de una sola pieza. En
+    # producción se apaga y se corre `python -m app.worker` aparte, para que un
+    # envío lento no compita con las peticiones. Tenerlo en dos procesos a la vez
+    # tampoco rompe nada: la cola se reparte con SELECT ... FOR UPDATE SKIP LOCKED.
+    worker_embebido: bool = True
+    worker_intervalo_seg: int = 10
+    worker_lote: int = 20
 
     @field_validator("database_url")
     @classmethod
@@ -109,8 +134,28 @@ class Configuracion(BaseSettings):
         return completos
 
     @property
+    def ruta_buzon(self) -> Path:
+        """Carpeta del buzón de desarrollo, siempre como ruta absoluta."""
+        ruta = Path(self.email_buzon)
+        return ruta if ruta.is_absolute() else ARCHIVO_ENV.parent / ruta
+
+    @property
     def es_produccion(self) -> bool:
         return self.entorno.lower() in {"produccion", "production", "prod"}
+
+    @model_validator(mode="after")
+    def _exigir_smtp_completo(self) -> "Configuracion":
+        """Si se pide enviar de verdad, tiene que haber a dónde enviar.
+
+        Arrancar con `email_modo=smtp` y sin servidor dejaría la cola llenándose
+        de notificaciones que fallan una a una, y el fallo solo se vería en el
+        último error de cada fila.
+        """
+        if self.email_modo == "smtp" and not (self.smtp_host and self.email_remitente):
+            raise ValueError(
+                "Con MCH_EMAIL_MODO=smtp hacen falta MCH_SMTP_HOST y MCH_EMAIL_REMITENTE."
+            )
+        return self
 
 
 @lru_cache

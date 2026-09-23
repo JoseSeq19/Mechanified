@@ -25,11 +25,12 @@ from sqlalchemy.exc import DBAPIError, IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.core.config import obtener_configuracion
 from app.core.database import sesion_servicio
 from app.core.exceptions import ErrorConflicto, ErrorNoEncontrado, ErrorValidacion, extraer_sqlstate
 from app.core.security import UsuarioAutenticado
 from app.modules.diagnosticos.models import ManoObra
+from app.modules.notificaciones import service as srv_notificaciones
+from app.modules.notificaciones.models import PlantillaCorreo
 from app.modules.ordenes import service as srv_ordenes
 from app.modules.ordenes.estados import TERMINALES, EstadoOrden
 from app.modules.ordenes.models import OrdenServicio
@@ -48,6 +49,7 @@ from app.modules.repuestos.models import OrdenRepuesto
 from app.modules.talleres.models import Taller
 from app.modules.usuarios.models import Perfil
 from app.modules.vehiculos.models import Vehiculo
+from app.shared.enlaces import enlace_presupuesto
 
 _RELACIONES = (selectinload(Presupuesto.items), selectinload(Presupuesto.autor))
 
@@ -70,8 +72,10 @@ def esta_caducado(p: Presupuesto) -> bool:
 
 
 def enlace_publico(token: str) -> str:
-    base = obtener_configuracion().url_publica_web.rstrip("/")
-    return f"{base}/presupuesto/{token}"
+    """El enlace que recibe el cliente. Lo arma `shared.enlaces`, que es también
+    de donde lo toma el worker al redactar el correo: una sola definición para
+    que el de la ficha y el del mensaje no puedan separarse."""
+    return enlace_presupuesto(token)
 
 
 # -----------------------------------------------------------------------------
@@ -209,6 +213,16 @@ async def enviar(sesion: AsyncSession, presupuesto_id: UUID) -> Presupuesto:
 
     p.estado = EstadoPresupuesto.ENVIADO
     await _guardar(sesion)
+
+    # El correo sale solo si el cliente tiene dirección registrada. Si no la
+    # tiene, `encolar` devuelve None y el presupuesto se envía igual: el enlace
+    # está en la ficha para compartirlo por donde haga falta.
+    orden = await sesion.get(OrdenServicio, p.orden_id)
+    if orden is not None:
+        await srv_notificaciones.encolar(
+            sesion, orden, PlantillaCorreo.PRESUPUESTO_ENVIADO, {"presupuesto_id": str(p.id)}
+        )
+
     return await obtener(sesion, presupuesto_id)
 
 

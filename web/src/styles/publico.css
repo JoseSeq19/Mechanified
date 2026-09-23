@@ -142,3 +142,76 @@
   font-size: var(--mch-txt-xs);
   color: var(--mch-texto-secundario);
 }
+
+/* --- Escala de la encuesta ---------------------------------------------
+   Botones grandes y numerados, con los extremos escritos debajo: el número
+   suelto no dice si 1 es lo mejor o lo peor, y esa duda convierte la
+   respuesta en ruido. */
+
+.mch-escala {
+  border: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--mch-esp-2);
+}
+
+.mch-escala__titulo {
+  padding: 0;
+  font-size: var(--mch-txt-sm);
+  font-weight: 560;
+  color: var(--mch-texto);
+}
+
+.mch-escala__opciones {
+  display: flex;
+  gap: var(--mch-esp-2);
+  flex-wrap: wrap;
+}
+
+.mch-escala__boton {
+  flex: 1 1 42px;
+  min-width: 42px;
+  min-height: 44px; /* objetivo de toque cómodo en móvil */
+  padding: 0.5rem 0;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  color: var(--mch-texto);
+  background: var(--mch-panel);
+  border: 1px solid var(--mch-borde);
+  border-radius: var(--mch-radio);
+  cursor: pointer;
+  transition: background var(--mch-transicion), border-color var(--mch-transicion);
+}
+
+.mch-escala__boton:hover {
+  border-color: var(--mch-marca);
+}
+
+.mch-escala__boton:focus-visible {
+  outline: none;
+  box-shadow: var(--mch-foco);
+}
+
+.mch-escala__boton--activo {
+  background: var(--mch-marca);
+  border-color: var(--mch-marca);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.mch-escala__extremos {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--mch-txt-xs);
+  color: var(--mch-texto-secundario);
+}
+
+.mch-escala__resumen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mch-esp-2) var(--mch-esp-4);
+  font-size: var(--mch-txt-sm);
+  color: var(--mch-texto-secundario);
+  font-variant-numeric: tabular-nums;
+}

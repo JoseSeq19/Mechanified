@@ -27,6 +27,9 @@ from sqlalchemy.orm import selectinload
 from app.core.exceptions import ErrorConflicto, ErrorNoEncontrado, ErrorValidacion, extraer_sqlstate
 from app.core.security import UsuarioAutenticado
 from app.modules.clientes.models import Cliente
+from app.modules.encuestas import service as srv_encuestas
+from app.modules.notificaciones import service as srv_notificaciones
+from app.modules.notificaciones.models import PlantillaCorreo
 from app.modules.ordenes import estados as maquina
 from app.modules.ordenes.estados import ORDEN_TABLERO, TERMINALES, EstadoOrden
 from app.modules.ordenes.models import OrdenEvento, OrdenServicio
@@ -147,7 +150,14 @@ async def listar(
 
 async def obtener(sesion: AsyncSession, orden_id: UUID) -> OrdenServicio:
     orden = await sesion.scalar(
-        select(OrdenServicio).where(OrdenServicio.id == orden_id).options(*_RELACIONES)
+        select(OrdenServicio)
+        .where(OrdenServicio.id == orden_id)
+        .options(*_RELACIONES)
+        # `populate_existing` obliga a repoblar la instancia que ya esté en la
+        # sesión. Sin esto, releer después de escribir devuelve el objeto en
+        # memoria con sus relaciones como estaban: asignar un técnico respondía
+        # "sin asignar" hasta que alguien recargaba la ficha.
+        .execution_options(populate_existing=True)
     )
     if orden is None:
         raise ErrorNoEncontrado(f"No existe la orden {orden_id}.")
@@ -272,9 +282,31 @@ async def cambiar_estado(
             raise ErrorConflicto(str(exc).strip().splitlines()[0]) from exc
         raise
 
+    await _avisar_al_cliente(sesion, orden)
+
     # Se relee la fila entera en vez de refrescar solo las relaciones: el folio
     # y los totales los pone la base, y quedarían sin cargar.
     return await obtener(sesion, orden.id)
+
+
+async def _avisar_al_cliente(sesion: AsyncSession, orden: OrdenServicio) -> None:
+    """Lo que el cambio de estado desencadena de cara al cliente.
+
+    Dos momentos del flujo son noticia para quien dejó el vehículo, y los dos se
+    resuelven aquí en vez de en la interfaz: si dependieran de que alguien pulse
+    un botón, el aviso saldría a veces sí y a veces no.
+
+      - `listo_para_entrega`: el vehículo está terminado y revisado.
+      - `entregado`: nace la encuesta de satisfacción, con su correo.
+
+    Va dentro de la misma transacción que el cambio de estado, a propósito. Si
+    algo de esto falla, la orden tampoco se mueve: es preferible a que el cliente
+    reciba "tu vehículo está listo" por una transición que acabó deshaciéndose.
+    """
+    if orden.estado is EstadoOrden.LISTO_PARA_ENTREGA:
+        await srv_notificaciones.encolar(sesion, orden, PlantillaCorreo.VEHICULO_LISTO)
+    elif orden.estado is EstadoOrden.ENTREGADO:
+        await srv_encuestas.crear_al_entregar(sesion, orden)
 
 
 async def historial(sesion: AsyncSession, orden_id: UUID) -> list[OrdenEvento]:

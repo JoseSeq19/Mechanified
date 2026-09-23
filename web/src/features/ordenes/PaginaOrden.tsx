@@ -9,6 +9,8 @@ import { PanelDiagnostico } from '@/features/diagnosticos/PanelDiagnostico';
 import { PanelManoObra } from '@/features/diagnosticos/PanelManoObra';
 import { PanelPresupuestos } from '@/features/presupuestos/PanelPresupuestos';
 import { PanelCalidad } from '@/features/calidad/PanelCalidad';
+import { PanelEncuesta } from '@/features/encuestas/PanelEncuesta';
+import { PanelNotificaciones } from '@/features/notificaciones/PanelNotificaciones';
 import { PanelRepuestos } from '@/features/repuestos/PanelRepuestos';
 import { formatearFecha, formatearMoneda, haceCuanto } from '@/lib/formato';
 import { ETIQUETA, EXIGE_COMENTARIO, TONO } from './estados';
@@ -249,6 +251,8 @@ export function PaginaOrden() {
             cerrada={cerrada}
             onCambio={refrescar}
           />
+          <PanelEncuesta ordenId={ordenId} estado={o.estado} />
+          <PanelNotificaciones ordenId={ordenId} />
         </div>
 
         <div className="mch-panel">

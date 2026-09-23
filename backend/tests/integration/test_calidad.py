@@ -177,7 +177,7 @@ async def test_la_plantilla_se_crea_con_sus_puntos_en_orden(escenario: Escenario
 async def test_nombre_de_plantilla_repetido_da_conflicto(escenario: Escenario) -> None:
     admin = _usuario(escenario.taller, Rol.ADMIN_TALLER)
     async with sesion_rls(admin) as s:
-        with pytest.raises(ErrorConflicto, match="(?i)revisión previa"):
+        with pytest.raises(ErrorConflicto, match=r"(?i)revisión previa"):
             await service.crear_plantilla(
                 s, PlantillaCrear(nombre="revisión previa a entrega"), admin
             )

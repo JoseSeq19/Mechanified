@@ -19,6 +19,9 @@ dist/
 build/
 *.egg-info/
 
+# Buzón de desarrollo: correos que el worker guarda en vez de enviar.
+backend/buzon/
+
 # ---- Node / web ----
 node_modules/
 web/dist/

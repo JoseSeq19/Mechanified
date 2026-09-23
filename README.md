@@ -130,9 +130,22 @@ npm run dev
 
 Queda en http://localhost:5173, y necesita el backend corriendo en el 8000.
 
-Lo que hay hoy: inicio de sesión contra Supabase Auth y la pantalla de clientes
-(listado con búsqueda y paginación, alta, edición, activar/desactivar y borrado).
-El resto de los módulos aparecen en el menú marcados como pendientes.
+Lo que hay hoy: inicio de sesión contra Supabase Auth, tablero de órdenes y
+ficha con todo su flujo (diagnóstico, mano de obra, repuestos, presupuesto,
+control de calidad, encuesta y avisos al cliente), catálogo de repuestos,
+plantillas de checklist, satisfacción, clientes y el panel del taller.
+
+El panel (`/informes`) solo lo ve administración, y el enlace tampoco aparece en
+el menú para los demás roles. No es una barrera de seguridad —los números salen
+de datos que RLS deja leer a todo el taller— sino una decisión de producto:
+facturación, ticket medio y productividad por técnico las comparte quien dirige
+el taller, no el producto.
+
+Dos páginas se abren **sin sesión**, desde el enlace que recibe el cliente:
+`/presupuesto/:token` para aprobar o rechazar, y `/encuesta/:token` para
+calificar el servicio. Esas rutas son parte del contrato con el backend:
+`backend/app/shared/enlaces.py` las usa para componer los enlaces de los
+correos, así que cambiarlas rompe los mensajes ya enviados.
 
 ```powershell
 npm run typecheck
@@ -158,18 +171,77 @@ flutter pub get
 flutter run
 ```
 
+## Correo y avisos al cliente
+
+Tres momentos del flujo le escriben al cliente, sin que nadie tenga que
+acordarse: al **enviar un presupuesto** (con el enlace para aprobarlo), cuando
+el vehículo queda **listo para entrega**, y al **entregarlo** (con la encuesta
+de satisfacción). Si el cliente no tiene correo registrado no se encola nada y
+el enlace queda en la ficha para compartirlo a mano.
+
+El envío no ocurre dentro de la petición: se deja una fila en `notificaciones` y
+un worker la procesa. Si el servidor de correo está caído, la orden ya quedó
+guardada y el reintento es problema del worker.
+
+### Modos de envío
+
+| `MCH_EMAIL_MODO` | Qué hace                                                        |
+|------------------|-----------------------------------------------------------------|
+| `buzon` (por omisión) | No envía nada: guarda cada mensaje como `.eml` en `backend/buzon/` |
+| `smtp`           | Envía de verdad; exige `MCH_SMTP_HOST` y `MCH_EMAIL_REMITENTE`   |
+
+El buzón no es una simulación: el archivo lleva los mismos encabezados y el
+mismo cuerpo que se enviarían, y se abre con cualquier cliente de correo. Es el
+modo por omisión para poder desarrollar sin proveedor y, sobre todo, para que
+una prueba con datos inventados no acabe escribiéndole a una dirección real.
+
+Desde la ficha de la orden, «Avisos al cliente» muestra qué salió, a qué
+dirección y qué dijo el servidor cuando no salió, con la vista previa del correo
+tal cual lo recibe el cliente.
+
+### El worker
+
+Va embebido en la API mientras esto sea un despliegue de una sola pieza, así que
+en desarrollo no hay que arrancar nada aparte. En producción se apaga y se corre
+como proceso propio:
+
+```powershell
+$env:MCH_WORKER_EMBEBIDO = "false"   # en la API
+python -m app.worker                  # y el worker, aparte
+```
+
+Los dos a la vez tampoco rompen nada: la cola se reparte con
+`SELECT ... FOR UPDATE SKIP LOCKED`. Un envío fallido se reintenta con espera
+creciente (1, 5, 15 y 60 minutos) y se da por perdido al quinto intento; una
+dirección que el servidor rechaza no se reintenta.
+
 ## Usuarios
 
 Las cuentas no se autoregistran: las crea el administrador de un taller, que es
 quien decide a qué taller pertenecen y con qué rol. Sin perfil asignado, un
 usuario puede autenticarse pero RLS le niega todo.
 
-### En el proyecto hospedado
+### Desde la aplicación
 
-Se crean con la llave de servicio: primero el usuario en Supabase Auth, después
-su fila en `perfiles` apuntando al taller y al rol. Hasta que exista el endpoint
-de alta de usuarios, se hace desde el panel de Supabase o por su API de
-administración.
+La administración del taller da de alta a su gente en **Personal**: nombre,
+correo, rol. El backend crea la cuenta en Supabase Auth y el perfil en la misma
+operación, y devuelve una **contraseña temporal que solo se muestra una vez**,
+para entregársela a la persona. Ella la cambia desde *Cambiar contraseña*, abajo
+en el menú; esa parte va directa a Supabase, así que el backend nunca ve una
+contraseña. Si alguien la olvida, su administrador le genera otra.
+
+Dos reglas que la pantalla aplica y conviene conocer:
+
+- **A la gente se le da de baja, no se le borra.** Órdenes, presupuestos y
+  bitácora apuntan a su perfil; borrarlo evaporaría la autoría de todo lo que
+  hizo. Al darle de baja, su siguiente token sale sin taller ni rol y la API
+  deja de aceptarle nada.
+- **El último administrador activo está protegido.** Ni puede bajarse el rol a
+  sí mismo, ni dejarlo otro sin él. Un taller sin administrador solo se
+  arreglaría entrando por Supabase.
+
+Un cambio de rol viaja dentro del token, así que surte efecto cuando la persona
+renueva su sesión: como mucho en una hora, o al volver a entrar.
 
 ### En desarrollo local
 

@@ -32,7 +32,9 @@ productos comerciales existentes.
 ## Backend
 
 - Un paquete por entidad en `app/modules/<entidad>/` con
-  `models.py`, `schemas.py`, `service.py`, `router.py`.
+  `models.py`, `schemas.py`, `service.py`, `router.py`. La única excepción es
+  `metricas`, que no tiene `models.py` porque no posee ninguna tabla: lee lo que
+  escribieron los demás módulos y lo resume.
 - La lógica de negocio vive en `service.py`. Los routers solo validan, delegan y
   serializan.
 - **Nunca** usar la llave `service_role` para tráfico de usuarios. Cada request
@@ -41,6 +43,15 @@ productos comerciales existentes.
   worker de notificaciones y tareas de sistema.
 - Credenciales siempre por variable de entorno. Nada de valores por defecto
   reales en el código.
+- Los enlaces públicos (presupuesto, encuesta) se componen en
+  `app/shared/enlaces.py`, nunca en el módulo que los usa: los arman dos sitios
+  distintos —el servicio que crea el documento y el worker que redacta el
+  correo— y tienen que coincidir con las rutas de `web/src/app/App.tsx`.
+- Lo que se le manda al cliente por correo se encola en `notificaciones` con
+  **referencias**, no con texto: el mensaje lo redacta el worker leyendo la base
+  al enviar. Es lo que permite que RLS deje encolar a todo el taller sin que
+  nadie pueda dictar el contenido de un correo que sale con el remitente del
+  producto.
 
 ## Frontend
 

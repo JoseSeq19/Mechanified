@@ -5,10 +5,14 @@ import { Cargando } from '@/components/ui';
 import { PaginaLogin } from '@/features/auth/PaginaLogin';
 import { PaginaPlantillas } from '@/features/calidad/PaginaPlantillas';
 import { PaginaClientes } from '@/features/clientes/PaginaClientes';
+import { PaginaEncuestaPublica } from '@/features/encuestas/PaginaEncuestaPublica';
+import { PaginaEncuestas } from '@/features/encuestas/PaginaEncuestas';
+import { PaginaPanel } from '@/features/metricas/PaginaPanel';
 import { PaginaOrden } from '@/features/ordenes/PaginaOrden';
 import { PaginaOrdenes } from '@/features/ordenes/PaginaOrdenes';
 import { PaginaPresupuestoPublico } from '@/features/presupuestos/PaginaPresupuestoPublico';
 import { PaginaRepuestos } from '@/features/repuestos/PaginaRepuestos';
+import { PaginaUsuarios } from '@/features/usuarios/PaginaUsuarios';
 import { PaginaVehiculos } from '@/features/vehiculos/PaginaVehiculos';
 import { Layout } from './Layout';
 import { ProveedorSesion, useSesion } from './sesion';
@@ -42,6 +46,9 @@ function RutasPrivadas() {
         <Route path="/vehiculos" element={<PaginaVehiculos />} />
         <Route path="/repuestos" element={<PaginaRepuestos />} />
         <Route path="/calidad" element={<PaginaPlantillas />} />
+        <Route path="/encuestas" element={<PaginaEncuestas />} />
+        <Route path="/informes" element={<PaginaPanel />} />
+        <Route path="/personal" element={<PaginaUsuarios />} />
         <Route path="/clientes" element={<PaginaClientes />} />
         <Route path="*" element={<Navigate to="/ordenes" replace />} />
       </Route>
@@ -50,14 +57,19 @@ function RutasPrivadas() {
 }
 
 /**
- * El presupuesto público va fuera del control de sesión, y tiene que
- * resolverse antes: quien abre ese enlace es un cliente sin cuenta, y si
- * pasara por RutasPrivadas vería la pantalla de inicio de sesión.
+ * Las dos páginas públicas van fuera del control de sesión, y tienen que
+ * resolverse antes: quien abre esos enlaces es un cliente sin cuenta, y si
+ * pasaran por RutasPrivadas verían la pantalla de inicio de sesión.
+ *
+ * Estas rutas son parte del contrato con el backend: `shared/enlaces.py` arma
+ * con ellas los enlaces que van en los correos. Cambiar una aquí sin cambiarla
+ * allí rompe los mensajes ya enviados.
  */
 function Rutas() {
   return (
     <Routes>
       <Route path="/presupuesto/:token" element={<PaginaPresupuestoPublico />} />
+      <Route path="/encuesta/:token" element={<PaginaEncuestaPublica />} />
       <Route path="*" element={<RutasPrivadas />} />
     </Routes>
   );
