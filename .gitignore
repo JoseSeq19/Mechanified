@@ -26,6 +26,8 @@ backend/buzon/
 node_modules/
 web/dist/
 web/.vite/
+# Cache incremental de tsc: se regenera en cada compilacion.
+web/tsconfig.tsbuildinfo
 *.local
 
 # ---- Flutter / mobile ----
