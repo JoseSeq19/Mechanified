@@ -147,13 +147,18 @@ calificar el servicio. Esas rutas son parte del contrato con el backend:
 `backend/app/shared/enlaces.py` las usa para componer los enlaces de los
 correos, así que cambiarlas rompe los mensajes ya enviados.
 
+Lo mismo que corre el CI:
+
 ```powershell
+npm run lint
 npm run typecheck
 npm run build
 ```
 
-> `npm run lint` todavía no funciona: falta el archivo de configuración de
-> ESLint.
+> La configuración del linter está en [web/eslint.config.js](web/eslint.config.js),
+> en formato plano, que es el único que acepta ESLint 10. No usa reglas con
+> información de tipos: eso ya lo cubre `npm run typecheck`, y pedirle al linter
+> que compile el proyecto entero en cada pasada solo lo haría lento.
 
 La autenticación la resuelve `@supabase/supabase-js` directamente contra
 Supabase; los datos de negocio siempre pasan por la API de Mechanified. El
