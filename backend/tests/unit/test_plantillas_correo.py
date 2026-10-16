@@ -130,7 +130,11 @@ def test_sin_enlace_falla_al_redactar(plantilla: PlantillaCorreo) -> None:
 
 
 def test_el_pie_identifica_al_taller_no_al_producto() -> None:
-    """Quien recibe el correo dejó el vehículo en un taller, no en Mechanified."""
+    """Quien recibe el correo dejó el vehículo en un taller concreto.
+
+    Al cliente le responde la sede donde está su coche, no el grupo ni el
+    sistema que manda el mensaje.
+    """
     correo = renderizar(PlantillaCorreo.VEHICULO_LISTO, BASE)
 
     assert correo.texto.rstrip().endswith(

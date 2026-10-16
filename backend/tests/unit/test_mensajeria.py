@@ -27,7 +27,7 @@ CORREO = Correo(
 
 
 async def _enviar(carpeta: Path, destinatario: str = "cliente@ejemplo.test") -> Message:
-    mensajero = MensajeroBuzon(carpeta, "notificaciones@mechanified.local")
+    mensajero = MensajeroBuzon(carpeta, "notificaciones@lameseta.local")
     await mensajero.enviar(
         destinatario=destinatario,
         correo=CORREO,
@@ -54,7 +54,7 @@ async def test_el_remitente_visible_es_el_taller(tmp_path: Path) -> None:
     """El cliente reconoce al taller, no al proveedor del software."""
     mensaje = await _enviar(tmp_path)
 
-    assert mensaje["From"] == "Taller Delta <notificaciones@mechanified.local>"
+    assert mensaje["From"] == "Taller Delta <notificaciones@lameseta.local>"
     # Y si contesta, le llega al taller, no a un buzón que nadie lee.
     assert mensaje["Reply-To"] == "hola@delta.test"
 

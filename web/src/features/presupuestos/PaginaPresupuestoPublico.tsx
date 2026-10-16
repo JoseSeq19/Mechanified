@@ -11,7 +11,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { Aviso, Boton, Campo, Cargando, Marca } from '@/components/ui';
 import { ErrorApi } from '@/lib/api';
-import { formatearFecha, formatearMoneda, formatearNumero } from '@/lib/formato';
+import { fijarMoneda, formatearFecha, formatearMoneda, formatearNumero } from '@/lib/formato';
 import { responderPresupuestoPublico, verPresupuestoPublico } from './api';
 
 export function PaginaPresupuestoPublico() {
@@ -67,6 +67,11 @@ export function PaginaPresupuestoPublico() {
   }
 
   const p = consulta.data;
+
+  // La moneda la trae el documento, no la sesión: aquí no hay ninguna. Se fija
+  // antes de escribir la primera cifra, que es lo que le permite al cliente
+  // leer el total sin tener que suponer en qué moneda está.
+  fijarMoneda(p.moneda);
 
   return (
     <main className="mch-publico">
@@ -136,11 +141,17 @@ export function PaginaPresupuestoPublico() {
           )}
           <div className="mch-publico__total">
             <span>Total</span>
-            <span>
-              {formatearMoneda(p.total)} {p.moneda}
-            </span>
+            <span>{formatearMoneda(p.total)}</span>
           </div>
         </section>
+
+        {/* Para quien quiere guardarlo o llevárselo en papel. La hoja de
+            impresión quita los botones, así que este no sale en el documento. */}
+        <div className="mch-publico__imprimir">
+          <Boton variante="secundario" onClick={() => window.print()}>
+            Imprimir o guardar en PDF
+          </Boton>
+        </div>
 
         {!p.cerrado && (
           <section className="mch-publico__acciones">
@@ -163,7 +174,7 @@ export function PaginaPresupuestoPublico() {
               <>
                 <Aviso tono={confirmando ? 'info' : 'alerta'}>
                   {confirmando
-                    ? `Vas a aprobar ${formatearMoneda(p.total)} ${p.moneda} de trabajo. El taller empezará la reparación.`
+                    ? `Vas a aprobar ${formatearMoneda(p.total)} de trabajo. El taller empezará la reparación.`
                     : 'Vas a rechazar este presupuesto. El taller se pondrá en contacto contigo.'}
                 </Aviso>
                 <Campo
@@ -202,7 +213,7 @@ export function PaginaPresupuestoPublico() {
 
       <footer className="mch-publico__pie">
         <Marca compacta />
-        <span>Presupuesto emitido con Mechanified</span>
+        <span>Presupuesto emitido por Grupo La Meseta</span>
       </footer>
     </main>
   );

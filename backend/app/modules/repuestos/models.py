@@ -84,7 +84,7 @@ class Repuesto(Base):
     precio_venta: Mapped[Decimal] = mapped_column(
         Numeric(12, 2), nullable=False, server_default=text("0")
     )
-    #: Informativo. Mechanified no lleva movimientos de inventario todavía: el
+    #: Informativo. El sistema no lleva movimientos de inventario todavía: el
     #: stock no se descuenta solo al instalar una pieza.
     stock: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False, server_default=text("0"))
     stock_minimo: Mapped[Decimal] = mapped_column(

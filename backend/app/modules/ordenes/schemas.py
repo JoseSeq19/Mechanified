@@ -21,12 +21,57 @@ from app.modules.ordenes.estados import EstadoOrden
 _Motivo = Annotated[str, Field(min_length=3, max_length=1000)]
 _Nota = Annotated[str, Field(max_length=2000)]
 
+#: Topes del inventario de ingreso. La columna es `jsonb` y el contenido es
+#: libre —cada taller inventaría cosas distintas—, pero libre no quiere decir
+#: sin forma: esto lo escribe un formulario y acaba impreso en la orden que el
+#: cliente firma. Sin límites, un cliente de la API podría guardar ahí un
+#: documento entero, y la fila de la orden se lleva en cada consulta del tablero.
+MAXIMO_ENTRADAS_INVENTARIO = 40
+LARGO_CLAVE_INVENTARIO = 60
+LARGO_VALOR_INVENTARIO = 200
+
 
 def _limpiar(valor: object) -> object:
     if isinstance(valor, str):
         limpio = valor.strip()
         return limpio or None
     return valor
+
+
+def _texto_de_inventario(valor: object) -> str:
+    """Lo que se guarda siempre es texto, porque es lo que se imprime.
+
+    Un `true` desde la API o desde el móvil se guarda como "Sí" en vez de
+    rechazarse: el campo está documentado como libre, y quien lo manda así
+    está diciendo justo eso. Lo que no se admite es anidar, que convertiría el
+    inventario en una estructura que ninguna pantalla sabe mostrar.
+    """
+    if isinstance(valor, bool):
+        return "Sí" if valor else "No"
+    if valor is None:
+        return ""
+    if isinstance(valor, (dict, list)):
+        raise ValueError("el inventario no admite listas ni objetos anidados")
+    return str(valor).strip()[:LARGO_VALOR_INVENTARIO]
+
+
+def _inventario_limpio(valor: object) -> object:
+    """Normaliza el inventario a pares de texto, y acota su tamaño."""
+    if valor is None or not isinstance(valor, dict):
+        return valor
+
+    limpio: dict[str, str] = {}
+    for clave, contenido in valor.items():
+        nombre = str(clave).strip()[:LARGO_CLAVE_INVENTARIO]
+        # Una fila del formulario sin nombre no es un dato, es una fila que
+        # alguien añadió y dejó a medias.
+        if not nombre:
+            continue
+        limpio[nombre] = _texto_de_inventario(contenido)
+
+    if len(limpio) > MAXIMO_ENTRADAS_INVENTARIO:
+        raise ValueError(f"el inventario no puede llevar más de {MAXIMO_ENTRADAS_INVENTARIO} cosas")
+    return limpio
 
 
 class OrdenCrear(BaseModel):
@@ -56,6 +101,11 @@ class OrdenCrear(BaseModel):
     def _nota_limpia(cls, v: object) -> object:
         return _limpiar(v)
 
+    @field_validator("inventario_ingreso", mode="before")
+    @classmethod
+    def _inventario(cls, v: object) -> object:
+        return _inventario_limpio(v)
+
 
 class OrdenEditar(BaseModel):
     """Campos administrativos. El estado se cambia por su propia ruta."""
@@ -73,6 +123,11 @@ class OrdenEditar(BaseModel):
     @classmethod
     def _limpios(cls, v: object) -> object:
         return _limpiar(v)
+
+    @field_validator("inventario_ingreso", mode="before")
+    @classmethod
+    def _inventario(cls, v: object) -> object:
+        return _inventario_limpio(v)
 
 
 class CambioEstado(BaseModel):

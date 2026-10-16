@@ -1,0 +1,300 @@
+/* ---------------------------------------------------------------
+   La Meseta · documentos y papel
+
+   Dos cosas distintas viven aquí:
+
+   1. `.mch-hoja`, el documento en pantalla: la orden de servicio y, en su
+      propia página, el presupuesto que ve el cliente. Se ve igual antes de
+      imprimir que después, porque lo que más desconcierta de imprimir desde una
+      aplicación es que el papel no se parezca a lo que había en la pantalla.
+
+   2. Las reglas de `@media print`, que quitan de en medio lo que no es el
+      documento —barra lateral, botones, enlaces de navegación— para que
+      cualquier pantalla de la aplicación salga razonable si alguien pulsa
+      Ctrl+P sin más.
+
+   Medidas en milímetros y no en píxeles: el destino es una hoja A4.
+   --------------------------------------------------------------- */
+
+.mch-documento {
+  min-height: 100dvh;
+  background: var(--mch-fondo);
+  padding: var(--mch-esp-5) var(--mch-esp-4) var(--mch-esp-8);
+}
+
+.mch-documento__barra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mch-esp-4);
+  width: min(210mm, 100%);
+  margin: 0 auto var(--mch-esp-4);
+  font-size: var(--mch-txt-sm);
+}
+
+.mch-hoja {
+  width: min(210mm, 100%);
+  margin: 0 auto;
+  padding: 14mm 15mm;
+  background: var(--mch-panel);
+  border: 1px solid var(--mch-borde);
+  border-radius: var(--mch-radio);
+  box-shadow: var(--mch-sombra-sm);
+  font-size: 10.5pt;
+  line-height: 1.45;
+}
+
+/* --- Encabezado --- */
+
+.mch-hoja__cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--mch-esp-5);
+  padding-bottom: var(--mch-esp-4);
+  border-bottom: 2px solid var(--mch-texto);
+}
+
+.mch-hoja__taller {
+  font-size: 15pt;
+  margin: 0;
+}
+
+.mch-hoja__contacto {
+  margin: 2mm 0 0;
+  font-size: 9pt;
+  color: var(--mch-texto-secundario);
+  max-width: 110mm;
+}
+
+.mch-hoja__folio {
+  display: grid;
+  gap: 1mm;
+  text-align: right;
+  font-size: 9pt;
+  color: var(--mch-texto-secundario);
+  white-space: nowrap;
+}
+
+.mch-hoja__folio-numero {
+  font-family: var(--mch-fuente-mono);
+  font-size: 14pt;
+  font-weight: 650;
+  color: var(--mch-texto);
+}
+
+/* --- Datos en rejilla --- */
+
+.mch-hoja__rejilla {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4mm 6mm;
+  margin: 6mm 0;
+}
+
+.mch-hoja__rejilla > div {
+  display: grid;
+  gap: 0.5mm;
+}
+
+.mch-hoja__etiqueta {
+  font-size: 7.5pt;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--mch-texto-secundario);
+}
+
+.mch-hoja__valor {
+  font-weight: 560;
+  overflow-wrap: anywhere;
+}
+
+/* --- Bloques y tablas --- */
+
+.mch-hoja__bloque {
+  margin: 6mm 0;
+  /* Un bloque no se parte entre dos hojas si puede evitarse: una tabla de
+     repuestos cortada a la mitad obliga a mirar las dos páginas a la vez. */
+  break-inside: avoid;
+}
+
+.mch-hoja__titulo {
+  font-size: 9pt;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--mch-texto-secundario);
+  margin: 0 0 2mm;
+  padding-bottom: 1mm;
+  border-bottom: 1px solid var(--mch-borde);
+}
+
+.mch-hoja__texto {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.mch-hoja__tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10pt;
+}
+
+.mch-hoja__tabla th {
+  text-align: left;
+  font-size: 8pt;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--mch-texto-secundario);
+  border-bottom: 1px solid var(--mch-borde);
+  padding: 1.5mm 2mm 1.5mm 0;
+}
+
+.mch-hoja__tabla td {
+  padding: 1.5mm 2mm 1.5mm 0;
+  border-bottom: 1px solid var(--mch-linea-suave);
+  vertical-align: top;
+}
+
+.mch-hoja__num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  padding-right: 0 !important;
+}
+
+.mch-hoja__sku {
+  color: var(--mch-texto-secundario);
+  font-size: 9pt;
+}
+
+/* --- Totales --- */
+
+.mch-hoja__totales {
+  margin: 6mm 0;
+  margin-left: auto;
+  width: min(80mm, 100%);
+  display: grid;
+  gap: 1.5mm;
+  font-size: 10.5pt;
+  break-inside: avoid;
+}
+
+.mch-hoja__totales > div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--mch-esp-4);
+  font-variant-numeric: tabular-nums;
+}
+
+.mch-hoja__total {
+  border-top: 1px solid var(--mch-texto);
+  padding-top: 1.5mm;
+  font-size: 12pt;
+  font-weight: 650;
+}
+
+.mch-hoja__aviso-impuesto {
+  margin: 2mm 0 0;
+  font-size: 8pt;
+  color: var(--mch-texto-secundario);
+  text-align: right;
+}
+
+/* --- Firmas --- */
+
+.mch-hoja__firmas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10mm;
+  margin-top: 16mm;
+  font-size: 9pt;
+  color: var(--mch-texto-secundario);
+  break-inside: avoid;
+}
+
+.mch-hoja__firmas > div {
+  display: grid;
+  gap: 1.5mm;
+}
+
+.mch-hoja__linea-firma {
+  display: block;
+  border-top: 1px solid var(--mch-texto);
+  /* El hueco donde se firma. */
+  margin-top: 12mm;
+}
+
+.mch-hoja__pie {
+  margin-top: 8mm;
+  padding-top: 2mm;
+  border-top: 1px solid var(--mch-linea-suave);
+  font-size: 8pt;
+  color: var(--mch-texto-secundario);
+  text-align: center;
+}
+
+/* --- Al imprimir -------------------------------------------------------- */
+
+@page {
+  size: A4;
+  margin: 12mm;
+}
+
+@media print {
+  /* El papel es blanco: cualquier fondo de pantalla se imprimiría como un
+     gris sucio, y en modo oscuro como un rectángulo negro. */
+  body {
+    background: #fff;
+    color: #000;
+  }
+
+  /* Lo que no es el documento: la barra lateral de la aplicación, los botones
+     de acción y los controles de la propia pantalla de impresión. */
+  .mch-rail,
+  .mch-documento__barra,
+  .mch-boton,
+  .mch-publico__acciones,
+  .mch-nav {
+    display: none !important;
+  }
+
+  /* El armazón de la aplicación deja de ser una rejilla con altura fija: en
+     papel no hay ventana que llenar ni nada que desplazar. */
+  .mch-app {
+    display: block;
+    height: auto;
+    overflow: visible;
+  }
+
+  .mch-contenido,
+  .mch-documento {
+    padding: 0;
+    overflow: visible;
+    display: block;
+  }
+
+  .mch-hoja,
+  .mch-publico__tarjeta {
+    width: auto;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    background: #fff;
+  }
+
+  /* Las direcciones de los enlaces no se imprimen detrás del texto: aquí los
+     enlaces son de navegación, no referencias que alguien quiera teclear. */
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .mch-panel {
+    border-color: #ddd;
+    box-shadow: none;
+    break-inside: avoid;
+  }
+}

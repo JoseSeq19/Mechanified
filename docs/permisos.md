@@ -46,6 +46,19 @@ Notas sobre casos que no caben en la tabla:
   mismo.
 - **`notificaciones`**: encolar sí, marcar como enviada no. El avance de la cola
   es exclusivo del worker, que corre con el rol de servicio.
+- **`adjuntos`** tiene políticas de SELECT, INSERT y DELETE, y **ninguna de
+  UPDATE**: la evidencia no se corrige, se quita y se vuelve a subir. Borrar solo
+  lo puede hacer quien subió el archivo o la administración del taller. La `E` de
+  la tabla de arriba es, en esta fila, solo insertar.
+- **`talleres`** no tiene política de INSERT para nadie. Crear un taller es
+  tarea de sistema (`python -m app.alta_taller`), con el rol de servicio, porque
+  el producto no es de registro abierto: las cuentas las crea el administrador de
+  cada taller. Editar la configuración sí está en la aplicación, y solo para
+  administración.
+- **El objeto del bucket y su fila son dos barreras distintas.** La fila la
+  filtra RLS por `taller_id`; el archivo lo filtra la política de
+  `storage.objects` comparando la primera carpeta de su ruta. Lo que impide que
+  las dos se contradigan es el trigger `mch_adjuntos_ruta_guard`.
 
 ## Roles de base de datos
 

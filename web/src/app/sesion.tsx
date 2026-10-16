@@ -28,7 +28,7 @@ export const ETIQUETA_ROL: Record<Rol, string> = {
   encargado_repuestos: 'Repuestos',
 };
 
-interface ClaimsMechanified {
+interface Claims {
   /** Identificador del usuario. Es también el id de su perfil. */
   sub?: string;
   taller_id?: string;
@@ -38,25 +38,36 @@ interface ClaimsMechanified {
 
 interface ValorSesion {
   sesion: Session | null;
-  claims: ClaimsMechanified | null;
+  claims: Claims | null;
   cargando: boolean;
   entrar: (correo: string, clave: string) => Promise<void>;
   salir: () => Promise<void>;
   /** Cambia la contraseña de quien tiene la sesión abierta. */
   cambiarClave: (clave: string) => Promise<void>;
+  /** Pide a Supabase el correo con el enlace para poner una contraseña nueva. */
+  pedirRecuperacion: (correo: string) => Promise<void>;
 }
 
 const Contexto = createContext<ValorSesion | null>(null);
 
+/**
+ * Donde aterriza el enlace del correo de recuperación.
+ *
+ * Tiene que estar en la lista de redirecciones permitidas del proyecto de
+ * Supabase (`additional_redirect_urls` en `supabase/config.toml`): si no, Auth
+ * manda a la persona al `site_url` y el enlace no sirve para nada.
+ */
+export const RUTA_CLAVE_NUEVA = '/clave';
+
 /** Lee el cuerpo del JWT sin verificar la firma: la verifica el backend. */
-function leerClaims(token: string | undefined): ClaimsMechanified | null {
+function leerClaims(token: string | undefined): Claims | null {
   if (!token) return null;
   try {
     // base64url -> base64, y de ahí a bytes, para decodificar como UTF-8. Un
     // atob() a secas rompería cualquier acento en el nombre o el correo.
     const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
     const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
-    return JSON.parse(new TextDecoder().decode(bytes)) as ClaimsMechanified;
+    return JSON.parse(new TextDecoder().decode(bytes)) as Claims;
   } catch {
     return null;
   }
@@ -99,6 +110,17 @@ export function ProveedorSesion({ children }: { children: ReactNode }) {
         const { error } = await supabase.auth.updateUser({ password: clave });
         if (error) throw new Error(traducirErrorAuth(error.message));
       },
+      // Este correo lo manda Supabase con su propia plantilla, no el worker de
+      // Grupo La Meseta. No es una inconsistencia: quien ha olvidado su contraseña
+      // no tiene sesión, y sin sesión RLS no le deja encolar nada en
+      // `notificaciones`. Si pudiera, cualquiera podría provocar correos con el
+      // remitente del producto.
+      pedirRecuperacion: async (correo) => {
+        const { error } = await supabase.auth.resetPasswordForEmail(correo.trim(), {
+          redirectTo: `${window.location.origin}${RUTA_CLAVE_NUEVA}`,
+        });
+        if (error) throw new Error(traducirErrorAuth(error.message));
+      },
     }),
     [sesion, cargando],
   );
@@ -114,6 +136,12 @@ function traducirErrorAuth(mensaje: string): string {
   }
   if (m.includes('email not confirmed')) return 'La cuenta aún no está confirmada.';
   if (m.includes('failed to fetch')) return 'No se pudo contactar a Supabase.';
+  if (m.includes('for security purposes') || m.includes('rate limit')) {
+    return 'Se pidió demasiadas veces seguidas. Espera un minuto y vuelve a intentarlo.';
+  }
+  if (m.includes('redirect') && m.includes('not allowed')) {
+    return 'El proyecto de Supabase no tiene autorizada la dirección de retorno de la aplicación.';
+  }
   if (m.includes('password should be at least')) {
     const minimo = mensaje.match(/\d+/)?.[0] ?? '6';
     return `La contraseña necesita al menos ${minimo} caracteres.`;

@@ -141,7 +141,11 @@ async def listar(
 
     filas = await sesion.scalars(
         base.options(*_RELACIONES)
-        .order_by(OrdenServicio.fecha_ingreso.desc())
+        # El `id` no es decoración: dos órdenes recibidas en el mismo instante
+        # —un lote que entra junto— dejarían el orden a criterio de Postgres, y
+        # entre dos tramos de la misma lista paginada una podría repetirse y
+        # otra no aparecer nunca. El tablero pide sus columnas por tramos.
+        .order_by(OrdenServicio.fecha_ingreso.desc(), OrdenServicio.id)
         .limit(pagina.limite)
         .offset(pagina.desplazamiento)
     )

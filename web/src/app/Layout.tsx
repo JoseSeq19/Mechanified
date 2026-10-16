@@ -1,7 +1,10 @@
 import { useState, type FormEvent } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 
 import { Aviso, Boton, Campo, Dialogo, Marca } from '@/components/ui';
+import { CLAVE_TALLER, obtenerTaller } from '@/features/taller/api';
+import { fijarMoneda } from '@/lib/formato';
 import { ETIQUETA_ROL, useSesion } from './sesion';
 
 /** Módulos aún no construidos. Se listan para que el alcance quede visible. */
@@ -11,10 +14,28 @@ export function Layout() {
   const { sesion, claims, salir } = useSesion();
   const [cambiandoClave, setCambiandoClave] = useState(false);
 
+  // El armazón es el único sitio por el que pasa toda la aplicación, así que es
+  // donde se carga la configuración del taller una vez. De ella sale la moneda
+  // con la que se escribe cada cifra; sin taller en el token la petición sería
+  // un 401 seguro, y el aviso de abajo ya explica eso mejor que un error.
+  const taller = useQuery({
+    queryKey: CLAVE_TALLER,
+    queryFn: obtenerTaller,
+    enabled: Boolean(claims?.taller_id),
+    staleTime: 5 * 60_000,
+  });
+
+  // Durante el render y no en un efecto: los efectos corren después de pintar,
+  // y las cifras de la página ya se habrían formateado sin moneda.
+  fijarMoneda(taller.data?.moneda ?? null);
+
   return (
     <div className="mch-app">
       <aside className="mch-rail">
-        <Marca />
+        <div>
+          <Marca />
+          {taller.data && <div className="mch-rail__taller">{taller.data.nombre}</div>}
+        </div>
 
         <nav className="mch-nav">
           <span className="mch-nav__titulo">Taller</span>
@@ -46,6 +67,11 @@ export function Layout() {
               </NavLink>
             </>
           )}
+          {/* Para todos los roles: quien no administra no puede cambiarla, pero
+              sí necesita consultar la tarifa y el impuesto que ve aplicados. */}
+          <NavLink to="/configuracion" className="mch-nav__enlace">
+            Configuración
+          </NavLink>
           {PROXIMAMENTE.map((m) => (
             <span key={m} className="mch-nav__enlace mch-nav__enlace--inerte">
               {m}

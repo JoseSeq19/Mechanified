@@ -2,7 +2,7 @@
  * Cliente de Supabase, usado **solo para autenticación**.
  *
  * Los datos de negocio nunca se piden desde aquí: van por la API de
- * Mechanified, que es donde vive la lógica. Este cliente existe para abrir y
+ * Grupo La Meseta, que es donde vive la lógica. Este cliente existe para abrir y
  * mantener la sesión, y para renovar el token antes de que caduque.
  */
 import { createClient } from '@supabase/supabase-js';

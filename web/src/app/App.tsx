@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { Cargando } from '@/components/ui';
+import { PaginaClaveNueva } from '@/features/auth/PaginaClaveNueva';
 import { PaginaLogin } from '@/features/auth/PaginaLogin';
 import { PaginaPlantillas } from '@/features/calidad/PaginaPlantillas';
 import { PaginaClientes } from '@/features/clientes/PaginaClientes';
@@ -9,13 +10,15 @@ import { PaginaEncuestaPublica } from '@/features/encuestas/PaginaEncuestaPublic
 import { PaginaEncuestas } from '@/features/encuestas/PaginaEncuestas';
 import { PaginaPanel } from '@/features/metricas/PaginaPanel';
 import { PaginaOrden } from '@/features/ordenes/PaginaOrden';
+import { PaginaOrdenImpresa } from '@/features/ordenes/PaginaOrdenImpresa';
 import { PaginaOrdenes } from '@/features/ordenes/PaginaOrdenes';
 import { PaginaPresupuestoPublico } from '@/features/presupuestos/PaginaPresupuestoPublico';
 import { PaginaRepuestos } from '@/features/repuestos/PaginaRepuestos';
+import { PaginaTaller } from '@/features/taller/PaginaTaller';
 import { PaginaUsuarios } from '@/features/usuarios/PaginaUsuarios';
 import { PaginaVehiculos } from '@/features/vehiculos/PaginaVehiculos';
 import { Layout } from './Layout';
-import { ProveedorSesion, useSesion } from './sesion';
+import { ProveedorSesion, RUTA_CLAVE_NUEVA, useSesion } from './sesion';
 
 const clienteConsultas = new QueryClient({
   defaultOptions: {
@@ -40,6 +43,10 @@ function RutasPrivadas() {
 
   return (
     <Routes>
+      {/* El documento imprimible va fuera del armazón: es un papel, no una
+          pantalla, y con la barra lateral alrededor no se parecería al
+          resultado impreso. Sigue exigiendo sesión, como todo lo de aquí. */}
+      <Route path="/ordenes/:ordenId/impresion" element={<PaginaOrdenImpresa />} />
       <Route element={<Layout />}>
         <Route path="/ordenes" element={<PaginaOrdenes />} />
         <Route path="/ordenes/:ordenId" element={<PaginaOrden />} />
@@ -50,6 +57,9 @@ function RutasPrivadas() {
         <Route path="/informes" element={<PaginaPanel />} />
         <Route path="/personal" element={<PaginaUsuarios />} />
         <Route path="/clientes" element={<PaginaClientes />} />
+        {/* La configuración la puede leer todo el taller; la página deja
+            editarla solo a administración. */}
+        <Route path="/configuracion" element={<PaginaTaller />} />
         <Route path="*" element={<Navigate to="/ordenes" replace />} />
       </Route>
     </Routes>
@@ -70,6 +80,11 @@ function Rutas() {
     <Routes>
       <Route path="/presupuesto/:token" element={<PaginaPresupuestoPublico />} />
       <Route path="/encuesta/:token" element={<PaginaEncuestaPublica />} />
+      {/* Aquí aterriza el correo de recuperación. Va fuera del control de
+          sesión porque quien lo abre no la tiene: la abre el propio enlace.
+          La ruta la declara `RUTA_CLAVE_NUEVA` en `sesion.tsx`, que es lo que
+          se le pasa a Supabase como dirección de retorno. */}
+      <Route path={RUTA_CLAVE_NUEVA} element={<PaginaClaveNueva />} />
       <Route path="*" element={<RutasPrivadas />} />
     </Routes>
   );

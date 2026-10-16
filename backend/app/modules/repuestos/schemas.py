@@ -104,7 +104,7 @@ class RepuestoRespuesta(BaseModel):
     precio_venta: Decimal
     stock: Decimal
     stock_minimo: Decimal
-    #: Señal para reponer. El stock es informativo: Mechanified todavía no lleva
+    #: Señal para reponer. El stock es informativo: el sistema todavía no lleva
     #: movimientos de inventario.
     bajo_minimo: bool
     proveedor: str | None

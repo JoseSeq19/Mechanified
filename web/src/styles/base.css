@@ -1,4 +1,4 @@
-/* Mechanified · estilos base y componentes del sistema de diseño. */
+/* La Meseta · estilos base y componentes del sistema de diseño. */
 
 *,
 *::before,
@@ -63,9 +63,11 @@ textarea {
   border-radius: 8px;
   background: linear-gradient(145deg, var(--mch-petroleo-600), var(--mch-petroleo-800));
   color: #fff;
-  font-size: 15px;
+  /* Dos letras en 30px: un cuerpo menor y sin el apretado que necesitaba una
+     sola, que a este tamaño las pegaría. */
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: -0.04em;
+  letter-spacing: 0;
 }
 
 /* --- Botones ----------------------------------------------------------- */
@@ -172,6 +174,21 @@ textarea {
 .mch-campo__error {
   font-size: var(--mch-txt-xs);
   color: var(--mch-error);
+}
+
+/* Rejilla de campos dentro de un panel. En varias columnas donde quepan: los
+   datos de configuración son cortos y en una sola columna obligarían a bajar
+   media pantalla para ver cuatro. */
+.mch-formulario {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: var(--mch-esp-4) var(--mch-esp-5);
+  padding: var(--mch-esp-5);
+}
+
+/* Para el campo que pide una línea entera, como una dirección. */
+.mch-formulario__ancho {
+  grid-column: 1 / -1;
 }
 
 /* --- Avisos ------------------------------------------------------------ */
@@ -355,5 +372,111 @@ textarea {
 @media (prefers-reduced-motion: reduce) {
   .mch-cargando {
     animation-duration: 2s;
+  }
+}
+
+/* --- Pantallas de acceso ------------------------------------------------ */
+
+/* Las comparten el inicio de sesión y la pantalla de contraseña nueva: las dos
+   son una columna estrecha centrada en la ventana, sin barra lateral ni nada
+   de la aplicación, porque quien las ve todavía no está dentro. */
+.mch-acceso {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: var(--mch-esp-4);
+}
+
+.mch-acceso__caja {
+  width: min(400px, 100%);
+}
+
+.mch-acceso__nota {
+  margin: var(--mch-esp-3) 0 0;
+  color: var(--mch-texto-secundario);
+  font-size: var(--mch-txt-sm);
+}
+
+.mch-acceso__pie {
+  margin-top: var(--mch-esp-4);
+  font-size: var(--mch-txt-xs);
+  color: var(--mch-texto-secundario);
+  text-align: center;
+}
+
+/* Un botón que parece enlace: la acción no navega a ninguna parte, cambia lo
+   que muestra esta misma pantalla, así que un <a> mentiría. */
+.mch-acceso__enlace {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-size: var(--mch-txt-sm);
+  color: var(--mch-texto-secundario);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.mch-acceso__enlace:hover {
+  color: var(--mch-texto);
+}
+
+.mch-acceso__enlace:focus-visible {
+  outline: none;
+  box-shadow: var(--mch-foco);
+  border-radius: var(--mch-radio-sm);
+}
+
+/* --- Fichas de sugerencia y filas de inventario ------------------------- */
+
+/* Atajos para añadir algo de una lista habitual. Son botones y no etiquetas
+   porque hacen algo; parecen etiquetas porque son una lista, no la acción
+   principal del formulario. */
+.mch-fichas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mch-esp-2);
+}
+
+.mch-ficha {
+  padding: 0.2rem 0.6rem;
+  border: 1px dashed var(--mch-borde);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--mch-texto-secundario);
+  font-size: var(--mch-txt-xs);
+  cursor: pointer;
+  transition:
+    border-color var(--mch-transicion),
+    color var(--mch-transicion);
+}
+
+.mch-ficha:hover {
+  border-style: solid;
+  border-color: var(--mch-marca);
+  color: var(--mch-texto);
+}
+
+.mch-inventario {
+  display: grid;
+  gap: var(--mch-esp-2);
+}
+
+/* Nombre, anotación y el botón de quitar. En pantalla estrecha se apila, que
+   es lo que hace que el campo quepa en el móvil del asesor. */
+.mch-inventario__fila {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) auto;
+  gap: var(--mch-esp-2);
+  align-items: center;
+}
+
+@media (max-width: 560px) {
+  .mch-inventario__fila {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .mch-inventario__fila input:first-child {
+    grid-column: 1 / -1;
   }
 }

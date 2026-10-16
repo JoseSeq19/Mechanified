@@ -4,7 +4,7 @@ El archivo NO puede llamarse token.py: al ejecutarlo, su carpeta entra primero
 en sys.path y taparia el modulo `token` de la biblioteca estandar, que `logging`
 importa de forma indirecta. El interprete revienta antes de llegar a main().
 
-Mechanified no tiene endpoint de login propio: la autenticación la hace
+El sistema no tiene endpoint de login propio: la autenticación la hace
 Supabase Auth directamente desde la web o el móvil, y el backend solo verifica
 el token que le llega. Para probar con /docs o con curl hace falta pedirle ese
 token a Supabase, y eso es lo único que hace este script.

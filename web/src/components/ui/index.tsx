@@ -1,5 +1,5 @@
 /**
- * Sistema de diseño de Mechanified.
+ * Sistema de diseño de La Meseta.
  *
  * Componentes propios sobre los tokens de `styles/tokens.css`. No se usa
  * ninguna librería de componentes con identidad visual propia: la apariencia de
@@ -14,9 +14,9 @@ export function Marca({ compacta = false }: { compacta?: boolean }) {
   return (
     <span className="mch-marca">
       <span className="mch-marca__glifo" aria-hidden="true">
-        M
+        LM
       </span>
-      {!compacta && <span>Mechanified</span>}
+      {!compacta && <span>Grupo La Meseta</span>}
     </span>
   );
 }

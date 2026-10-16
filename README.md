@@ -1,11 +1,21 @@
-# Mechanified
+# Grupo La Meseta
 
-Sistema de gestión integral para talleres mecánicos: recepción de vehículos,
+Sistema interno del grupo para gestionar sus talleres: recepción de vehículos,
 diagnóstico, cotización de repuestos, aprobación de presupuestos, reparación,
 control de calidad y entrega.
 
-Multi-tenant: cada taller es una organización con sus propios usuarios y datos,
-aislados a nivel de base de datos mediante Row Level Security de PostgreSQL.
+No es un producto que se venda a terceros. Quien entra es gente del grupo —
+administración, asesoría de servicio, técnicos y repuestos— y los clientes son
+los dueños de los vehículos, que no tienen cuenta: lo único que ven son dos
+enlaces que les llegan por correo, el del presupuesto y el de la encuesta.
+
+Aun así, cada taller es un **inquilino** con sus propios usuarios y datos,
+aislados en la base de datos con Row Level Security de PostgreSQL. No es una
+herencia de haberlo pensado como SaaS: una sede no tiene por qué ver las
+órdenes, los precios ni la productividad de otra, y esa barrera es la que impide
+que un `WHERE` olvidado se convierta en una fuga entre sedes. Abrir un taller
+nuevo es dar de alta un inquilino más (ver
+[Dar de alta un taller](#dar-de-alta-un-taller)).
 
 ## Estructura
 
@@ -64,6 +74,20 @@ supabase db reset       # aplica migraciones + seed.sql
 `supabase start` imprime las URLs y llaves locales. Studio queda en
 http://localhost:54323 y la API en http://localhost:54321.
 
+> **Si ya tenías el entorno local levantado de antes del cambio de nombre**: el
+> `project_id` de `supabase/config.toml` es el que nombra los contenedores y el
+> volumen de Docker, y ahora es `meseta`. La primera vez hay que parar el
+> entorno viejo y arrancar el nuevo, que nace vacío:
+>
+> ```bash
+> supabase stop          # para los contenedores del id anterior
+> supabase start
+> supabase db reset      # migraciones + seed otra vez
+> ```
+>
+> Los datos locales anteriores siguen en el volumen viejo; eran del seed, así
+> que `db reset` los deja igual. No afecta a ningún entorno hospedado.
+
 > `seed.sql` corre con el rol `postgres`, que omite RLS. Es la única vía por la
 > que se insertan datos sin pasar por las políticas, y es exclusiva de
 > desarrollo local.
@@ -92,7 +116,7 @@ uvicorn app.main:app --reload
 
 #### Probar los endpoints protegidos
 
-Mechanified no tiene endpoint de login propio: la sesión la abre Supabase Auth
+El sistema no tiene endpoint de login propio: la sesión la abre Supabase Auth
 desde la web o el móvil, y el backend solo verifica el token recibido. Para
 probar a mano hay que pedirle ese token a Supabase:
 
@@ -131,9 +155,10 @@ npm run dev
 Queda en http://localhost:5173, y necesita el backend corriendo en el 8000.
 
 Lo que hay hoy: inicio de sesión contra Supabase Auth, tablero de órdenes y
-ficha con todo su flujo (diagnóstico, mano de obra, repuestos, presupuesto,
-control de calidad, encuesta y avisos al cliente), catálogo de repuestos,
-plantillas de checklist, satisfacción, clientes y el panel del taller.
+ficha con todo su flujo (fotos, diagnóstico, mano de obra, repuestos,
+presupuesto, control de calidad, encuesta y avisos al cliente), catálogo de
+repuestos, plantillas de checklist, satisfacción, clientes, personal,
+configuración del taller y el panel. La orden se puede imprimir.
 
 El panel (`/informes`) solo lo ve administración, y el enlace tampoco aparece en
 el menú para los demás roles. No es una barrera de seguridad —los números salen
@@ -161,20 +186,111 @@ npm run build
 > que compile el proyecto entero en cada pasada solo lo haría lento.
 
 La autenticación la resuelve `@supabase/supabase-js` directamente contra
-Supabase; los datos de negocio siempre pasan por la API de Mechanified. El
+Supabase; los datos de negocio siempre pasan por la API de La Meseta. El
 navegador nunca consulta tablas por su cuenta.
 
 ### 4. Móvil
 
-Requiere el SDK de Flutter, que se instala aparte. Solo hace falta a partir de
-la Fase 6.
+Requiere el SDK de Flutter, que se instala aparte.
 
 ```powershell
 cd mobile
-flutter create . --org com.mechanified --platforms android,ios
+flutter create . --org com.meseta --platforms android,ios
 flutter pub get
-flutter run
+copy .env.example .env     # y pega la llave anónima de `supabase status`
+flutter run --dart-define-from-file=.env
 ```
+
+Las carpetas `android/` e `ios/` no están versionadas: las genera
+`flutter create .` sobre el proyecto que ya existe, y no se toca nada de lo que
+hay en `lib/`.
+
+> La configuración **no se lee en marcha**: se compila dentro con
+> `--dart-define-from-file=.env`. En un móvil el paquete instalado es el que es,
+> y un `.env` dentro del bundle sería un archivo de texto que cualquiera abre.
+> Si falta algún valor, la app lo dice en la primera pantalla en vez de fallar
+> al primer toque.
+
+Después de `flutter create .`, para que la cámara funcione en iOS hay que añadir
+a `ios/Runner/Info.plist` las dos razones de uso que exige Apple:
+
+```xml
+<key>NSCameraUsageDescription</key>
+<string>Para fotografiar el estado del vehículo en la orden de servicio.</string>
+<key>NSPhotoLibraryUsageDescription</key>
+<string>Para adjuntar fotos del vehículo a la orden de servicio.</string>
+```
+
+**Qué hace la app.** Es la herramienta de quien está junto al coche, no una copia
+de la web en pequeño:
+
+- **Mis órdenes.** Para un técnico, por omisión solo las asignadas a él; un
+  interruptor muestra el taller entero. La búsqueda por folio, placa o cliente
+  entra también en lo ya entregado, porque la pregunta de campo suele ser "¿qué
+  le hicimos a este coche?".
+- **Ficha.** Mover la orden al paso siguiente —los botones son los que manda
+  `transiciones_posibles`, así que la máquina de estados no se replica aquí—,
+  registrar diagnóstico y hallazgos, cargar horas de trabajo y pedir piezas.
+- **Fotos.** Con la cámara del móvil, marcando a qué momento pertenecen
+  (recepción, diagnóstico, reparación, calidad, entrega). Es la razón de ser de
+  la app: la constancia del estado del vehículo la hace quien lo tiene delante.
+- **Mi cuenta.** Cambiar la contraseña temporal del alta y cerrar sesión.
+
+Lo que no está es trabajo de mostrador —presupuestos, control de calidad,
+catálogo, panel—, y se hace mejor en una pantalla grande.
+
+La app habla con la API de La Meseta para todo lo que es dato de negocio, y
+con Supabase solo para dos cosas: la identidad y el almacén de las fotos. No usa
+el SDK de Supabase; son cuatro peticiones HTTP y están en
+[mobile/lib/nucleo/auth.dart](mobile/lib/nucleo/auth.dart) y
+[evidencias.dart](mobile/lib/nucleo/evidencias.dart).
+
+## Fotos y archivos de la orden
+
+Cada orden puede llevar fotos y PDF, marcados con el momento al que pertenecen:
+recepción, diagnóstico, reparación, control de calidad o entrega. Es la
+constancia del estado del vehículo, que es lo que el taller necesita poder poner
+sobre la mesa cuando alguien dice que el golpe del parachoques no estaba al
+entregarlo.
+
+Dos decisiones que conviene conocer antes de tocar ese código:
+
+- **El archivo no pasa por la API.** Va del navegador —o del móvil— al bucket
+  privado `mch-evidencias` con la sesión de Supabase de quien lo sube, y después
+  se registran los metadatos en la API. Hacer pasar 25 MiB de foto por FastAPI no
+  añadiría ninguna comprobación que la política del bucket no haga ya, y ocuparía
+  un trabajador del servidor al ritmo de la cobertura del taller.
+- **La ruta es el contrato que sostiene el aislamiento**:
+
+  ```
+  {taller_id}/{orden_id}/{uuid}-{nombre}
+  ```
+
+  La primera carpeta es lo que compara la política del bucket; la segunda la
+  valida el backend. Las dos cosas se verifican otra vez en la base, con el
+  trigger `mch_adjuntos_ruta_guard`.
+
+La tabla `adjuntos` **no tiene política de UPDATE**, y la API no expone ningún
+PATCH: la evidencia no se corrige, se quita y se vuelve a subir. Quitarla la
+puede hacer quien la subió o la administración del taller.
+
+El bucket es privado, así que no hay URL que se pueda reenviar: lo que se ve son
+enlaces firmados que caducan en diez minutos y los pide el propio cliente.
+
+## Imprimir
+
+La orden tiene documento propio en `/ordenes/{id}/impresion`: encabezado con los
+datos del taller —los de **Configuración**—, cliente, vehículo, kilometraje,
+hallazgos, trabajo, piezas, totales y dos huecos para firmar. Las notas internas
+no salen: ese papel se lo lleva el cliente.
+
+El presupuesto que recibe el cliente por enlace también se imprime, desde su
+propia página.
+
+Las reglas de papel están en
+[web/src/styles/impresion.css](web/src/styles/impresion.css) y valen para toda la
+aplicación: cualquier pantalla sale razonable con Ctrl+P, sin la barra lateral ni
+los botones.
 
 ## Correo y avisos al cliente
 
@@ -220,11 +336,101 @@ Los dos a la vez tampoco rompen nada: la cola se reparte con
 creciente (1, 5, 15 y 60 minutos) y se da por perdido al quinto intento; una
 dirección que el servidor rechaza no se reintenta.
 
+## Configuración del taller
+
+En **Configuración** vive lo que el sistema necesita saber del taller para poder
+calcular. Son cuatro grupos:
+
+| Grupo | Qué contiene |
+|---|---|
+| Identidad | Nombre e identificación fiscal. |
+| Contacto | Teléfono, correo y dirección. **Esto lo ve el cliente** en el presupuesto que recibe por enlace. |
+| Dinero | Moneda, tarifa por hora e impuesto. |
+| Operación | Prefijo del folio y días de validez del presupuesto. |
+
+La tarifa y el impuesto son valores **por omisión**, no fijos: quien registra una
+línea de mano de obra o emite un presupuesto puede indicar otros. Lo que importa
+es lo que pasa después:
+
+- **Nada de esto reescribe historia.** Cada línea de mano de obra se queda con la
+  tarifa que tenía al crearse y cada presupuesto con el impuesto con el que se
+  emitió. Es deliberado: un documento que el cliente ya vio no puede cambiar de
+  monto. Subir la tarifa afecta a lo que se registre de ahí en adelante.
+- **Cambiar el prefijo no renumera nada.** El contador de folios sigue donde
+  estaba; las órdenes existentes conservan el suyo y solo las nuevas estrenan el
+  prefijo nuevo.
+- **La moneda es con la que la interfaz escribe cada cifra.** Hasta que se sabe
+  cuál es, los números van sin símbolo: una cifra sin símbolo es mejor que una
+  cifra con el símbolo de otra moneda.
+
+Cambiarla es cosa de administración (`PATCH /taller`); leerla la puede hacer todo
+el taller (`GET /taller`), porque el técnico que mira un subtotal necesita saber
+en qué moneda está y con qué tarifa salió.
+
+El `slug` del taller y su zona horaria no se editan desde la aplicación: el
+primero es el identificador global con el que se le nombra desde fuera, y la
+segunda todavía no la lee nadie —las fechas se formatean con la zona del
+navegador—, así que ofrecer el control daría a entender que cambia algo.
+
+El alta de un taller nuevo se hace con la herramienta de línea de comandos del
+backend (ver [Dar de alta un taller](#dar-de-alta-un-taller)), que es tarea de
+sistema: `talleres` no tiene política de INSERT, así que esa fila solo la puede
+escribir el rol de servicio.
+
 ## Usuarios
 
 Las cuentas no se autoregistran: las crea el administrador de un taller, que es
 quien decide a qué taller pertenecen y con qué rol. Sin perfil asignado, un
 usuario puede autenticarse pero RLS le niega todo.
+
+### Dar de alta un taller
+
+Es lo que arranca un despliegue, y no tiene pantalla a propósito: `talleres` no
+tiene política de INSERT, así que la fila solo la escribe el rol de servicio.
+Exponerlo por HTTP sería poner esa llave detrás de una puerta, y aquí no hace
+falta ninguna puerta: abrir una sede es una decisión del grupo, no algo que
+nadie vaya a hacer por su cuenta.
+
+```powershell
+cd backend
+.venv\Scripts\python -m app.alta_taller `
+  --nombre "La Meseta Sur" `
+  --admin-correo marisol@lameseta.test `
+  --admin-nombre "Marisol Peñaranda" `
+  --moneda USD --tarifa 18 --impuesto 16
+```
+
+Deja creados el taller, la cuenta de su primer administrador y su perfil, e
+imprime **una sola vez** la contraseña temporal. El identificador global
+(`--slug`) y el prefijo de folio (`--prefijo`) se derivan del nombre si no se
+indican: "La Meseta Sur" da `la-meseta-sur` y `LAM`. El resto de la configuración
+se ajusta después en la aplicación, en **Configuración**.
+
+Son tres escrituras en dos sistemas distintos —la fila del taller y el perfil en
+Postgres, la cuenta en Supabase Auth— y pueden fallar a medias, así que cada
+paso deshace los anteriores: un taller sin administrador no se podría terminar de
+dar de alta por ninguna otra vía, y además su identificador quedaría ocupado
+para el segundo intento.
+
+### Si alguien olvida su contraseña
+
+Hay dos caminos, y conviene saber cuál es cuál:
+
+- **Por su cuenta**, desde *No recuerdo mi contraseña* en la pantalla de acceso.
+  Supabase manda un correo con un enlace que aterriza en `/clave`, donde se pone
+  la nueva. Ese correo lo manda Supabase con su propia plantilla, **no** el
+  worker de La Meseta: quien ha olvidado su contraseña no tiene sesión, y sin
+  sesión RLS no le deja encolar nada en `notificaciones`. Si pudiera, cualquiera
+  podría provocar correos con el remitente del producto.
+- **Por su administrador**, desde **Personal**, que le genera una temporal en el
+  momento. Es la salida cuando el correo no llega o la dirección ya no existe.
+
+En desarrollo los correos de Supabase quedan en el buzón local que levanta
+`supabase start` (puerto 54324). En producción hay que configurarle SMTP al
+proyecto de Supabase, que es independiente del `MCH_SMTP_*` del worker.
+
+La dirección de retorno tiene que estar autorizada en el proyecto; en local ya
+lo está, en `supabase/config.toml`.
 
 ### Desde la aplicación
 
@@ -250,15 +456,15 @@ renueva su sesión: como mucho en una hora, o al volver a entrar.
 
 ### En desarrollo local
 
-`supabase/seed.sql` crea el taller ficticio **Delta Motors** con cuatro
-usuarios, uno por rol, todos con la contraseña `Mechanified123!`:
+`supabase/seed.sql` crea la sede ficticia **La Meseta Centro** con cuatro
+usuarios, uno por rol, todos con la contraseña `LaMeseta123!`:
 
-| Correo                       | Rol                   |
-|------------------------------|-----------------------|
-| `admin@deltamotors.test`     | `admin_taller`        |
-| `asesor@deltamotors.test`    | `asesor_servicio`     |
-| `tecnico@deltamotors.test`   | `tecnico`             |
-| `repuestos@deltamotors.test` | `encargado_repuestos` |
+| Correo                    | Rol                   |
+|---------------------------|-----------------------|
+| `admin@lameseta.test`     | `admin_taller`        |
+| `asesor@lameseta.test`    | `asesor_servicio`     |
+| `tecnico@lameseta.test`   | `tecnico`             |
+| `repuestos@lameseta.test` | `encargado_repuestos` |
 
 > Estas cuentas existen **solo en local**, tras `supabase db reset` con Docker.
 > El seed no debe correr nunca contra un proyecto hospedado: pondría contraseñas

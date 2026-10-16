@@ -70,7 +70,7 @@ class Configuracion(BaseSettings):
     email_modo: Literal["buzon", "smtp"] = "buzon"
     #: Dirección desde la que sale el correo. El nombre visible lo pone el
     #: taller, así que el cliente ve "Taller Norte" y no el dominio del producto.
-    email_remitente: str = "notificaciones@mechanified.local"
+    email_remitente: str = "notificaciones@lameseta.local"
     #: Carpeta del buzón de desarrollo, relativa a backend/ si no es absoluta.
     email_buzon: str = "buzon"
 

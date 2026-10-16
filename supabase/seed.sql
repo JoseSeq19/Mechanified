@@ -1,7 +1,7 @@
 -- =============================================================================
--- Mechanified · seed de desarrollo
+-- La Meseta · seed de desarrollo
 --
--- Taller ficticio "Delta Motors" con datos suficientes para trabajar contra la
+-- Sede ficticia "La Meseta Centro" con datos suficientes para trabajar contra la
 -- API sin capturar nada a mano.
 --
 -- SOLO PARA DESARROLLO LOCAL. Crea usuarios directamente en auth.users con una
@@ -31,15 +31,15 @@ insert into public.talleres (
   zona_horaria, moneda, tarifa_hora_default, impuesto_pct, prefijo_orden,
   dias_validez_presupuesto
 ) values (
-  :taller_id, 'Delta Motors', 'delta-motors', 'J-40123456-7',
+  :taller_id, 'La Meseta Centro', 'meseta-centro', 'J-40123456-7',
   'Av. Principal de Los Ruices, Galpón 14, Caracas',
-  '+58 212 555 0142', 'contacto@deltamotors.test',
-  'America/Caracas', 'USD', 18.00, 16.00, 'DLT', 15
+  '+58 212 555 0142', 'contacto@lameseta.test',
+  'America/Caracas', 'USD', 18.00, 16.00, 'MSC', 15
 );
 
 -- -----------------------------------------------------------------------------
 -- Usuarios de Supabase Auth
--- Contraseña de los cuatro: Mechanified123!
+-- Contraseña de los cuatro: LaMeseta123!
 -- -----------------------------------------------------------------------------
 
 insert into auth.users (
@@ -50,16 +50,16 @@ insert into auth.users (
 select
   '00000000-0000-0000-0000-000000000000',
   u.id, 'authenticated', 'authenticated', u.email,
-  extensions.crypt('Mechanified123!', extensions.gen_salt('bf')),
+  extensions.crypt('LaMeseta123!', extensions.gen_salt('bf')),
   now(), now(), now(),
   '{"provider":"email","providers":["email"]}'::jsonb,
   jsonb_build_object('nombre_completo', u.nombre),
   false
 from (values
-  (:u_admin::uuid,     'admin@deltamotors.test',     'Marisol Peñaranda'),
-  (:u_asesor::uuid,    'asesor@deltamotors.test',    'Gustavo Alcántara'),
-  (:u_tecnico::uuid,   'tecnico@deltamotors.test',   'Reinaldo Chirinos'),
-  (:u_repuestos::uuid, 'repuestos@deltamotors.test', 'Yelitza Bermúdez')
+  (:u_admin::uuid,     'admin@lameseta.test',     'Marisol Peñaranda'),
+  (:u_asesor::uuid,    'asesor@lameseta.test',    'Gustavo Alcántara'),
+  (:u_tecnico::uuid,   'tecnico@lameseta.test',   'Reinaldo Chirinos'),
+  (:u_repuestos::uuid, 'repuestos@lameseta.test', 'Yelitza Bermúdez')
 ) as u(id, email, nombre);
 
 insert into auth.identities (
@@ -71,7 +71,7 @@ select
   jsonb_build_object('sub', u.id::text, 'email', u.email, 'email_verified', true),
   'email', now(), now(), now()
 from auth.users u
-where u.email like '%@deltamotors.test';
+where u.email like '%@lameseta.test';
 
 insert into public.perfiles (id, taller_id, nombre_completo, telefono, rol) values
   (:u_admin,     :taller_id, 'Marisol Peñaranda',  '+58 414 555 0101', 'admin_taller'),
@@ -347,7 +347,7 @@ declare
 begin
   select count(*) into v_ordenes from public.ordenes_servicio;
   select count(*) into v_eventos from public.orden_eventos;
-  raise notice 'Mechanified · seed listo: taller Delta Motors, % ordenes, % eventos de bitacora.',
+  raise notice 'La Meseta · seed listo: sede La Meseta Centro, % ordenes, % eventos de bitacora.',
     v_ordenes, v_eventos;
 end;
 $$;

@@ -1,4 +1,4 @@
-"""Punto de entrada de la API de Mechanified.
+"""Punto de entrada de la API de La Meseta.
 
 Los routers de cada entidad se registran conforme avanzan las fases.
 """
@@ -15,6 +15,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import obtener_configuracion
 from app.core.database import comprobar_conexion
 from app.core.exceptions import registrar_manejadores
+from app.modules.adjuntos.router import router as router_adjuntos
 from app.modules.calidad.router import router as router_calidad
 from app.modules.clientes.router import router as router_clientes
 from app.modules.diagnosticos.router import router as router_diagnosticos
@@ -28,6 +29,7 @@ from app.modules.ordenes.router import router as router_ordenes
 from app.modules.presupuestos.router import router as router_presupuestos
 from app.modules.presupuestos.router import router_publico as router_publico_presupuestos
 from app.modules.repuestos.router import router as router_repuestos
+from app.modules.talleres.router import router as router_taller
 from app.modules.usuarios.router import router as router_usuarios
 from app.modules.vehiculos.router import router as router_vehiculos
 
@@ -73,7 +75,7 @@ async def ciclo_de_vida(_: FastAPI) -> AsyncIterator[None]:
 
 app = FastAPI(
     lifespan=ciclo_de_vida,
-    title="Mechanified API",
+    title="API de Grupo La Meseta",
     description=(
         "API de gestión integral para talleres mecánicos.\n\n"
         "Todos los endpoints de datos exigen `Authorization: Bearer <token>` con un "
@@ -93,6 +95,8 @@ app.add_middleware(
 
 registrar_manejadores(app)
 
+app.include_router(router_taller)
+app.include_router(router_adjuntos)
 app.include_router(router_clientes)
 app.include_router(router_vehiculos)
 app.include_router(router_ordenes)
@@ -111,7 +115,7 @@ app.include_router(router_metricas)
 @app.get("/salud", tags=["sistema"])
 async def salud() -> dict[str, str]:
     """Sonda de disponibilidad. No toca la base de datos."""
-    return {"estado": "ok", "servicio": "mechanified-api"}
+    return {"estado": "ok", "servicio": "meseta-api"}
 
 
 if not cfg.es_produccion:

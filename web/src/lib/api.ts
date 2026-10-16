@@ -1,5 +1,5 @@
 /**
- * Cliente HTTP de la API de Mechanified.
+ * Cliente HTTP de la API de La Meseta.
  *
  * Adjunta el token de la sesión de Supabase a cada petición y traduce los dos
  * formatos de error que devuelve el backend a un mensaje legible:

@@ -1,0 +1,7 @@
+# Análisis estático de la app de campo.
+#
+# Se toma `flutter_lints` tal cual, que es el conjunto que mantiene el equipo de
+# Flutter: discutir reglas de estilo en una app de una sola pieza no paga, y
+# cualquier regla propia que se añada aquí habría que justificarla cada vez que
+# alguien la vea saltar.
+include: package:flutter_lints/flutter.yaml

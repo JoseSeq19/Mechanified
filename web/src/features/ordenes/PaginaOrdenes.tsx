@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { Aviso, Boton, Cargando, Vacio } from '@/components/ui';
 import { ErrorApi } from '@/lib/api';
@@ -15,6 +15,14 @@ import {
   type EstadoOrden,
   type OrdenResumen,
 } from './api';
+
+/**
+ * Cuántas tarjetas se piden de una vez.
+ *
+ * Es también el tope de la API (`LIMITE_MAXIMO`), así que no se puede subir
+ * desde aquí: cuando una columna tiene más, se piden por tramos.
+ */
+const POR_PAGINA = 200;
 
 /** Columnas del tablero. Las cerradas no ocupan sitio en el trabajo del día. */
 const COLUMNAS: EstadoOrden[] = [
@@ -43,6 +51,88 @@ function Tarjeta({ orden }: { orden: OrdenResumen }) {
         <span>{haceCuanto(orden.fecha_ingreso)}</span>
       </div>
     </Link>
+  );
+}
+
+/**
+ * Una columna del tablero.
+ *
+ * El tablero entero se pinta con una sola consulta de 200 órdenes, que es lo
+ * que a un taller le sobra para el trabajo del día. Pero el conteo de la
+ * cabecera viene de `/ordenes/tablero`, que cuenta de verdad, así que en un
+ * taller con más trabajo vivo del que cabe en esa consulta la cifra y las
+ * tarjetas dejaban de coincidir sin que nada lo dijera.
+ *
+ * Cuando eso pasa, la columna pide sus propias órdenes por tramos. Se piden
+ * desde el principio en vez de continuar donde acabó la consulta general: así
+ * la lista no depende de que las dos consultas ordenen exactamente igual.
+ */
+function Columna({
+  estado,
+  iniciales,
+  total,
+  vehiculoId,
+}: {
+  estado: EstadoOrden;
+  iniciales: OrdenResumen[];
+  total: number;
+  vehiculoId: string | undefined;
+}) {
+  const [ampliada, setAmpliada] = useState(false);
+
+  const tramos = useInfiniteQuery({
+    queryKey: ['ordenes', 'columna', estado, vehiculoId],
+    queryFn: ({ pageParam }) =>
+      listarOrdenes({
+        estados: [estado],
+        vehiculoId,
+        limite: POR_PAGINA,
+        desplazamiento: pageParam,
+      }),
+    initialPageParam: 0,
+    getNextPageParam: (ultimo, _paginas, ultimoParam) => {
+      const vistas = ultimoParam + ultimo.items.length;
+      return vistas < ultimo.total ? vistas : undefined;
+    },
+    enabled: ampliada,
+  });
+
+  const tarjetas = ampliada
+    ? (tramos.data?.pages.flatMap((pagina) => pagina.items) ?? iniciales)
+    : iniciales;
+  const faltan = Math.max(0, total - tarjetas.length);
+
+  return (
+    <section className="mch-columna">
+      <header className="mch-columna__cabecera">
+        <span className="mch-columna__titulo">
+          <span className={`mch-columna__pip mch-pip--${TONO[estado]}`} />
+          {ETIQUETA[estado]}
+        </span>
+        <span className="mch-columna__conteo">{total}</span>
+      </header>
+      <div className="mch-columna__cuerpo">
+        {tarjetas.length === 0 ? (
+          <p className="mch-columna__vacia">Vacío</p>
+        ) : (
+          tarjetas.map((o) => <Tarjeta key={o.id} orden={o} />)
+        )}
+
+        {faltan > 0 && (
+          <Boton
+            variante="secundario"
+            className="mch-columna__mas"
+            cargando={tramos.isFetching}
+            onClick={() => {
+              if (!ampliada) setAmpliada(true);
+              else void tramos.fetchNextPage();
+            }}
+          >
+            Ver {faltan} más
+          </Boton>
+        )}
+      </div>
+    </section>
   );
 }
 
@@ -75,7 +165,7 @@ export function PaginaOrdenes() {
         busqueda: busqueda || undefined,
         vehiculoId,
         incluirCerradas: buscando,
-        limite: 200,
+        limite: POR_PAGINA,
         desplazamiento: 0,
       }),
   });
@@ -196,37 +286,15 @@ export function PaginaOrdenes() {
         </div>
       ) : (
         <div className="mch-tablero">
-          {COLUMNAS.map((estado) => {
-            const enColumna = ordenes.filter((o) => o.estado === estado);
-            return (
-              <section key={estado} className="mch-columna">
-                <header className="mch-columna__cabecera">
-                  <span className="mch-columna__titulo">
-                    <span className={`mch-columna__pip mch-pip--${TONO[estado]}`} />
-                    {ETIQUETA[estado]}
-                  </span>
-                  <span className="mch-columna__conteo">{conteo(estado)}</span>
-                </header>
-                <div className="mch-columna__cuerpo">
-                  {enColumna.length === 0 ? (
-                    <p
-                      style={{
-                        margin: 0,
-                        fontSize: 'var(--mch-txt-xs)',
-                        color: 'var(--mch-texto-secundario)',
-                        textAlign: 'center',
-                        padding: 'var(--mch-esp-4) 0',
-                      }}
-                    >
-                      Vacío
-                    </p>
-                  ) : (
-                    enColumna.map((o) => <Tarjeta key={o.id} orden={o} />)
-                  )}
-                </div>
-              </section>
-            );
-          })}
+          {COLUMNAS.map((estado) => (
+            <Columna
+              key={estado}
+              estado={estado}
+              iniciales={ordenes.filter((o) => o.estado === estado)}
+              total={conteo(estado)}
+              vehiculoId={vehiculoId}
+            />
+          ))}
         </div>
       )}
 

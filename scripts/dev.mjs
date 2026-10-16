@@ -88,7 +88,7 @@ process.on('SIGINT', () => detenerTodo(0));
 process.on('SIGTERM', () => detenerTodo(0));
 
 console.log(`
-  Mechanified
+  Grupo La Meseta
 
     API   http://localhost:8000        docs en /docs
     Web   http://localhost:5173

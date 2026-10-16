@@ -1,6 +1,6 @@
 """Errores de dominio y su traducción a respuestas HTTP.
 
-Buena parte de las reglas de Mechanified viven en la base de datos: la máquina
+Buena parte de las reglas del sistema viven en la base de datos: la máquina
 de estados, la inmutabilidad del presupuesto, la coherencia de tenant. Cuando
 una de ellas se rompe, Postgres levanta una excepción con un mensaje que ya está
 redactado para una persona ("Transición de estado inválida: recibido ->
@@ -39,7 +39,7 @@ _MENSAJE_GENERICO: dict[str, str] = {
 }
 
 
-class ErrorMechanified(Exception):
+class ErrorDominio(Exception):
     """Raíz de los errores de dominio."""
 
     http_status = status.HTTP_400_BAD_REQUEST
@@ -51,32 +51,32 @@ class ErrorMechanified(Exception):
         self.detalles = detalles or {}
 
 
-class ErrorAutenticacion(ErrorMechanified):
+class ErrorAutenticacion(ErrorDominio):
     http_status = status.HTTP_401_UNAUTHORIZED
     codigo = "no_autenticado"
 
 
-class ErrorPermiso(ErrorMechanified):
+class ErrorPermiso(ErrorDominio):
     http_status = status.HTTP_403_FORBIDDEN
     codigo = "sin_permiso"
 
 
-class ErrorNoEncontrado(ErrorMechanified):
+class ErrorNoEncontrado(ErrorDominio):
     http_status = status.HTTP_404_NOT_FOUND
     codigo = "no_encontrado"
 
 
-class ErrorConflicto(ErrorMechanified):
+class ErrorConflicto(ErrorDominio):
     http_status = status.HTTP_409_CONFLICT
     codigo = "conflicto"
 
 
-class ErrorValidacion(ErrorMechanified):
+class ErrorValidacion(ErrorDominio):
     http_status = status.HTTP_422_UNPROCESSABLE_CONTENT
     codigo = "invalido"
 
 
-class ErrorConfiguracion(ErrorMechanified):
+class ErrorConfiguracion(ErrorDominio):
     """Falta o está mal una variable de entorno. Es un fallo del despliegue."""
 
     http_status = status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -121,8 +121,8 @@ def _limpiar_mensaje_postgres(texto: str) -> str:
 def registrar_manejadores(app: FastAPI) -> None:
     """Conecta los manejadores de error a la aplicación."""
 
-    @app.exception_handler(ErrorMechanified)
-    async def _dominio(_: Request, exc: ErrorMechanified) -> JSONResponse:
+    @app.exception_handler(ErrorDominio)
+    async def _dominio(_: Request, exc: ErrorDominio) -> JSONResponse:
         return _respuesta(exc.http_status, exc.codigo, exc.mensaje, exc.detalles)
 
     @app.exception_handler(Exception)

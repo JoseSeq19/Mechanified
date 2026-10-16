@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { Aviso, Boton, Campo, Cargando, Dialogo, Distintivo, Selector } from '@/components/ui';
+import { PanelAdjuntos } from '@/features/adjuntos/PanelAdjuntos';
 import { ErrorApi } from '@/lib/api';
 import { listarUsuarios } from '@/features/usuarios/api';
 import { PanelDiagnostico } from '@/features/diagnosticos/PanelDiagnostico';
@@ -13,10 +14,12 @@ import { PanelEncuesta } from '@/features/encuestas/PanelEncuesta';
 import { PanelNotificaciones } from '@/features/notificaciones/PanelNotificaciones';
 import { PanelRepuestos } from '@/features/repuestos/PanelRepuestos';
 import { formatearFecha, formatearMoneda, haceCuanto } from '@/lib/formato';
+import { CampoInventario } from './CampoInventario';
 import { ETIQUETA, EXIGE_COMENTARIO, TONO } from './estados';
 import {
   cambiarEstado,
   editarOrden,
+  inventarioTexto,
   obtenerEventos,
   obtenerOrden,
   type EstadoOrden,
@@ -40,6 +43,9 @@ export function PaginaOrden() {
   const [comentario, setComentario] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [editando, setEditando] = useState(false);
+  // El inventario no cabe en un FormData: son pares que se añaden y se quitan.
+  // Se guarda aparte y se envía junto con el resto al confirmar.
+  const [inventario, setInventario] = useState<Record<string, string>>({});
 
   const orden = useQuery({ queryKey: ['orden', ordenId], queryFn: () => obtenerOrden(ordenId) });
   const eventos = useQuery({
@@ -92,6 +98,7 @@ export function PaginaOrden() {
 
   const o: Orden = orden.data;
   const cerrada = TONO[o.estado] === 'cerrado';
+  const paresInventario = Object.entries(inventarioTexto(o.inventario_ingreso));
   const exigeMotivo = transicion ? EXIGE_COMENTARIO.has(transicion) : false;
 
   return (
@@ -137,6 +144,9 @@ export function PaginaOrden() {
             {o.vehiculo_placa} · {o.vehiculo_descripcion} · {o.cliente_nombre}
           </p>
         </div>
+        <Link to={`/ordenes/${ordenId}/impresion`} className="mch-boton mch-boton--secundario">
+          Imprimir
+        </Link>
       </header>
 
       {error && (
@@ -206,6 +216,25 @@ export function PaginaOrden() {
               </Dato>
             </div>
 
+            {paresInventario.length > 0 && (
+              <div
+                style={{
+                  borderTop: '1px solid var(--mch-borde)',
+                  padding: 'var(--mch-esp-4) var(--mch-esp-5)',
+                }}
+              >
+                <span className="mch-dato__etiqueta">Inventario recibido</span>
+                <ul className="mch-inventario__lista">
+                  {paresInventario.map(([cosa, nota]) => (
+                    <li key={cosa}>
+                      {cosa}
+                      {nota && <span className="mch-linea__detalle"> · {nota}</span>}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             {(o.notas_internas || o.motivo_cancelacion) && (
               <div
                 style={{
@@ -232,7 +261,13 @@ export function PaginaOrden() {
                 padding: 'var(--mch-esp-3) var(--mch-esp-5)',
               }}
             >
-              <Boton variante="fantasma" onClick={() => setEditando(true)}>
+              <Boton
+                variante="fantasma"
+                onClick={() => {
+                  setInventario(inventarioTexto(o.inventario_ingreso));
+                  setEditando(true);
+                }}
+              >
                 Editar datos
               </Boton>
             </div>
@@ -241,6 +276,9 @@ export function PaginaOrden() {
           {/* Lo que el taller va acumulando sobre la orden. Los tres paneles
               refrescan la ficha al cambiar algo, porque el total de la cabecera
               lo recalcula un trigger de Postgres. */}
+          {/* Antes del diagnóstico: lo primero que se documenta de un vehículo
+              es cómo llegó. */}
+          <PanelAdjuntos ordenId={ordenId} />
           <PanelDiagnostico ordenId={ordenId} cerrada={cerrada} />
           <PanelManoObra ordenId={ordenId} cerrada={cerrada} onCambio={refrescar} />
           <PanelRepuestos ordenId={ordenId} cerrada={cerrada} onCambio={refrescar} />
@@ -355,6 +393,7 @@ export function PaginaOrden() {
                 tecnico_id: String(f.get('tecnico_id') ?? '') || null,
                 fecha_promesa: promesa ? new Date(promesa).toISOString() : null,
                 notas_internas: String(f.get('notas_internas') ?? '') || null,
+                inventario_ingreso: inventario,
               });
             }}
           >
@@ -380,6 +419,7 @@ export function PaginaOrden() {
               name="notas_internas"
               defaultValue={o.notas_internas ?? ''}
             />
+            <CampoInventario valor={inventario} onCambio={setInventario} />
           </form>
         </Dialogo>
       )}

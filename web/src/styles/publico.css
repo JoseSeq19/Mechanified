@@ -1,4 +1,4 @@
-/* Mechanified · la página que abre el cliente desde su enlace.
+/* La Meseta · la página que abre el cliente desde su enlace.
    Sin armazón de aplicación: una columna centrada que funciona igual en móvil. */
 
 .mch-publico {
@@ -214,4 +214,12 @@
   font-size: var(--mch-txt-sm);
   color: var(--mch-texto-secundario);
   font-variant-numeric: tabular-nums;
+}
+
+/* El botón de imprimir del presupuesto. Discreto y a la derecha: la acción
+   principal de esta página es aprobar, no guardar una copia. */
+.mch-publico__imprimir {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 var(--mch-esp-6) var(--mch-esp-4);
 }

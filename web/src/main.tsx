@@ -8,6 +8,8 @@ import './styles/layout.css';
 import './styles/tablero.css';
 import './styles/panel.css';
 import './styles/publico.css';
+// Al final: sus reglas de @media print tienen que poder pisar a las demás.
+import './styles/impresion.css';
 
 createRoot(document.getElementById('raiz')!).render(
   <StrictMode>

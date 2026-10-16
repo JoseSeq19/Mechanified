@@ -1,4 +1,4 @@
-/* Mechanified · tablero de órdenes y ficha. */
+/* La Meseta · tablero de órdenes y ficha. */
 
 .mch-tablero {
   display: flex;
@@ -400,4 +400,107 @@
 
 .mch-indicador__pie--alerta {
   color: var(--mch-ambar-700);
+}
+
+/* --- Galería de adjuntos ------------------------------------------------ */
+
+.mch-galeria__grupo {
+  padding: var(--mch-esp-4) var(--mch-esp-5);
+  border-bottom: 1px solid var(--mch-linea-suave);
+}
+
+.mch-galeria__grupo:last-child {
+  border-bottom: none;
+}
+
+/* Rejilla que se llena sola: las fichas son del mismo tamaño para que las
+   fotos del mismo momento se puedan comparar de un vistazo, que es lo que se
+   hace con ellas. */
+.mch-galeria {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--mch-esp-3);
+  margin-top: var(--mch-esp-2);
+}
+
+.mch-galeria__ficha {
+  margin: 0;
+  border: 1px solid var(--mch-borde);
+  border-radius: var(--mch-radio);
+  overflow: hidden;
+  background: var(--mch-marca-tenue);
+  display: flex;
+  flex-direction: column;
+}
+
+.mch-galeria__ficha img {
+  display: block;
+  width: 100%;
+  /* Alto fijo y recorte: una foto vertical y otra horizontal con el alto
+     natural dejarían la rejilla en escalera. */
+  height: 120px;
+  object-fit: cover;
+  background: var(--mch-linea-suave);
+}
+
+.mch-galeria__documento {
+  display: grid;
+  place-items: center;
+  height: 120px;
+  font-size: var(--mch-txt-sm);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--mch-texto-secundario);
+  background: var(--mch-linea-suave);
+}
+
+.mch-galeria__ficha figcaption {
+  display: grid;
+  gap: 2px;
+  padding: var(--mch-esp-2) var(--mch-esp-3) var(--mch-esp-3);
+  background: var(--mch-panel);
+}
+
+.mch-galeria__nombre {
+  font-size: var(--mch-txt-sm);
+  font-weight: 560;
+  /* El nombre de una foto de móvil es largo y no aporta: se corta. */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mch-galeria__meta {
+  font-size: var(--mch-txt-xs);
+  color: var(--mch-texto-secundario);
+  overflow-wrap: anywhere;
+}
+
+/* Una columna sin tarjetas. Dice "vacío" en vez de quedarse en blanco: una
+   columna vacía y una columna que no cargó se verían igual. */
+.mch-columna__vacia {
+  margin: 0;
+  padding: var(--mch-esp-4) 0;
+  font-size: var(--mch-txt-xs);
+  color: var(--mch-texto-secundario);
+  text-align: center;
+}
+
+/* "Ver N más", al final de la columna que tiene más trabajo del que caben
+   tarjetas en una consulta. */
+.mch-columna__mas {
+  width: 100%;
+  margin-top: var(--mch-esp-2);
+}
+
+/* El inventario en la ficha: una lista, no una rejilla de datos. Lo que se
+   mira es si una cosa está o no, y la anotación va detrás del nombre. */
+.mch-inventario__lista {
+  margin: var(--mch-esp-2) 0 0;
+  padding-left: var(--mch-esp-5);
+  font-size: var(--mch-txt-sm);
+}
+
+.mch-inventario__lista li {
+  margin-bottom: 2px;
 }

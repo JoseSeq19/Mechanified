@@ -1,5 +1,5 @@
 {
-  "name": "mechanified",
+  "name": "meseta",
   "private": true,
   "version": "0.1.0",
   "description": "Arranque conjunto del monorepo. El código vive en backend/, web/ y mobile/.",

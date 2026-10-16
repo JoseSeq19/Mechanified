@@ -75,6 +75,8 @@ export interface DatosOrden {
   tecnico_id?: string | null;
   kilometraje_ingreso?: number | null;
   nivel_combustible?: number | null;
+  /** Pares libres: lo que se queda con el vehículo. El backend los acota. */
+  inventario_ingreso?: Record<string, string>;
   fecha_promesa?: string | null;
   notas_internas?: string | null;
 }
@@ -102,6 +104,22 @@ export function listarOrdenes(f: FiltrosOrdenes): Promise<Pagina<OrdenResumen>> 
   if (f.tecnicoId) p.set('tecnico_id', f.tecnicoId);
   if (f.incluirCerradas) p.set('incluir_cerradas', 'true');
   return api.get<Pagina<OrdenResumen>>(`/ordenes?${p}`);
+}
+
+/**
+ * El inventario tal como se lee y se escribe en la interfaz.
+ *
+ * La API lo normaliza a pares de texto, pero el tipo de la columna es libre
+ * (`jsonb`), así que lo que llega puede traer cualquier cosa de antes de esa
+ * normalización. Esto lo deja en la forma que las dos pantallas que lo usan
+ * —la ficha y el documento impreso— saben mostrar.
+ */
+export function inventarioTexto(valor: Record<string, unknown> | undefined): Record<string, string> {
+  const pares: Record<string, string> = {};
+  for (const [clave, contenido] of Object.entries(valor ?? {})) {
+    pares[clave] = typeof contenido === 'string' ? contenido : JSON.stringify(contenido);
+  }
+  return pares;
 }
 
 export const obtenerTablero = () => api.get<ResumenTablero>('/ordenes/tablero');

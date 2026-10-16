@@ -1,7 +1,7 @@
 [project]
-name = "mechanified-backend"
+name = "meseta-backend"
 version = "0.1.0"
-description = "API REST de Mechanified — gestión de talleres mecánicos"
+description = "API REST de La Meseta — gestión de talleres mecánicos"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.115",

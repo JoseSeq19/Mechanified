@@ -6,6 +6,7 @@ import { ErrorApi } from '@/lib/api';
 import { listarClientes } from '@/features/clientes/api';
 import { listarVehiculos } from '@/features/vehiculos/api';
 import { listarUsuarios } from '@/features/usuarios/api';
+import { CampoInventario } from './CampoInventario';
 import type { DatosOrden } from './api';
 
 interface Props {
@@ -191,6 +192,11 @@ export function FormularioOrden({ onCerrar, onGuardar }: Props) {
             }
           />
         </div>
+
+        <CampoInventario
+          valor={datos.inventario_ingreso}
+          onCambio={(v) => cambiar('inventario_ingreso', v)}
+        />
 
         <Campo
           etiqueta="Notas internas"

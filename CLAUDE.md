@@ -1,7 +1,27 @@
-# Mechanified — convenciones del proyecto
+# Grupo La Meseta — convenciones del proyecto
 
-Producto propio y original. No replicar nombres, textos, flujos ni interfaces de
-productos comerciales existentes.
+Sistema **interno** del grupo para gestionar sus propios talleres. No se vende
+ni se cede: los usuarios son la gente del grupo y los clientes son los dueños de
+los vehículos que entran a cada taller.
+
+Desarrollo propio y original. No replicar nombres, textos, flujos ni interfaces
+de productos comerciales existentes.
+
+Que sea interno **no quita la multi-tenencia**: cada taller del grupo es un
+inquilino con sus propios usuarios y datos, aislados por RLS. La razón ya no es
+comercial sino operativa —una sede no tiene por qué ver las órdenes, los precios
+ni la productividad de otra— y, sobre todo, es la barrera que hace que un error
+de programación no se convierta en una fuga entre sedes.
+
+## El prefijo `mch`
+
+Las funciones y triggers propios llevan `mch_`, las variables de entorno `MCH_`,
+las clases CSS `mch-` y el bucket de archivos `mch-evidencias`. Vienen del
+nombre con el que nació el proyecto y se mantienen a propósito: están en
+migraciones ya aplicadas —que no se editan—, en el `.env` de cada despliegue y
+en cada hoja de estilos. Tener un prefijo heredado es mejor que tener dos, uno
+nuevo arriba y el viejo abajo en la base de datos, que es lo que pasaría al
+cambiar solo la mitad.
 
 ## Idioma
 
