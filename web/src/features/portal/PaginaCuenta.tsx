@@ -18,11 +18,13 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Aviso, Boton, Cargando } from '@/components/ui';
 import { ETIQUETA_ROL, useSesion } from '@/app/sesion';
 import { ErrorApi } from '@/lib/api';
+import { iniciales } from '@/lib/marca';
 import { supabase } from '@/lib/supabase';
 import { CLAVE_CUENTA, obtenerCuenta } from '@/features/organizaciones/api';
 import { Incorporacion } from '@/features/organizaciones/Incorporacion';
 import { CabeceraSitio, PieSitio } from './CabeceraSitio';
 import { descargarInstalador } from './descarga';
+import { IconoDescarga, IconoFlecha, IconoVisto, IconoVistoCirculo } from './iconos';
 
 type Enlace = 'sin-enlace' | 'recogiendo' | 'recogido' | { error: string };
 
@@ -93,9 +95,10 @@ export function PaginaCuenta() {
     return (
       <div className="mch-sitio">
         <CabeceraSitio sinAcciones />
-        <main className="mch-sitio-acceso">
+        <main className="mch-sitio-estado">
           <Cargando texto="Abriendo tu cuenta…" />
         </main>
+        <PieSitio />
       </div>
     );
   }
@@ -104,14 +107,16 @@ export function PaginaCuenta() {
     return (
       <div className="mch-sitio">
         <CabeceraSitio sinAcciones />
-        <main className="mch-sitio-acceso">
-          <div className="mch-acceso__caja mch-panel mch-sitio-acceso__formulario">
+        <main className="mch-sitio-estado">
+          <div className="mch-sitio-estado__caja">
             <Aviso tono="error">{enlace.error}</Aviso>
             <a className="mch-boton" href="/entrar">
               Ir a entrar
+              <IconoFlecha />
             </a>
           </div>
         </main>
+        <PieSitio />
       </div>
     );
   }
@@ -153,7 +158,10 @@ function Cuenta() {
         <div className="mch-sitio-ancho mch-sitio-cuenta__columna">
           <header className="mch-sitio-cuenta__cabecera">
             <div>
-              <p className="mch-sitio-antetitulo">Tu cuenta</p>
+              <p className="mch-sitio-antetitulo">
+                <IconoVistoCirculo />
+                Tu cuenta
+              </p>
               <h1>{nombre ? `Hola, ${nombre.split(' ')[0]}` : 'Hola'}</h1>
               <p className="mch-sitio-cuenta__correo">{sesion?.user.email}</p>
             </div>
@@ -165,7 +173,7 @@ function Cuenta() {
           <ol className="mch-sitio-guia">
             <li className={`mch-sitio-guia__paso${descargado ? ' mch-sitio-guia__paso--hecho' : ''}`}>
               <div className="mch-sitio-guia__titulo">
-                <span className="mch-sitio-guia__numero">1</span>
+                <NumeroDePaso numero={1} hecho={descargado} />
                 <h2>Descarga Mechanified para Windows</h2>
               </div>
               <p>
@@ -175,6 +183,7 @@ function Cuenta() {
               </p>
               <div className="mch-sitio-guia__acciones">
                 <Boton onClick={() => void alDescargar()} cargando={descargando}>
+                  {!descargando && <IconoDescarga />}
                   Descargar Mechanified.exe
                 </Boton>
                 <span className="mch-sitio-guia__nota">Windows 10 u 11</span>
@@ -192,7 +201,7 @@ function Cuenta() {
               className={`mch-sitio-guia__paso${conOrganizacion ? ' mch-sitio-guia__paso--hecho' : ''}`}
             >
               <div className="mch-sitio-guia__titulo">
-                <span className="mch-sitio-guia__numero">2</span>
+                <NumeroDePaso numero={2} hecho={conOrganizacion} />
                 <h2>{conOrganizacion ? 'Tu organización' : 'Crea tu organización'}</h2>
               </div>
 
@@ -207,10 +216,15 @@ function Cuenta() {
 
               {pertenencia?.activo && (
                 <div className="mch-sitio-organizacion">
-                  <strong>{pertenencia.organizacion_nombre}</strong>
-                  <span>
-                    Sede {pertenencia.taller_nombre} · {ETIQUETA_ROL[pertenencia.rol]}
+                  <span className="mch-sitio-chip" aria-hidden="true">
+                    {iniciales(pertenencia.organizacion_nombre)}
                   </span>
+                  <div>
+                    <strong>{pertenencia.organizacion_nombre}</strong>
+                    <span>
+                      Sede {pertenencia.taller_nombre} · {ETIQUETA_ROL[pertenencia.rol]}
+                    </span>
+                  </div>
                 </div>
               )}
 
@@ -244,7 +258,7 @@ function Cuenta() {
 
             <li className="mch-sitio-guia__paso">
               <div className="mch-sitio-guia__titulo">
-                <span className="mch-sitio-guia__numero">3</span>
+                <NumeroDePaso numero={3} />
                 <h2>Entra en Mechanified</h2>
               </div>
               <p>
@@ -264,5 +278,21 @@ function Cuenta() {
       </main>
       <PieSitio />
     </div>
+  );
+}
+
+/** El número de un paso de la guía; cumplido, una marca de hecho. */
+function NumeroDePaso({ numero, hecho = false }: { numero: number; hecho?: boolean }) {
+  return (
+    <span className="mch-sitio-chip mch-sitio-guia__numero">
+      {hecho ? (
+        <>
+          <IconoVisto />
+          <span className="mch-sitio-oculto">{numero}, hecho</span>
+        </>
+      ) : (
+        numero
+      )}
+    </span>
   );
 }

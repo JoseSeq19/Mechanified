@@ -92,6 +92,10 @@ estilos: no se cambia por partes.
   `Mechanified.exe`) y el sitio (`src/sitio.tsx`, `vite --mode sitio`).
 - La marca: `Marca` sin nombre es Mechanified; dentro de la aplicación, con
   sesión, es el nombre de la organización (`GET /organizacion`).
+- El sitio tiene paleta propia (`--mch-sitio-*` en `tokens.css`: blanco, negro
+  y violeta) y la aplicación conserva el petróleo. Dentro de `.mch-sitio` los
+  componentes del sistema toman la del sitio porque `tokens.css` les re-apunta
+  los tokens: no se duplican componentes para el sitio.
 
 ## Escritorio
 

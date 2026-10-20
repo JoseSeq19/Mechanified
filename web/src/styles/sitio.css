@@ -1,54 +1,269 @@
 /* Mechanified · el sitio: presentación, acceso y cuenta.
-   Todo sale de los tokens, así que el modo oscuro viene solo. La única zona
-   que no cambia con el tema es la franja final, que va sobre el petróleo
-   profundo de la barra de la aplicación en los dos modos. */
+
+   Blanco y negro con el violeta como color de acción: franjas negras para
+   abrir y cerrar, tarjetas grises sin borde, titulares grandes y apretados.
+   La paleta está en tokens.css (`--mch-sitio-*`) y solo existe aquí; la
+   aplicación conserva la suya.
+
+   Los botones, campos y avisos son los del sistema de diseño: dentro de
+   .mch-sitio toman este aspecto porque tokens.css les re-apunta los tokens. */
+
+/* --- Lienzo ------------------------------------------------------------ */
+
+/* La página empieza y acaba en negro: así es también lo que asoma al tirar
+   más allá del borde en un trackpad o un móvil. */
+body:has(.mch-sitio) {
+  background: var(--mch-sitio-negro);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html:has(.mch-sitio) {
+    scroll-behavior: smooth;
+  }
+}
 
 .mch-sitio {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
   background: var(--mch-fondo);
+  color: var(--mch-texto);
+  font-family: var(--mch-fuente-base);
+  font-size: 1rem;
+  line-height: 1.4;
 }
 
 .mch-sitio > main {
   flex: 1;
 }
 
-/* 16px de margen a cada lado en el móvil; 1120px de ancho máximo. */
+/* 16px de margen a cada lado en el móvil, 40px en escritorio; 1240px de
+   contenido como mucho. */
 .mch-sitio-ancho {
-  width: min(1120px, calc(100% - 2rem));
+  --mch-sitio-margen: 1rem;
+  width: min(1240px, calc(100% - 2 * var(--mch-sitio-margen)));
   margin-inline: auto;
 }
 
-.mch-sitio a.mch-boton {
-  text-decoration: none;
+@media (min-width: 768px) {
+  .mch-sitio-ancho {
+    --mch-sitio-margen: 1.25rem;
+  }
 }
 
-.mch-sitio h1 {
-  font-size: clamp(2rem, 4.6vw, 3.25rem);
-  font-weight: 720;
-  letter-spacing: -0.032em;
-  line-height: 1.08;
+@media (min-width: 1024px) {
+  .mch-sitio-ancho {
+    --mch-sitio-margen: 2.5rem;
+  }
 }
 
-.mch-sitio h2 {
-  font-size: clamp(1.5rem, 3vw, 2.15rem);
-  font-weight: 700;
+/* Con :where, estas dos reglas no pesan nada: cualquier clase las pisa. Sin
+   él, `.mch-sitio p` ganaba a los márgenes de cada bajada y antetítulo. */
+:where(.mch-sitio) :is(h1, h2, h3) {
+  font-weight: 600;
   letter-spacing: -0.025em;
+  line-height: 1.2;
+  text-wrap: balance;
 }
 
+:where(.mch-sitio) p {
+  margin: 0;
+}
+
+/* El titular de sección: 60px en escritorio. */
+.mch-sitio-titular {
+  font-size: clamp(2rem, 1rem + 3.6vw, 3.75rem);
+}
+
+/* Titular centrado en dos tonos: la segunda parte, en gris. */
+.mch-sitio-titulo-doble {
+  max-width: 34rem;
+  margin-inline: auto;
+  text-align: center;
+  font-size: clamp(1.75rem, 1.2rem + 1.6vw, 2.25rem);
+  line-height: 1.3;
+}
+
+.mch-sitio-titulo-doble span {
+  color: var(--mch-sitio-texto-suave);
+}
+
+/* El rótulo que abre cada sección, con su marca de visto. */
 .mch-sitio-antetitulo {
-  margin: 0 0 var(--mch-esp-3);
-  font-size: var(--mch-txt-xs);
-  font-weight: 650;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--mch-marca);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 1rem;
+  color: var(--mch-sitio-acento-texto);
 }
 
-.mch-sitio-boton-grande {
-  padding: 0.75rem 1.25rem;
-  font-size: var(--mch-txt-md);
+.mch-sitio-bajada {
+  max-width: 36rem;
+  margin-top: 1.25rem;
+  font-size: 1.125rem;
+  line-height: 1.55;
+  color: var(--mch-texto-secundario);
+}
+
+/* Texto solo para lectores de pantalla. */
+.mch-sitio-oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* --- Botones ----------------------------------------------------------- */
+
+/* El violeta es el de siempre (`mch-boton`); aquí cambian la forma, el
+   tamaño y la flecha. */
+.mch-sitio .mch-boton {
+  gap: 8px;
+  padding: 12px 14px 12px 16px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    opacity 0.3s ease;
+}
+
+.mch-sitio .mch-boton svg {
+  flex: none;
+  transition: transform 0.3s ease;
+}
+
+.mch-sitio .mch-boton:hover:not(:disabled) svg {
+  transform: translateX(2px);
+}
+
+.mch-sitio .mch-boton--secundario {
+  border-color: transparent;
+  border-radius: 12px;
+  background: var(--mch-sitio-superficie);
+  color: var(--mch-sitio-texto-tarjeta);
+}
+
+.mch-sitio .mch-boton--secundario:hover:not(:disabled) {
+  border-color: transparent;
+  background: color-mix(in srgb, var(--mch-sitio-superficie), var(--mch-sitio-texto) 7%);
+}
+
+.mch-sitio .mch-boton--fantasma {
+  padding: 12px 16px;
+}
+
+/* Variante que solo existe en el sitio: casi negra, para ir sobre la
+   cabecera y sobre la franja de color. */
+.mch-sitio .mch-boton--oscuro {
+  border-radius: 12px;
+  background: var(--mch-sitio-carbon);
+  color: var(--mch-sitio-blanco);
+}
+
+.mch-sitio .mch-boton--oscuro:hover:not(:disabled) {
+  background: var(--mch-sitio-grafito);
+}
+
+/* --- Campos, avisos y paneles del sistema ------------------------------- */
+
+.mch-sitio .mch-campo__etiqueta {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--mch-sitio-texto-tarjeta);
+}
+
+.mch-sitio .mch-campo__control {
+  padding: 0.75rem 0.9rem;
+  border-color: var(--mch-sitio-linea);
+  border-radius: 12px;
+  font-size: 1rem;
+}
+
+.mch-sitio .mch-campo__control:hover {
+  border-color: color-mix(in srgb, var(--mch-sitio-linea), var(--mch-sitio-texto) 22%);
+}
+
+.mch-sitio .mch-campo__control:focus {
+  border-color: var(--mch-sitio-violeta);
+}
+
+.mch-sitio .mch-aviso {
+  padding: 12px 16px;
+  border-radius: 12px;
+  line-height: 1.5;
+}
+
+.mch-sitio .mch-panel {
+  border-radius: 16px;
+  box-shadow: none;
+}
+
+.mch-sitio .mch-marca__glifo {
+  background: var(--mch-sitio-degradado);
+}
+
+.mch-sitio .mch-acceso__enlace {
+  justify-self: center;
+}
+
+/* --- Fichas de color ---------------------------------------------------- */
+
+.mch-sitio-chip {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--mch-sitio-chip-violeta);
+  color: var(--mch-sitio-blanco);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.35),
+    0 6px 14px -6px rgb(20 20 20 / 0.35);
+}
+
+.mch-sitio-chip--orquidea {
+  background: var(--mch-sitio-chip-orquidea);
+}
+
+.mch-sitio-chip--grafito {
+  background: var(--mch-sitio-chip-grafito);
+}
+
+.mch-sitio-chip--esmeralda {
+  background: var(--mch-sitio-chip-esmeralda);
+}
+
+.mch-sitio-chip--ambar {
+  background: var(--mch-sitio-chip-ambar);
+}
+
+.mch-sitio-chip--cielo {
+  background: var(--mch-sitio-chip-cielo);
+}
+
+/* --- Cuadrícula decorativa ---------------------------------------------- */
+
+/* Cuadros pequeños que se desvanecen: el color sale del fondo del elemento
+   y la forma de dos máscaras, el patrón y el fundido (`--fundido`). */
+.mch-sitio-cuadricula {
+  --fundido: radial-gradient(closest-side, #000, transparent);
+  position: absolute;
+  pointer-events: none;
+  background: var(--mch-sitio-cuadro);
+  -webkit-mask-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='23' height='23'%3E%3Crect width='14' height='14' rx='1.5'/%3E%3C/svg%3E"),
+    var(--fundido);
+  mask-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='23' height='23'%3E%3Crect width='14' height='14' rx='1.5'/%3E%3C/svg%3E"),
+    var(--fundido);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
 }
 
 /* --- Cabecera ---------------------------------------------------------- */
@@ -56,137 +271,653 @@
 .mch-sitio-cabecera {
   position: sticky;
   top: 0;
-  z-index: 10;
-  background: color-mix(in srgb, var(--mch-fondo) 86%, transparent);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--mch-borde);
+  z-index: 20;
+  background: var(--mch-sitio-negro);
+  color: var(--mch-sitio-blanco);
+  border-bottom: 1px solid transparent;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease;
 }
 
+.mch-sitio-cabecera--desplazada {
+  background: color-mix(in srgb, var(--mch-sitio-negro) 80%, transparent);
+  border-bottom-color: rgb(255 255 255 / 0.1);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.mch-sitio-cabecera--abierta {
+  border-bottom-color: rgb(255 255 255 / 0.1);
+}
+
+/* Tres columnas para que las secciones queden centradas en la página, no
+   entre la marca y los botones. */
 .mch-sitio-cabecera__fila {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  grid-template-areas: 'marca secciones acciones';
   align-items: center;
-  gap: var(--mch-esp-6);
-  min-height: 64px;
+  gap: 1.5rem;
+  min-height: 76px;
 }
 
 .mch-sitio-cabecera__marca {
-  color: var(--mch-texto);
+  grid-area: marca;
+  justify-self: start;
+  color: inherit;
   text-decoration: none;
+}
+
+.mch-sitio-cabecera__marca .mch-marca,
+.mch-sitio-pie__marca .mch-marca {
+  font-size: 1.375rem;
+  font-weight: 600;
 }
 
 .mch-sitio-cabecera__secciones {
+  grid-area: secciones;
   display: flex;
-  gap: var(--mch-esp-6);
-  font-size: var(--mch-txt-sm);
+  gap: 2.5rem;
 }
 
-.mch-sitio-cabecera__secciones a {
-  color: var(--mch-texto-secundario);
+.mch-sitio-cabecera__secciones a,
+.mch-sitio-cabecera__enlace {
+  color: var(--mch-sitio-blanco);
   text-decoration: none;
+  transition: color 0.3s ease;
 }
 
-.mch-sitio-cabecera__secciones a:hover {
-  color: var(--mch-texto);
+.mch-sitio-cabecera__secciones a:hover,
+.mch-sitio-cabecera__enlace:hover {
+  color: var(--mch-sitio-gris-claro);
 }
 
 .mch-sitio-cabecera__acciones {
+  grid-area: acciones;
+  justify-self: end;
   display: flex;
-  gap: var(--mch-esp-2);
-  margin-left: auto;
+  align-items: center;
+  gap: 1.5rem;
 }
 
-@media (max-width: 860px) {
-  .mch-sitio-cabecera__secciones {
+.mch-sitio-cabecera__enlace {
+  font-weight: 500;
+}
+
+.mch-sitio-cabecera__menu {
+  grid-area: acciones;
+  justify-self: end;
+  display: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-right: -10px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--mch-sitio-blanco);
+  cursor: pointer;
+}
+
+.mch-sitio-cabecera__desplegable {
+  padding: 0.5rem 0 1.5rem;
+  border-top: 1px solid rgb(255 255 255 / 0.1);
+}
+
+.mch-sitio-cabecera__desplegable-secciones {
+  display: grid;
+}
+
+.mch-sitio-cabecera__desplegable-secciones a {
+  padding: 0.85rem 0;
+  border-bottom: 1px solid rgb(255 255 255 / 0.08);
+  color: var(--mch-sitio-blanco);
+  font-size: 1.125rem;
+  text-decoration: none;
+}
+
+.mch-sitio-cabecera__desplegable-acciones {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.mch-sitio-cabecera__desplegable-acciones .mch-sitio-cabecera__enlace {
+  padding: 0.75rem 0;
+}
+
+.mch-sitio-cabecera__desplegable-acciones .mch-boton--oscuro {
+  background: var(--mch-sitio-violeta);
+}
+
+@media (max-width: 899px) {
+  .mch-sitio-cabecera__fila {
+    grid-template-columns: 1fr auto;
+    grid-template-areas: 'marca acciones';
+    min-height: 64px;
+  }
+
+  .mch-sitio-cabecera__secciones,
+  .mch-sitio-cabecera__acciones {
+    display: none;
+  }
+
+  .mch-sitio-cabecera__menu {
+    display: grid;
+  }
+}
+
+@media (min-width: 900px) {
+  .mch-sitio-cabecera__desplegable {
     display: none;
   }
 }
 
-/* En el móvil más estrecho no caben la marca entera y los dos botones. */
-@media (max-width: 400px) {
-  .mch-sitio-cabecera__marca .mch-marca > span:last-child {
-    display: none;
-  }
+/* --- Secciones ---------------------------------------------------------- */
+
+.mch-sitio-seccion {
+  padding-block: clamp(3rem, 1rem + 6vw, 6.5rem);
+  scroll-margin-top: 64px;
 }
 
-/* --- Portada ----------------------------------------------------------- */
+.mch-sitio-seccion--negra {
+  background: var(--mch-sitio-negro);
+  color: var(--mch-sitio-blanco);
+  border-block: 1px solid var(--mch-sitio-separacion);
+}
+
+.mch-sitio-seccion--negra .mch-sitio-antetitulo {
+  color: var(--mch-sitio-gris-claro);
+}
+
+.mch-sitio-seccion--negra .mch-sitio-bajada {
+  color: var(--mch-sitio-gris-claro);
+}
+
+.mch-sitio-encabezado {
+  max-width: 46rem;
+  margin-bottom: clamp(2rem, 4vw, 3.5rem);
+}
+
+/* --- Portada ------------------------------------------------------------ */
 
 .mch-sitio-portada {
-  padding: clamp(2.5rem, 7vw, 5rem) 0 clamp(2.5rem, 6vw, 4.5rem);
-  background:
-    radial-gradient(60rem 28rem at 85% 0%, var(--mch-marca-tenue), transparent 70%),
-    var(--mch-fondo);
+  position: relative;
+  overflow: hidden;
+  padding: clamp(3rem, 1rem + 7vw, 7rem) 0 clamp(3.5rem, 1rem + 6vw, 6rem);
+  background: var(--mch-sitio-negro);
+  color: var(--mch-sitio-blanco);
+  text-align: center;
 }
 
-.mch-sitio-portada__rejilla {
+.mch-sitio-portada__contenido {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-  gap: clamp(2rem, 5vw, 3.5rem);
+  justify-items: center;
+}
+
+.mch-sitio-portada__insignias {
+  list-style: none;
+  margin: 0 0 1.75rem;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem 1.5rem;
+  color: var(--mch-sitio-gris-claro);
+}
+
+.mch-sitio-portada__insignias li {
+  display: inline-flex;
   align-items: center;
+  gap: 8px;
+}
+
+.mch-sitio-portada__insignias svg {
+  flex: none;
+}
+
+.mch-sitio-portada__insignias svg {
+  color: var(--mch-sitio-orquidea);
+}
+
+.mch-sitio-portada__insignias strong {
+  font-weight: 600;
+  color: var(--mch-sitio-blanco);
+}
+
+.mch-sitio-portada h1 {
+  max-width: 13.5em;
+  font-size: clamp(2.25rem, 1rem + 4.6vw, 4.25rem);
 }
 
 .mch-sitio-portada__bajada {
-  margin: var(--mch-esp-5) 0 0;
-  max-width: 36rem;
-  font-size: var(--mch-txt-lg);
-  color: var(--mch-texto-secundario);
+  max-width: 40rem;
+  margin-top: 1.25rem;
+  font-size: 1.125rem;
+  line-height: 1.55;
+  color: var(--mch-sitio-gris-claro);
 }
 
 .mch-sitio-portada__acciones {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--mch-esp-3);
-  margin-top: var(--mch-esp-8);
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  margin-top: 2rem;
 }
 
-.mch-sitio-portada__nota {
-  margin: var(--mch-esp-3) 0 0;
-  font-size: var(--mch-txt-xs);
-  color: var(--mch-texto-secundario);
+.mch-sitio-portada__secundaria {
+  padding: 12px 16px;
+  color: var(--mch-sitio-gris-claro);
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.3s ease;
 }
 
-@media (max-width: 900px) {
-  .mch-sitio-portada__rejilla {
-    grid-template-columns: minmax(0, 1fr);
+.mch-sitio-portada__secundaria:hover {
+  color: var(--mch-sitio-blanco);
+}
+
+/* --- Ilustración de la portada ------------------------------------------ */
+
+/* El móvil en el centro y las dos tarjetas montadas sobre sus bordes. Las
+   medidas van en porcentaje del ancho para que la composición aguante desde
+   la tableta. */
+.mch-sitio-ancho.mch-sitio-escena {
+  position: relative;
+  width: min(904px, calc(100% - 2 * var(--mch-sitio-margen)));
+  height: 420px;
+  margin-top: clamp(3rem, 6vw, 4.5rem);
+  text-align: left;
+}
+
+.mch-sitio-escena__brillo {
+  position: absolute;
+  inset: -12% 14% -20%;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--mch-sitio-violeta) 42%, transparent),
+    transparent
+  );
+  filter: blur(24px);
+}
+
+.mch-sitio-movil {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 232px;
+  height: 420px;
+  padding: 9px;
+  transform: translateX(-50%);
+  border: 1px solid #3a3a3a;
+  border-radius: 40px;
+  background: var(--mch-sitio-carbon);
+  box-shadow:
+    0 40px 80px rgb(0 0 0 / 0.6),
+    inset 0 0 0 2px #0b0b0b;
+}
+
+.mch-sitio-movil__pantalla {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 40px 16px 16px;
+  overflow: hidden;
+  border-radius: 31px;
+  background: var(--mch-sitio-blanco);
+  color: var(--mch-sitio-carbon);
+}
+
+/* La isla de la cámara. */
+.mch-sitio-movil__pantalla::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  width: 66px;
+  height: 18px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: var(--mch-sitio-carbon);
+}
+
+.mch-sitio-movil__rotulo {
+  font-size: 11px;
+  color: #6e6e6e;
+}
+
+.mch-sitio-movil__vehiculo {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.mch-sitio-movil__lineas {
+  list-style: none;
+  margin: 4px 0 auto;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.mch-sitio-movil__lineas li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: #6e6e6e;
+}
+
+.mch-sitio-movil__lineas li span:last-child {
+  color: var(--mch-sitio-carbon);
+  font-variant-numeric: tabular-nums;
+}
+
+.mch-sitio-movil__lineas .mch-sitio-movil__total {
+  margin-top: 4px;
+  padding-top: 10px;
+  border-top: 1px solid #ececec;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--mch-sitio-carbon);
+}
+
+.mch-sitio-movil__boton {
+  display: block;
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--mch-sitio-violeta);
+  color: var(--mch-sitio-blanco);
+  font-size: 13px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.mch-sitio-movil__boton--tenue {
+  background: #f4f4f4;
+  color: #323232;
+}
+
+.mch-sitio-tarjeta-orden {
+  position: absolute;
+  top: 110px;
+  left: 1%;
+  z-index: 2;
+  width: 38%;
+  min-height: 236px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 26px 28px;
+  border-radius: 24px;
+  background:
+    radial-gradient(90% 80% at 22% 18%, rgb(255 255 255 / 0.22), transparent 60%),
+    radial-gradient(70% 90% at 100% 100%, rgb(255 255 255 / 0.06), transparent 70%),
+    linear-gradient(135deg, #2c2c2c, #101010);
+  color: var(--mch-sitio-blanco);
+  box-shadow:
+    var(--mch-sitio-sombra-flotante),
+    inset 0 1px 0 rgb(255 255 255 / 0.1);
+}
+
+.mch-sitio-tarjeta-orden__fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.mch-sitio-tarjeta-orden__fila svg {
+  color: rgb(255 255 255 / 0.75);
+}
+
+.mch-sitio-tarjeta-orden__marca {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.mch-sitio-tarjeta-orden__vehiculo {
+  display: block;
+  margin-bottom: 4px;
+  color: rgb(255 255 255 / 0.72);
+}
+
+.mch-sitio-tarjeta-orden__folio {
+  display: block;
+  font-size: 1.25rem;
+  letter-spacing: 0.08em;
+}
+
+.mch-sitio-tarjeta-orden__fechas {
+  justify-content: flex-start;
+  gap: 2rem;
+  font-size: 0.8125rem;
+}
+
+.mch-sitio-tarjeta-orden__fechas small {
+  display: block;
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 0.55);
+}
+
+.mch-sitio-tarjeta-aviso {
+  position: absolute;
+  top: 28px;
+  right: 5%;
+  z-index: 2;
+  width: 34%;
+  overflow: hidden;
+  border-radius: 22px;
+  background: var(--mch-sitio-blanco);
+  color: var(--mch-sitio-carbon);
+  box-shadow: var(--mch-sitio-sombra-flotante);
+}
+
+.mch-sitio-tarjeta-aviso__cabecera {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: color-mix(in srgb, var(--mch-sitio-rosa) 70%, var(--mch-sitio-blanco));
+}
+
+.mch-sitio-tarjeta-aviso__cabecera strong {
+  display: block;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.mch-sitio-tarjeta-aviso__cabecera span:not(.mch-sitio-chip) {
+  font-size: 0.875rem;
+  color: #6e6e6e;
+}
+
+.mch-sitio-tarjeta-aviso__cuerpo {
+  display: grid;
+  gap: 2px;
+  padding: 14px 16px 16px;
+}
+
+.mch-sitio-tarjeta-aviso__cuerpo > span {
+  font-size: 0.75rem;
+  color: #6e6e6e;
+}
+
+.mch-sitio-tarjeta-aviso__cuerpo div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mch-sitio-tarjeta-aviso__cuerpo strong {
+  font-size: 1.125rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.mch-sitio-tarjeta-aviso__cuerpo em {
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--mch-sitio-menta);
+  color: var(--mch-sitio-verde);
+  font-size: 0.75rem;
+  font-style: normal;
+}
+
+/* En la tableta estrecha y el móvil, las dos tarjetas una debajo de otra,
+   como dos avisos; el móvil sobra. */
+@media (max-width: 760px) {
+  .mch-sitio-ancho.mch-sitio-escena {
+    height: auto;
+    display: grid;
+    gap: 16px;
+    max-width: 420px;
+  }
+
+  .mch-sitio-movil {
+    display: none;
+  }
+
+  .mch-sitio-tarjeta-orden,
+  .mch-sitio-tarjeta-aviso {
+    position: relative;
+    inset: auto;
+    width: 100%;
   }
 }
 
-/* --- Ficha de muestra -------------------------------------------------- */
+/* --- Lo que necesita un taller ------------------------------------------ */
 
-.mch-sitio-ficha {
-  margin: 0;
-  padding: var(--mch-esp-5);
+.mch-sitio-piezas {
+  margin-top: clamp(2rem, 4vw, 3.75rem);
   display: grid;
-  gap: var(--mch-esp-4);
-  background: var(--mch-panel);
-  border: 1px solid var(--mch-borde);
-  border-radius: var(--mch-radio-lg);
-  /* Una segunda tarjeta asomando detrás: es una orden entre muchas. */
-  box-shadow:
-    14px 14px 0 -1px var(--mch-marca-tenue),
-    14px 14px 0 0 var(--mch-borde),
-    var(--mch-sombra-lg);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
 }
 
-.mch-sitio-ficha__cabecera {
+.mch-sitio-pieza {
+  min-height: 235px;
   display: flex;
-  align-items: flex-start;
+  flex-direction: column;
   justify-content: space-between;
-  gap: var(--mch-esp-3);
+  gap: 2.5rem;
+  padding: 24px;
+  border-radius: 16px;
+  background: var(--mch-sitio-superficie);
+  color: var(--mch-sitio-texto-tarjeta);
 }
 
-.mch-sitio-ficha__folio {
+.mch-sitio-pieza h3 {
+  margin-bottom: 8px;
+  font-size: 1.125rem;
+  letter-spacing: 0;
+  line-height: 1.55;
+}
+
+.mch-sitio-pieza p {
+  font-size: 0.875rem;
+  line-height: 1.625;
+  color: var(--mch-sitio-texto-suave);
+}
+
+@media (max-width: 960px) {
+  .mch-sitio-piezas {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .mch-sitio-piezas {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mch-sitio-pieza {
+    min-height: 0;
+  }
+}
+
+/* --- Cómo funciona ------------------------------------------------------ */
+
+/* La tarjeta negra grande, con el panel de una orden montado encima. */
+.mch-sitio-destacado {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 414px);
+  align-items: end;
+  gap: 2rem;
+  min-height: 560px;
+  padding: clamp(1.5rem, 4.5vw, 4rem);
+  border-radius: 32px;
+  background:
+    radial-gradient(55% 75% at 88% 85%, color-mix(in srgb, var(--mch-sitio-violeta) 55%, transparent), transparent 70%),
+    radial-gradient(45% 60% at 8% 0%, rgb(255 255 255 / 0.1), transparent 70%),
+    var(--mch-sitio-carbon);
+  color: var(--mch-sitio-blanco);
+}
+
+.mch-sitio-destacado__cuadricula {
+  --fundido: radial-gradient(60% 70% at 100% 0%, #000, transparent);
+  inset: 0;
+  background: rgb(255 255 255 / 0.07);
+}
+
+.mch-sitio-destacado__texto {
+  position: relative;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2.5rem;
+  max-width: 430px;
+}
+
+.mch-sitio-destacado__texto h3 {
+  margin-bottom: 0.75rem;
+  font-size: clamp(1.6rem, 1rem + 1.8vw, 2.25rem);
+}
+
+.mch-sitio-destacado__texto p {
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  color: var(--mch-sitio-gris-claro);
+}
+
+.mch-sitio-panel-orden {
+  position: relative;
+  display: grid;
+  gap: 1.25rem;
+  padding: 28px;
+  border-radius: 24px;
+  background: var(--mch-sitio-blanco);
+  color: var(--mch-sitio-carbon);
+  box-shadow: 0 20px 60px rgb(20 20 20 / 0.25);
+}
+
+.mch-sitio-panel-orden__titulo {
   display: block;
-  font-family: var(--mch-fuente-mono);
-  font-weight: 650;
+  font-size: 1.5rem;
+  font-weight: 500;
+  letter-spacing: -0.025em;
 }
 
-.mch-sitio-ficha__vehiculo {
-  display: block;
-  font-size: var(--mch-txt-xs);
-  color: var(--mch-texto-secundario);
+.mch-sitio-panel-orden__detalle {
+  font-size: 0.875rem;
+  color: #6e6e6e;
 }
 
-.mch-sitio-ficha__estados {
+.mch-sitio-panel-orden__estados {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -195,431 +926,924 @@
   gap: 6px;
 }
 
-.mch-sitio-ficha__estado {
-  padding: 2px 9px;
-  border: 1px solid var(--mch-borde);
-  border-radius: 999px;
-  font-size: var(--mch-txt-xs);
-  color: var(--mch-texto-secundario);
+.mch-sitio-panel-orden__estado {
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: #f4f4f4;
+  font-size: 0.8125rem;
+  color: #323232;
 }
 
-.mch-sitio-ficha__estado--hecho {
-  background: var(--mch-exito-fondo);
-  border-color: color-mix(in srgb, var(--mch-exito) 25%, transparent);
-  color: var(--mch-exito);
+.mch-sitio-panel-orden__estado--actual {
+  background: color-mix(in srgb, var(--mch-sitio-violeta) 62%, var(--mch-sitio-blanco));
+  color: var(--mch-sitio-blanco);
 }
 
-.mch-sitio-ficha__estado--hecho::before {
-  content: '✓ ';
-}
-
-.mch-sitio-ficha__estado--actual {
-  background: var(--mch-marca);
-  border-color: var(--mch-marca);
-  color: #fff;
-  font-weight: 600;
-}
-
-.mch-sitio-ficha__datos {
-  margin: 0;
-  display: grid;
-  gap: var(--mch-esp-3);
-  padding-top: var(--mch-esp-4);
-  border-top: 1px solid var(--mch-borde);
-}
-
-.mch-sitio-ficha__datos > div {
-  display: grid;
-  grid-template-columns: 6.5rem minmax(0, 1fr);
-  gap: var(--mch-esp-3);
-  align-items: baseline;
-}
-
-.mch-sitio-ficha__datos dt {
-  font-size: var(--mch-txt-xs);
-  color: var(--mch-texto-secundario);
-}
-
-.mch-sitio-ficha__datos dd {
-  margin: 0;
-  font-size: var(--mch-txt-sm);
-}
-
-.mch-sitio-ficha__hora {
-  margin-left: 4px;
-  padding: 0 6px;
-  border-radius: var(--mch-radio-sm);
-  background: var(--mch-marca-tenue);
-  font-family: var(--mch-fuente-mono);
-  font-size: var(--mch-txt-xs);
-}
-
-.mch-sitio-ficha__pie {
-  font-size: var(--mch-txt-xs);
-  color: var(--mch-texto-secundario);
-  text-align: right;
-  opacity: 0.75;
-}
-
-/* --- Secciones --------------------------------------------------------- */
-
-.mch-sitio-seccion {
-  padding: clamp(3.5rem, 8vw, 5.5rem) 0;
-  scroll-margin-top: 64px;
-}
-
-.mch-sitio-seccion--tenue {
-  background: var(--mch-marca-tenue);
-}
-
-.mch-sitio-seccion__bajada {
-  margin: var(--mch-esp-4) 0 0;
-  max-width: 44rem;
-  color: var(--mch-texto-secundario);
-}
-
-.mch-sitio-recorrido {
+.mch-sitio-linea-tiempo {
   list-style: none;
-  margin: var(--mch-esp-8) 0 0;
+  margin: 0;
   padding: 0;
   display: grid;
-  /* Tres columnas en escritorio: con seis pasos, cuatro dejaban un hueco. */
-  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
-  gap: var(--mch-esp-4);
+  gap: 22px;
 }
 
-.mch-sitio-recorrido__paso,
-.mch-sitio-pieza {
-  padding: var(--mch-esp-5);
-  background: var(--mch-panel);
-  border: 1px solid var(--mch-borde);
-  border-radius: var(--mch-radio-lg);
+.mch-sitio-linea-tiempo li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 14px;
 }
 
-.mch-sitio-recorrido__numero {
+/* El hilo que une un punto con el siguiente. */
+.mch-sitio-linea-tiempo li:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 34px;
+  bottom: -20px;
+  left: 14px;
+  width: 2px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--mch-sitio-violeta) 70%, var(--mch-sitio-blanco));
+}
+
+.mch-sitio-linea-tiempo__punto {
   display: grid;
   place-items: center;
   width: 30px;
   height: 30px;
-  border-radius: 999px;
-  background: var(--mch-marca-tenue);
-  color: var(--mch-marca);
-  font-family: var(--mch-fuente-mono);
-  font-size: var(--mch-txt-sm);
-  font-weight: 700;
+  border-radius: 50%;
+  background: var(--mch-sitio-degradado);
+  color: var(--mch-sitio-blanco);
+  box-shadow: 0 6px 16px -4px color-mix(in srgb, var(--mch-sitio-violeta) 70%, transparent);
 }
 
-.mch-sitio-recorrido__paso h3,
-.mch-sitio-pieza h3 {
-  margin: var(--mch-esp-3) 0 var(--mch-esp-1);
-  font-size: var(--mch-txt-md);
-  font-weight: 650;
+.mch-sitio-linea-tiempo__punto--pendiente {
+  background: var(--mch-sitio-blanco);
+  border: 2px solid var(--mch-sitio-coral);
+  box-shadow: 0 6px 16px -4px color-mix(in srgb, var(--mch-sitio-coral) 70%, transparent);
 }
 
-.mch-sitio-pieza h3 {
-  margin-top: 0;
+.mch-sitio-linea-tiempo strong {
+  display: block;
+  font-weight: 500;
 }
 
-.mch-sitio-recorrido__paso p,
-.mch-sitio-pieza p {
-  margin: 0;
-  font-size: var(--mch-txt-sm);
-  color: var(--mch-texto-secundario);
+.mch-sitio-linea-tiempo span {
+  font-size: 0.875rem;
+  color: #6e6e6e;
 }
 
-.mch-sitio-piezas {
-  margin-top: var(--mch-esp-8);
+.mch-sitio-recorrido {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
-  gap: var(--mch-esp-4);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
 }
 
-.mch-sitio-sedes {
+.mch-sitio-recorrido__paso {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: clamp(2rem, 5vw, 3.5rem);
-  align-items: start;
+  align-content: start;
+  gap: 8px;
+  padding: 24px;
+  border-radius: 16px;
+  background: var(--mch-sitio-superficie);
+  color: var(--mch-sitio-texto-tarjeta);
 }
 
-@media (max-width: 900px) {
-  .mch-sitio-sedes {
+.mch-sitio-recorrido__numero,
+.mch-sitio-pasos__numero {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--mch-sitio-acento-texto);
+  font-variant-numeric: tabular-nums;
+}
+
+.mch-sitio-recorrido__numero {
+  margin-bottom: 1.25rem;
+}
+
+.mch-sitio-recorrido__paso h3 {
+  font-size: 1.25rem;
+}
+
+.mch-sitio-recorrido__paso p {
+  line-height: 1.6;
+  color: var(--mch-sitio-texto-suave);
+}
+
+@media (max-width: 960px) {
+  .mch-sitio-destacado {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+  }
+
+  .mch-sitio-recorrido {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .mch-sitio-destacado {
+    border-radius: 24px;
+  }
+
+  .mch-sitio-panel-orden {
+    padding: 20px;
+  }
+
+  .mch-sitio-recorrido {
     grid-template-columns: minmax(0, 1fr);
   }
 }
 
-.mch-sitio-garantias {
+/* --- Varias sedes ------------------------------------------------------- */
+
+/* La ventana de la aplicación asoma desde abajo: la franja no tiene margen
+   inferior y la ventana se corta en su borde. */
+.mch-sitio-sedes {
+  overflow: hidden;
+  padding-bottom: 0;
+}
+
+.mch-sitio-sedes__rejilla {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: end;
+  gap: clamp(2.5rem, 6vw, 5rem);
+}
+
+.mch-sitio-sedes__texto {
+  padding-bottom: clamp(3rem, 1rem + 6vw, 6.5rem);
+}
+
+.mch-sitio-vistos {
+  list-style: none;
+  margin: 2rem 0 2.5rem;
+  padding: 0;
+  display: grid;
+  gap: 1.5rem;
+}
+
+.mch-sitio-vistos li {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 14px;
+}
+
+.mch-sitio-vistos svg {
+  margin-top: 3px;
+}
+
+.mch-sitio-vistos strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 1.125rem;
+  font-weight: 400;
+}
+
+.mch-sitio-vistos span {
+  line-height: 1.45;
+  color: var(--mch-sitio-gris-claro);
+}
+
+.mch-sitio-ventana {
+  align-self: end;
+  padding: 10px 10px 0;
+  border: 1px solid #333;
+  border-bottom: none;
+  border-radius: 28px 28px 0 0;
+  background: #0e0e0e;
+  box-shadow: 0 -20px 90px color-mix(in srgb, var(--mch-sitio-violeta) 22%, transparent);
+}
+
+.mch-sitio-ventana__barra {
+  display: flex;
+  gap: 6px;
+  padding: 6px 8px 12px;
+}
+
+.mch-sitio-ventana__barra i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #3a3a3a;
+}
+
+.mch-sitio-ventana__cuerpo {
+  display: grid;
+  grid-template-columns: 168px minmax(0, 1fr);
+  min-height: 340px;
+  overflow: hidden;
+  border-radius: 18px 18px 0 0;
+  background: #f4f4f4;
+}
+
+.mch-sitio-ventana__rail {
+  display: grid;
+  align-content: start;
+  gap: 16px;
+  padding: 16px 12px;
+  background: var(--mch-sitio-carbon);
+  color: var(--mch-sitio-blanco);
+}
+
+.mch-sitio-ventana__organizacion {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 4px 0;
+}
+
+.mch-sitio-ventana__glifo {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: var(--mch-sitio-degradado);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.mch-sitio-ventana__organizacion strong {
+  display: block;
+  font-size: 13px;
+  line-height: 1.2;
+}
+
+.mch-sitio-ventana__organizacion small {
+  font-size: 11px;
+  color: var(--mch-sitio-gris-medio);
+}
+
+.mch-sitio-ventana__menu {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  gap: var(--mch-esp-3);
+  gap: 2px;
+  font-size: 13px;
+  color: #a9a9a9;
 }
 
-.mch-sitio-garantias li {
-  padding: var(--mch-esp-4) var(--mch-esp-5);
-  background: var(--mch-panel);
-  border: 1px solid var(--mch-borde);
-  border-left: 3px solid var(--mch-marca);
-  border-radius: var(--mch-radio);
-  font-size: var(--mch-txt-sm);
-  color: var(--mch-texto-secundario);
+.mch-sitio-ventana__menu li {
+  padding: 8px 10px;
+  border-radius: 8px;
 }
 
-.mch-sitio-garantias strong {
-  display: block;
-  margin-bottom: 2px;
-  color: var(--mch-texto);
-  font-size: var(--mch-txt-md);
+.mch-sitio-ventana__menu .mch-sitio-ventana__menu-actual {
+  background: var(--mch-sitio-grafito);
+  color: var(--mch-sitio-blanco);
 }
 
-/* La franja final va sobre el petróleo profundo en los dos temas. */
-.mch-sitio-seccion--oscura {
-  background: var(--mch-rail);
-  color: var(--mch-rail-texto);
+.mch-sitio-ventana__contenido {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  padding: 18px;
+  color: var(--mch-sitio-carbon);
 }
 
-.mch-sitio-seccion--oscura h2,
-.mch-sitio-seccion--oscura h3 {
-  color: #fff;
+.mch-sitio-ventana__sede {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
 }
 
-.mch-sitio-seccion--oscura .mch-sitio-antetitulo {
-  color: var(--mch-ambar-600);
+.mch-sitio-ventana__sede strong {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
+
+.mch-sitio-ventana__sede span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: var(--mch-sitio-blanco);
+  font-size: 11px;
+  color: #6e6e6e;
+}
+
+.mch-sitio-ventana__orden {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--mch-sitio-blanco);
+  font-size: 13px;
+}
+
+.mch-sitio-ventana__folio {
+  font-family: var(--mch-fuente-mono);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.mch-sitio-ventana__vehiculo {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: #6e6e6e;
+}
+
+.mch-sitio-ventana__estado {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #efebff;
+  color: var(--mch-sitio-violeta);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.mch-sitio-ventana__estado--rosa {
+  background: var(--mch-sitio-rosa);
+  color: #9b3fa8;
+}
+
+.mch-sitio-ventana__estado--menta {
+  background: var(--mch-sitio-menta);
+  color: var(--mch-sitio-verde);
+}
+
+@media (max-width: 900px) {
+  .mch-sitio-sedes__rejilla {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mch-sitio-sedes__texto {
+    padding-bottom: 0;
+  }
+}
+
+/* En el móvil la barra lateral se vuelve una cabecera con el nombre. */
+@media (max-width: 560px) {
+  .mch-sitio-ventana__cuerpo {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 330px;
+  }
+
+  .mch-sitio-ventana__menu {
+    display: none;
+  }
+
+  .mch-sitio-ventana__orden {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .mch-sitio-ventana__vehiculo {
+    display: none;
+  }
+
+  .mch-sitio-ventana__estado {
+    justify-self: end;
+  }
+}
+
+/* --- Empezar ------------------------------------------------------------ */
 
 .mch-sitio-pasos {
   list-style: none;
-  counter-reset: paso;
-  margin: var(--mch-esp-8) 0;
+  margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
-  gap: var(--mch-esp-6);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
 }
 
 .mch-sitio-pasos li {
-  counter-increment: paso;
-  padding-top: var(--mch-esp-4);
-  border-top: 1px solid rgb(255 255 255 / 0.16);
+  min-height: 294px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 3rem;
+  padding: 30px;
+  border-radius: 16px;
+  background: var(--mch-sitio-superficie);
+  color: var(--mch-sitio-texto-tarjeta);
+  transition: background-color 0.3s ease;
 }
 
-.mch-sitio-pasos li::before {
-  content: counter(paso, decimal-leading-zero);
+.mch-sitio-pasos li:hover {
+  background: var(--mch-sitio-realce);
+}
+
+.mch-sitio-pasos__numero {
   display: block;
-  margin-bottom: var(--mch-esp-2);
-  font-family: var(--mch-fuente-mono);
-  font-size: var(--mch-txt-sm);
-  font-weight: 700;
-  color: var(--mch-ambar-600);
+  margin-bottom: 12px;
 }
 
 .mch-sitio-pasos h3 {
-  font-size: var(--mch-txt-lg);
+  max-width: 12em;
+  font-size: 1.5rem;
+  font-weight: 500;
+  line-height: 1.4;
 }
 
 .mch-sitio-pasos p {
-  margin: var(--mch-esp-2) 0 0;
-  font-size: var(--mch-txt-sm);
+  line-height: 1.55;
+  color: var(--mch-sitio-texto-suave);
 }
 
-.mch-sitio a.mch-sitio-boton-claro {
-  background: #fff;
-  color: var(--mch-petroleo-900);
+.mch-sitio-franja {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px 16px;
+  margin-top: 2.5rem;
+  padding: 27px;
+  background: var(--mch-sitio-franja);
+  color: var(--mch-sitio-franja-texto);
+  text-align: center;
 }
 
-.mch-sitio a.mch-sitio-boton-claro:hover {
-  background: var(--mch-petroleo-100);
+.mch-sitio-franja > svg {
+  color: var(--mch-sitio-coral);
 }
 
-/* --- Pie --------------------------------------------------------------- */
+.mch-sitio-franja p {
+  font-size: 1.125rem;
+}
+
+@media (max-width: 900px) {
+  .mch-sitio-pasos {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .mch-sitio-pasos li {
+    min-height: 0;
+    gap: 1.5rem;
+  }
+}
+
+/* --- Cierre ------------------------------------------------------------- */
+
+.mch-sitio-cierre {
+  padding: clamp(4rem, 2rem + 8vw, 9rem) 0 clamp(2rem, 4vw, 3rem);
+  background: var(--mch-sitio-negro);
+  color: var(--mch-sitio-blanco);
+  text-align: center;
+  border-top: 1px solid var(--mch-sitio-separacion);
+}
+
+.mch-sitio-cierre h2 {
+  max-width: 13em;
+  margin-inline: auto;
+  font-size: clamp(2.25rem, 1rem + 4.6vw, 4.25rem);
+}
+
+.mch-sitio-cierre p {
+  max-width: 40rem;
+  margin: 1.25rem auto 2rem;
+  font-size: 1.125rem;
+  color: var(--mch-sitio-gris-claro);
+}
+
+/* --- Pie ---------------------------------------------------------------- */
 
 .mch-sitio-pie {
-  padding: var(--mch-esp-6) 0;
-  border-top: 1px solid var(--mch-borde);
-  font-size: var(--mch-txt-xs);
-  color: var(--mch-texto-secundario);
+  position: relative;
+  overflow: hidden;
+  padding: clamp(4rem, 2rem + 6vw, 7rem) 0 2rem;
+  background: var(--mch-sitio-negro);
+  color: var(--mch-sitio-blanco);
+}
+
+.mch-sitio-pie__cuadricula {
+  --fundido: radial-gradient(75% 85% at 0% 100%, #000 30%, transparent);
+  left: 0;
+  bottom: 0;
+  width: min(560px, 80%);
+  height: 100%;
+}
+
+.mch-sitio-pie__contenido {
+  position: relative;
 }
 
 .mch-sitio-pie__fila {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
   justify-content: space-between;
-  gap: var(--mch-esp-3);
+  gap: 3rem;
 }
 
-/* --- Entrar y crear cuenta --------------------------------------------- */
+.mch-sitio-pie__marca {
+  display: grid;
+  align-content: start;
+  gap: 1.25rem;
+  max-width: 21rem;
+}
+
+.mch-sitio-pie__marca .mch-marca {
+  font-size: 1.75rem;
+}
+
+.mch-sitio-pie__marca .mch-marca__glifo {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.mch-sitio-pie__marca p {
+  line-height: 1.45;
+  color: #e6e6e6;
+}
+
+.mch-sitio-pie__columnas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2.5rem clamp(2.5rem, 8vw, 6rem);
+}
+
+.mch-sitio-pie__columnas h2 {
+  margin-bottom: 1.25rem;
+  font-size: 1.125rem;
+  letter-spacing: 0;
+}
+
+.mch-sitio-pie__columnas ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.mch-sitio-pie__columnas a {
+  color: var(--mch-sitio-gris-claro);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.mch-sitio-pie__columnas a:hover {
+  color: var(--mch-sitio-blanco);
+}
+
+.mch-sitio-pie__base {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+  margin-top: clamp(3rem, 8vw, 5.5rem);
+  padding-top: 1.5rem;
+  border-top: 1px solid #262626;
+  font-size: 0.875rem;
+  color: var(--mch-sitio-gris-medio);
+}
+
+/* --- Entrar y crear cuenta ---------------------------------------------- */
 
 .mch-sitio-acceso {
+  padding: clamp(1.5rem, 4vw, 3.5rem) 0 clamp(3rem, 7vw, 6rem);
+}
+
+.mch-sitio-acceso__rejilla {
   display: grid;
-  justify-items: center;
-  align-content: start;
-  padding: clamp(2rem, 6vw, 4rem) var(--mch-esp-4);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 440px);
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+}
+
+/* El lado negro: qué se consigue con la cuenta. */
+.mch-sitio-acceso__lema {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 3rem;
+  min-height: 580px;
+  padding: clamp(1.75rem, 4vw, 3.5rem);
+  border-radius: 32px;
+  background:
+    radial-gradient(60% 70% at 90% 100%, color-mix(in srgb, var(--mch-sitio-violeta) 55%, transparent), transparent 70%),
+    radial-gradient(45% 60% at 8% 0%, rgb(255 255 255 / 0.1), transparent 70%),
+    var(--mch-sitio-carbon);
+  color: var(--mch-sitio-blanco);
+}
+
+.mch-sitio-acceso__lema > :not(.mch-sitio-cuadricula) {
+  position: relative;
+}
+
+.mch-sitio-acceso__lema .mch-sitio-antetitulo {
+  color: var(--mch-sitio-gris-claro);
+}
+
+.mch-sitio-acceso__lema h1 {
+  max-width: 11em;
+  font-size: clamp(2rem, 1rem + 2.6vw, 3.25rem);
+}
+
+.mch-sitio-acceso__lema .mch-sitio-vistos {
+  margin: 0;
+}
+
+.mch-sitio-acceso__caja {
+  align-self: center;
+  display: grid;
+  gap: 16px;
 }
 
 .mch-sitio-pestanas {
-  display: flex;
-  gap: 4px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
   padding: 4px;
-  margin-bottom: var(--mch-esp-4);
-  background: var(--mch-marca-tenue);
-  border: 1px solid var(--mch-borde);
-  border-radius: var(--mch-radio-lg);
+  border-radius: 16px;
+  background: var(--mch-sitio-pista);
 }
 
 .mch-sitio-pestana {
-  flex: 1;
-  padding: 0.5rem;
+  padding: 10px;
   border: none;
-  border-radius: var(--mch-radio);
+  border-radius: 12px;
   background: transparent;
-  color: var(--mch-texto-secundario);
-  font-weight: 560;
+  color: var(--mch-sitio-texto-suave);
+  font-weight: 500;
   cursor: pointer;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+.mch-sitio-pestana:hover {
+  color: var(--mch-sitio-texto);
 }
 
 .mch-sitio-pestana--activa {
-  background: var(--mch-panel);
-  color: var(--mch-texto);
-  box-shadow: var(--mch-sombra-sm);
+  background: var(--mch-sitio-panel);
+  color: var(--mch-sitio-texto);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
+}
+
+/* El formulario: una tarjeta blanca. También la de recuperar la contraseña,
+   que es un panel del sistema con su propio relleno. */
+.mch-sitio-acceso__caja .mch-panel {
+  border-color: var(--mch-sitio-linea);
+  border-radius: 24px;
+  box-shadow: var(--mch-sitio-sombra-tarjeta);
 }
 
 .mch-sitio-acceso__formulario {
-  padding: var(--mch-esp-6);
   display: grid;
   gap: var(--mch-esp-4);
+  padding: var(--mch-esp-6);
 }
 
 .mch-sitio-acceso__intro {
-  margin: 0;
-  font-size: var(--mch-txt-sm);
-  color: var(--mch-texto-secundario);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--mch-sitio-texto-suave);
 }
 
-/* --- Cuenta ------------------------------------------------------------ */
+@media (max-width: 899px) {
+  .mch-sitio-acceso__rejilla {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 520px;
+  }
+
+  .mch-sitio-acceso__lema {
+    min-height: 0;
+    gap: 0;
+  }
+
+  .mch-sitio-acceso__lema .mch-sitio-vistos {
+    display: none;
+  }
+}
+
+/* --- Estados de carga y de error, y la contraseña nueva ------------------ */
+
+.mch-sitio-estado,
+.mch-sitio .mch-acceso {
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  padding: clamp(3rem, 10vw, 7rem) var(--mch-esp-4);
+}
+
+.mch-sitio-estado__caja {
+  width: min(440px, 100%);
+  display: grid;
+  gap: var(--mch-esp-4);
+  padding: var(--mch-esp-6);
+  border-radius: 24px;
+  background: var(--mch-sitio-superficie);
+}
+
+.mch-sitio-estado__caja .mch-boton {
+  justify-self: start;
+}
+
+.mch-sitio .mch-acceso__caja {
+  width: min(440px, 100%);
+}
+
+.mch-sitio .mch-acceso .mch-panel {
+  border-radius: 24px;
+  box-shadow: var(--mch-sitio-sombra-tarjeta);
+}
+
+.mch-sitio .mch-acceso .mch-panel a {
+  color: var(--mch-sitio-acento-texto);
+}
+
+.mch-sitio-titulo-pagina {
+  font-size: clamp(2rem, 1rem + 2.6vw, 3rem);
+}
+
+/* --- Cuenta ------------------------------------------------------------- */
 
 .mch-sitio-cuenta {
-  padding: clamp(2rem, 6vw, 3.5rem) 0 clamp(3rem, 8vw, 5rem);
+  padding: clamp(2.5rem, 6vw, 5rem) 0 clamp(3rem, 8vw, 6rem);
 }
 
 .mch-sitio-ancho.mch-sitio-cuenta__columna {
-  width: min(780px, calc(100% - 2rem));
+  width: min(880px, calc(100% - 2 * var(--mch-sitio-margen)));
 }
 
 .mch-sitio-cuenta__cabecera {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
+  align-items: flex-end;
   justify-content: space-between;
-  gap: var(--mch-esp-4);
+  gap: 1.5rem;
 }
 
 .mch-sitio-cuenta__cabecera h1 {
-  font-size: clamp(1.6rem, 4vw, 2.1rem);
+  font-size: clamp(2.25rem, 1rem + 3.4vw, 3.75rem);
 }
 
 .mch-sitio-cuenta__correo {
-  margin: var(--mch-esp-1) 0 0;
-  font-size: var(--mch-txt-sm);
-  color: var(--mch-texto-secundario);
+  margin-top: 0.5rem;
+  font-size: 1.0625rem;
+  color: var(--mch-sitio-texto-suave);
   overflow-wrap: anywhere;
 }
 
 .mch-sitio-guia {
   list-style: none;
-  margin: var(--mch-esp-8) 0 0;
+  margin: clamp(2rem, 5vw, 3rem) 0 0;
   padding: 0;
   display: grid;
-  gap: var(--mch-esp-4);
+  gap: 16px;
 }
 
 .mch-sitio-guia__paso {
-  padding: var(--mch-esp-6);
   display: grid;
-  gap: var(--mch-esp-4);
-  background: var(--mch-panel);
-  border: 1px solid var(--mch-borde);
-  border-radius: var(--mch-radio-lg);
-  box-shadow: var(--mch-sombra-sm);
+  gap: 1.25rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border-radius: 24px;
+  background: var(--mch-sitio-superficie);
 }
 
 .mch-sitio-guia__paso > p {
-  margin: 0;
-  color: var(--mch-texto-secundario);
+  max-width: 46rem;
+  line-height: 1.6;
+  color: var(--mch-sitio-texto-suave);
+}
+
+.mch-sitio-guia__paso > p strong {
+  color: var(--mch-sitio-texto);
+  font-weight: 500;
 }
 
 .mch-sitio-guia__titulo {
   display: flex;
   align-items: center;
-  gap: var(--mch-esp-3);
+  gap: 14px;
 }
 
 .mch-sitio-guia__titulo h2 {
-  font-size: var(--mch-txt-lg);
-  letter-spacing: -0.015em;
+  font-size: 1.5rem;
+  font-weight: 500;
 }
 
 .mch-sitio-guia__numero {
-  display: grid;
-  place-items: center;
-  flex: none;
-  width: 28px;
-  height: 28px;
-  border: 2px solid var(--mch-marca);
-  border-radius: 999px;
-  color: var(--mch-marca);
-  font-size: var(--mch-txt-sm);
-  font-weight: 700;
+  font-weight: 600;
 }
 
-/* Paso cumplido: el número se vuelve una marca de hecho. */
 .mch-sitio-guia__paso--hecho .mch-sitio-guia__numero {
-  border-color: var(--mch-exito);
-  background: var(--mch-exito);
-  color: transparent;
-  position: relative;
-}
-
-.mch-sitio-guia__paso--hecho .mch-sitio-guia__numero::after {
-  content: '✓';
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  color: #fff;
+  background: var(--mch-sitio-chip-esmeralda);
 }
 
 .mch-sitio-guia__acciones {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--mch-esp-3);
+  gap: 12px 16px;
 }
 
 .mch-sitio-guia__nota {
-  margin: 0;
-  font-size: var(--mch-txt-xs);
-  color: var(--mch-texto-secundario);
+  font-size: 0.875rem;
+  color: var(--mch-sitio-texto-suave);
 }
 
-/* El formulario de incorporación va dentro de un paso que ya es un panel. */
-.mch-sitio-guia__paso .mch-incorporacion__formulario {
-  box-shadow: none;
+.mch-sitio-guia__paso > .mch-sitio-guia__nota {
+  font-size: 0.875rem;
 }
 
 .mch-sitio-organizacion {
-  display: grid;
-  gap: 2px;
-  padding: var(--mch-esp-3) var(--mch-esp-4);
-  background: var(--mch-marca-tenue);
-  border-radius: var(--mch-radio);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--mch-sitio-panel);
 }
 
 .mch-sitio-organizacion strong {
-  font-size: var(--mch-txt-lg);
+  display: block;
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
 }
 
-.mch-sitio-organizacion span {
-  font-size: var(--mch-txt-sm);
-  color: var(--mch-texto-secundario);
+.mch-sitio-organizacion span:not(.mch-sitio-chip) {
+  font-size: 0.875rem;
+  color: var(--mch-sitio-texto-suave);
+}
+
+/* La incorporación va dentro de un paso gris: sus tarjetas y su formulario,
+   en blanco. */
+.mch-sitio .mch-camino {
+  padding: 18px;
+  border-color: transparent;
+  border-radius: 16px;
+  background: var(--mch-sitio-panel);
+}
+
+.mch-sitio .mch-camino:hover {
+  border-color: var(--mch-sitio-linea);
+}
+
+.mch-sitio .mch-camino--activo,
+.mch-sitio .mch-camino--activo:hover {
+  border-color: var(--mch-sitio-violeta);
+  background: var(--mch-sitio-violeta-tenue);
+}
+
+.mch-sitio .mch-camino__titulo {
+  font-weight: 600;
+}
+
+.mch-sitio .mch-incorporacion__formulario {
+  border: none;
+}
+
+/* --- Entrada ------------------------------------------------------------ */
+
+@keyframes mch-sitio-aparecer {
+  from {
+    opacity: 0;
+    translate: 0 24px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .mch-sitio-portada__contenido > *,
+  .mch-sitio-escena {
+    animation: mch-sitio-aparecer 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+
+  .mch-sitio-portada__contenido > :nth-child(2) {
+    animation-delay: 0.06s;
+  }
+
+  .mch-sitio-portada__contenido > :nth-child(3) {
+    animation-delay: 0.12s;
+  }
+
+  .mch-sitio-portada__contenido > :nth-child(4) {
+    animation-delay: 0.18s;
+  }
+
+  .mch-sitio-escena {
+    animation-delay: 0.26s;
+  }
+
+  /* Lo de más abajo aparece al llegar a él, donde el navegador sabe atar una
+     animación al desplazamiento; donde no, simplemente está. */
+  @supports (animation-timeline: view()) {
+    .mch-sitio-aparece {
+      animation: mch-sitio-aparecer linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 55%;
+    }
+  }
 }

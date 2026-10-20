@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { PaginaClaveNueva } from '@/features/auth/PaginaClaveNueva';
 import { PaginaEncuestaPublica } from '@/features/encuestas/PaginaEncuestaPublica';
+import { MarcoSitio } from '@/features/portal/CabeceraSitio';
 import { PaginaCuenta } from '@/features/portal/PaginaCuenta';
 import { PaginaEntrar } from '@/features/portal/PaginaEntrar';
 import { PaginaInicio } from '@/features/portal/PaginaInicio';
@@ -37,7 +38,14 @@ export function Sitio() {
             <Route path="/" element={<PaginaInicio />} />
             <Route path="/entrar" element={<PaginaEntrar />} />
             <Route path={RUTA_CUENTA} element={<PaginaCuenta />} />
-            <Route path={RUTA_CLAVE_NUEVA} element={<PaginaClaveNueva />} />
+            <Route
+              path={RUTA_CLAVE_NUEVA}
+              element={
+                <MarcoSitio>
+                  <PaginaClaveNueva />
+                </MarcoSitio>
+              }
+            />
             <Route path="/presupuesto/:token" element={<PaginaPresupuestoPublico />} />
             <Route path="/encuesta/:token" element={<PaginaEncuestaPublica />} />
             <Route path="*" element={<Navigate to="/" replace />} />

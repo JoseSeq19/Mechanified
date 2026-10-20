@@ -1,12 +1,15 @@
 /* ---------------------------------------------------------------
-   La Meseta · tokens de diseño
+   Mechanified · tokens de diseño
    Punto único de verdad del sistema visual. Ningún componente declara
    un color literal: todos salen de aquí.
 
-   La identidad es propia: petróleo como color de marca (un verde azulado
-   profundo, sobrio, que aguanta bien las superficies claras de un panel de
-   trabajo) y ámbar como color de señal, reservado para lo que exige
-   atención. Nada de azul corporativo genérico.
+   La identidad de la aplicación es propia: petróleo como color de marca (un
+   verde azulado profundo, sobrio, que aguanta bien las superficies claras de
+   un panel de trabajo) y ámbar como color de señal, reservado para lo que
+   exige atención. Nada de azul corporativo genérico.
+
+   El sitio de presentación tiene paleta aparte (`--mch-sitio-*`, al final):
+   blanco y negro con el violeta como color de acción.
    --------------------------------------------------------------- */
 
 :root {
@@ -86,6 +89,53 @@
 
   --mch-foco: 0 0 0 3px rgb(22 123 131 / 0.28);
   --mch-transicion: 130ms ease;
+
+  /* --- Sitio ---------------------------------------------------------
+     Solo los usa lo que va dentro de .mch-sitio (src/sitio.tsx). Se
+     declaran en la raíz para que el fondo de la página pueda tomarlos. */
+
+  /* Fijos: las franjas negras y las ilustraciones son iguales en los dos
+     temas. */
+  --mch-sitio-negro: #000;
+  --mch-sitio-carbon: #141414;
+  --mch-sitio-grafito: #262626;
+  --mch-sitio-cuadro: #1c1c1c;
+  --mch-sitio-blanco: #fff;
+  --mch-sitio-gris-claro: #bebebe;
+  --mch-sitio-gris-medio: #8a8a8a;
+  --mch-sitio-violeta: #6142ff;
+  --mch-sitio-violeta-hover: #4f30f0;
+  --mch-sitio-violeta-claro: #a594ff;
+  --mch-sitio-orquidea: #d8a0df;
+  --mch-sitio-rosa: #f6e2f8;
+  --mch-sitio-menta: #ccfff0;
+  --mch-sitio-verde: #0b7a52;
+  --mch-sitio-coral: #ff7a59;
+  --mch-sitio-degradado: linear-gradient(135deg, #6142ff, #8b66ff);
+  --mch-sitio-chip-orquidea: linear-gradient(160deg, #f3c6f5, #c77fd8);
+  --mch-sitio-chip-grafito: linear-gradient(160deg, #a6a6a6, #5c5c5c);
+  --mch-sitio-chip-esmeralda: linear-gradient(160deg, #4fd3a3, #19895f);
+  --mch-sitio-chip-violeta: linear-gradient(160deg, #c4b5ff, #7b5cff);
+  --mch-sitio-chip-ambar: linear-gradient(160deg, #ffd38f, #e2861c);
+  --mch-sitio-chip-cielo: linear-gradient(160deg, #a3d5ff, #3a86e0);
+  --mch-sitio-sombra-tarjeta: 0 4px 24px rgb(20 20 20 / 0.08);
+  --mch-sitio-sombra-flotante: 0 30px 60px rgb(0 0 0 / 0.45);
+
+  /* Con tema. */
+  --mch-sitio-fondo: #fff;
+  --mch-sitio-panel: #fff;
+  --mch-sitio-superficie: #f4f4f4;
+  --mch-sitio-pista: #f5f5f7;
+  --mch-sitio-texto: #141414;
+  --mch-sitio-texto-tarjeta: #323232;
+  --mch-sitio-texto-suave: #6e6e6e;
+  --mch-sitio-linea: #e6e6e6;
+  --mch-sitio-acento-texto: #6142ff;
+  --mch-sitio-violeta-tenue: #efebff;
+  --mch-sitio-realce: #f6e2f8;
+  --mch-sitio-franja: #ccfff0;
+  --mch-sitio-franja-texto: #141414;
+  --mch-sitio-separacion: transparent;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -107,5 +157,40 @@
     --mch-alerta-fondo: #2e1c10;
     --mch-error-fondo: #2e1414;
     --mch-ambar-600: #d98c33;
+
+    --mch-sitio-fondo: #0b0b0c;
+    --mch-sitio-panel: #121214;
+    --mch-sitio-superficie: #161618;
+    --mch-sitio-pista: #1b1b1e;
+    --mch-sitio-texto: #f2f2f2;
+    --mch-sitio-texto-tarjeta: #e2e2e2;
+    --mch-sitio-texto-suave: #a3a3a3;
+    --mch-sitio-linea: #2b2b2e;
+    --mch-sitio-acento-texto: #a594ff;
+    --mch-sitio-violeta-tenue: #1d1838;
+    --mch-sitio-realce: #251a2b;
+    --mch-sitio-franja: #0f2a22;
+    --mch-sitio-franja-texto: #ccfff0;
+    /* En oscuro el fondo ya es casi negro: una línea separa las franjas. */
+    --mch-sitio-separacion: #1f1f22;
   }
+}
+
+/* Dentro del sitio, los componentes del sistema (botones, campos, avisos,
+   paneles) toman la paleta del sitio: son los mismos, con otro aspecto. */
+.mch-sitio {
+  --mch-fondo: var(--mch-sitio-fondo);
+  --mch-panel: var(--mch-sitio-panel);
+  --mch-texto: var(--mch-sitio-texto);
+  --mch-texto-secundario: var(--mch-sitio-texto-suave);
+  --mch-tinta-suave: var(--mch-sitio-texto-suave);
+  --mch-borde: var(--mch-sitio-linea);
+  --mch-marca: var(--mch-sitio-violeta);
+  --mch-marca-hover: var(--mch-sitio-violeta-hover);
+  --mch-marca-tenue: var(--mch-sitio-violeta-tenue);
+  --mch-radio: 10px;
+  --mch-radio-lg: 16px;
+  --mch-foco: 0 0 0 3px rgb(97 66 255 / 0.32);
+  --mch-fuente-base:
+    'Inter Tight', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }

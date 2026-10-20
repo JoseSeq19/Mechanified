@@ -117,9 +117,16 @@ export function PaginaClaveNueva() {
   return (
     <main className="mch-acceso">
       <div className="mch-acceso__caja">
+        {/* En el sitio la marca ya está en la cabecera (ver `MarcoSitio`). */}
         <div style={{ marginBottom: 'var(--mch-esp-6)' }}>
-          <Marca />
-          <p className="mch-acceso__nota">Contraseña nueva</p>
+          {ES_SITIO ? (
+            <h1 className="mch-sitio-titulo-pagina">Contraseña nueva</h1>
+          ) : (
+            <>
+              <Marca />
+              <p className="mch-acceso__nota">Contraseña nueva</p>
+            </>
+          )}
         </div>
 
         {estado === 'abriendo' && (
