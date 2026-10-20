@@ -1,4 +1,4 @@
-/* La Meseta · estilos base y componentes del sistema de diseño. */
+/* Mechanified · estilos base y componentes del sistema de diseño. */
 
 *,
 *::before,
@@ -402,6 +402,10 @@ textarea {
   font-size: var(--mch-txt-xs);
   color: var(--mch-texto-secundario);
   text-align: center;
+}
+
+.mch-acceso__pie a {
+  color: var(--mch-marca);
 }
 
 /* Un botón que parece enlace: la acción no navega a ninguna parte, cambia lo

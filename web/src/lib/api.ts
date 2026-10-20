@@ -1,5 +1,5 @@
 /**
- * Cliente HTTP de la API de La Meseta.
+ * Cliente HTTP de la API de Mechanified.
  *
  * Adjunta el token de la sesión de Supabase a cada petición y traduce los dos
  * formatos de error que devuelve el backend a un mensaje legible:
@@ -81,6 +81,17 @@ function construirError(estado: number, cuerpo: unknown): ErrorApi {
   }
 
   if (estado === 0) {
+    // Fuera de desarrollo quien lee esto es un cliente, no quien programa: no
+    // hay backend que arrancar ni CORS que revisar.
+    if (!import.meta.env.DEV) {
+      return new ErrorApi(
+        0,
+        'No se pudo contactar con Mechanified. Revisa tu conexión a internet y vuelve a ' +
+          'intentarlo; si usas la aplicación de escritorio, comprueba que sigue abierta.',
+        'sin_conexion',
+      );
+    }
+
     // `fetch` lanza el mismo TypeError si el servidor no responde y si el
     // navegador bloqueó la respuesta por CORS, así que el mensaje tiene que
     // nombrar las dos causas. Decir solo "¿está corriendo el backend?" manda a

@@ -213,7 +213,7 @@ export function PaginaPresupuestoPublico() {
 
       <footer className="mch-publico__pie">
         <Marca compacta />
-        <span>Presupuesto emitido por Grupo La Meseta</span>
+        <span>Gestionado con Mechanified</span>
       </footer>
     </main>
   );

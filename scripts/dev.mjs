@@ -1,5 +1,6 @@
 /**
- * Levanta la API y la web juntas, con un solo comando desde la raíz.
+ * Levanta la API, la aplicación y el sitio juntos, con un solo comando desde la
+ * raíz.
  *
  *     npm run dev
  *
@@ -20,7 +21,13 @@ import { fileURLToPath } from 'node:url';
 const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ES_WINDOWS = process.platform === 'win32';
 
-const COLOR = { api: '\x1b[36m', web: '\x1b[35m', err: '\x1b[31m', fin: '\x1b[0m' };
+const COLOR = {
+  api: '\x1b[36m',
+  web: '\x1b[35m',
+  sitio: '\x1b[33m',
+  err: '\x1b[31m',
+  fin: '\x1b[0m',
+};
 
 const pythonVenv = ES_WINDOWS
   ? path.join(RAIZ, 'backend', '.venv', 'Scripts', 'python.exe')
@@ -62,8 +69,8 @@ function arrancar(nombre, comando, argumentos, cwd) {
     detenerTodo(1);
   });
 
-  // Si uno de los dos se cae, el otro sobra: arrastrarlo evita dejar un
-  // servidor huérfano ocupando el puerto.
+  // Si uno se cae, los demás sobran: arrastrarlos evita dejar un servidor
+  // huérfano ocupando el puerto.
   hijo.on('exit', (codigo) => {
     if (!cerrando) {
       console.error(`${COLOR.err}[${nombre}] terminó con código ${codigo}${COLOR.fin}`);
@@ -88,12 +95,13 @@ process.on('SIGINT', () => detenerTodo(0));
 process.on('SIGTERM', () => detenerTodo(0));
 
 console.log(`
-  Grupo La Meseta
+  Mechanified
 
-    API   http://localhost:8000        docs en /docs
-    Web   http://localhost:5173
+    API     http://localhost:8000        docs en /docs
+    Web     http://localhost:5173        la aplicación (lo que va en Mechanified.exe)
+    Sitio   http://localhost:5174        presentación, registro, descarga y cuenta
 
-  Ctrl+C para detener los dos.
+  Ctrl+C para detener los tres.
 `);
 
 arrancar(
@@ -104,3 +112,4 @@ arrancar(
 );
 
 arrancar('web', process.execPath, [viteBin], path.join(RAIZ, 'web'));
+arrancar('sitio', process.execPath, [viteBin, '--mode', 'sitio'], path.join(RAIZ, 'web'));

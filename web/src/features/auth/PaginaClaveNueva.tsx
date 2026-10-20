@@ -16,8 +16,9 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { Aviso, Boton, Campo, Cargando, Marca } from '@/components/ui';
+import { ES_SITIO } from '@/lib/marca';
 import { supabase } from '@/lib/supabase';
-import { useSesion } from '@/app/sesion';
+import { RUTA_CUENTA, useSesion } from '@/app/sesion';
 
 type Estado = 'abriendo' | 'listo-para-cambiar' | 'enlace-invalido' | 'cambiada';
 
@@ -133,7 +134,7 @@ export function PaginaClaveNueva() {
               {error ?? 'Este enlace ya no sirve. Los de recuperación caducan y valen una vez.'}
             </Aviso>
             <p style={{ marginTop: 'var(--mch-esp-4)', fontSize: 'var(--mch-txt-sm)' }}>
-              <Link to="/">Volver a pedir uno</Link>
+              <Link to={ES_SITIO ? '/entrar' : '/'}>Volver a pedir uno</Link>
             </p>
           </div>
         )}
@@ -169,7 +170,20 @@ export function PaginaClaveNueva() {
           </form>
         )}
 
-        {estado === 'cambiada' && (
+        {/* En el sitio no hay taller al que entrar: el trabajo se hace en la
+            aplicación de escritorio, que es donde hay que usar la contraseña. */}
+        {estado === 'cambiada' && ES_SITIO && (
+          <div className="mch-panel" style={{ padding: 'var(--mch-esp-6)' }}>
+            <Aviso tono="info">
+              Contraseña cambiada. Úsala para entrar en Mechanified desde tu computador.
+            </Aviso>
+            <div style={{ marginTop: 'var(--mch-esp-4)' }}>
+              <Boton onClick={() => navegar(RUTA_CUENTA, { replace: true })}>Ir a mi cuenta</Boton>
+            </div>
+          </div>
+        )}
+
+        {estado === 'cambiada' && !ES_SITIO && (
           <div className="mch-panel" style={{ padding: 'var(--mch-esp-6)' }}>
             <Aviso tono="info">
               Contraseña cambiada. La sesión ya está abierta con la cuenta del enlace.

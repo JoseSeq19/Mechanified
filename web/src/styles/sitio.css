@@ -1,0 +1,625 @@
+/* Mechanified · el sitio: presentación, acceso y cuenta.
+   Todo sale de los tokens, así que el modo oscuro viene solo. La única zona
+   que no cambia con el tema es la franja final, que va sobre el petróleo
+   profundo de la barra de la aplicación en los dos modos. */
+
+.mch-sitio {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--mch-fondo);
+}
+
+.mch-sitio > main {
+  flex: 1;
+}
+
+/* 16px de margen a cada lado en el móvil; 1120px de ancho máximo. */
+.mch-sitio-ancho {
+  width: min(1120px, calc(100% - 2rem));
+  margin-inline: auto;
+}
+
+.mch-sitio a.mch-boton {
+  text-decoration: none;
+}
+
+.mch-sitio h1 {
+  font-size: clamp(2rem, 4.6vw, 3.25rem);
+  font-weight: 720;
+  letter-spacing: -0.032em;
+  line-height: 1.08;
+}
+
+.mch-sitio h2 {
+  font-size: clamp(1.5rem, 3vw, 2.15rem);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.mch-sitio-antetitulo {
+  margin: 0 0 var(--mch-esp-3);
+  font-size: var(--mch-txt-xs);
+  font-weight: 650;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--mch-marca);
+}
+
+.mch-sitio-boton-grande {
+  padding: 0.75rem 1.25rem;
+  font-size: var(--mch-txt-md);
+}
+
+/* --- Cabecera ---------------------------------------------------------- */
+
+.mch-sitio-cabecera {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: color-mix(in srgb, var(--mch-fondo) 86%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--mch-borde);
+}
+
+.mch-sitio-cabecera__fila {
+  display: flex;
+  align-items: center;
+  gap: var(--mch-esp-6);
+  min-height: 64px;
+}
+
+.mch-sitio-cabecera__marca {
+  color: var(--mch-texto);
+  text-decoration: none;
+}
+
+.mch-sitio-cabecera__secciones {
+  display: flex;
+  gap: var(--mch-esp-6);
+  font-size: var(--mch-txt-sm);
+}
+
+.mch-sitio-cabecera__secciones a {
+  color: var(--mch-texto-secundario);
+  text-decoration: none;
+}
+
+.mch-sitio-cabecera__secciones a:hover {
+  color: var(--mch-texto);
+}
+
+.mch-sitio-cabecera__acciones {
+  display: flex;
+  gap: var(--mch-esp-2);
+  margin-left: auto;
+}
+
+@media (max-width: 860px) {
+  .mch-sitio-cabecera__secciones {
+    display: none;
+  }
+}
+
+/* En el móvil más estrecho no caben la marca entera y los dos botones. */
+@media (max-width: 400px) {
+  .mch-sitio-cabecera__marca .mch-marca > span:last-child {
+    display: none;
+  }
+}
+
+/* --- Portada ----------------------------------------------------------- */
+
+.mch-sitio-portada {
+  padding: clamp(2.5rem, 7vw, 5rem) 0 clamp(2.5rem, 6vw, 4.5rem);
+  background:
+    radial-gradient(60rem 28rem at 85% 0%, var(--mch-marca-tenue), transparent 70%),
+    var(--mch-fondo);
+}
+
+.mch-sitio-portada__rejilla {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: clamp(2rem, 5vw, 3.5rem);
+  align-items: center;
+}
+
+.mch-sitio-portada__bajada {
+  margin: var(--mch-esp-5) 0 0;
+  max-width: 36rem;
+  font-size: var(--mch-txt-lg);
+  color: var(--mch-texto-secundario);
+}
+
+.mch-sitio-portada__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mch-esp-3);
+  margin-top: var(--mch-esp-8);
+}
+
+.mch-sitio-portada__nota {
+  margin: var(--mch-esp-3) 0 0;
+  font-size: var(--mch-txt-xs);
+  color: var(--mch-texto-secundario);
+}
+
+@media (max-width: 900px) {
+  .mch-sitio-portada__rejilla {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* --- Ficha de muestra -------------------------------------------------- */
+
+.mch-sitio-ficha {
+  margin: 0;
+  padding: var(--mch-esp-5);
+  display: grid;
+  gap: var(--mch-esp-4);
+  background: var(--mch-panel);
+  border: 1px solid var(--mch-borde);
+  border-radius: var(--mch-radio-lg);
+  /* Una segunda tarjeta asomando detrás: es una orden entre muchas. */
+  box-shadow:
+    14px 14px 0 -1px var(--mch-marca-tenue),
+    14px 14px 0 0 var(--mch-borde),
+    var(--mch-sombra-lg);
+}
+
+.mch-sitio-ficha__cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--mch-esp-3);
+}
+
+.mch-sitio-ficha__folio {
+  display: block;
+  font-family: var(--mch-fuente-mono);
+  font-weight: 650;
+}
+
+.mch-sitio-ficha__vehiculo {
+  display: block;
+  font-size: var(--mch-txt-xs);
+  color: var(--mch-texto-secundario);
+}
+
+.mch-sitio-ficha__estados {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.mch-sitio-ficha__estado {
+  padding: 2px 9px;
+  border: 1px solid var(--mch-borde);
+  border-radius: 999px;
+  font-size: var(--mch-txt-xs);
+  color: var(--mch-texto-secundario);
+}
+
+.mch-sitio-ficha__estado--hecho {
+  background: var(--mch-exito-fondo);
+  border-color: color-mix(in srgb, var(--mch-exito) 25%, transparent);
+  color: var(--mch-exito);
+}
+
+.mch-sitio-ficha__estado--hecho::before {
+  content: '✓ ';
+}
+
+.mch-sitio-ficha__estado--actual {
+  background: var(--mch-marca);
+  border-color: var(--mch-marca);
+  color: #fff;
+  font-weight: 600;
+}
+
+.mch-sitio-ficha__datos {
+  margin: 0;
+  display: grid;
+  gap: var(--mch-esp-3);
+  padding-top: var(--mch-esp-4);
+  border-top: 1px solid var(--mch-borde);
+}
+
+.mch-sitio-ficha__datos > div {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
+  gap: var(--mch-esp-3);
+  align-items: baseline;
+}
+
+.mch-sitio-ficha__datos dt {
+  font-size: var(--mch-txt-xs);
+  color: var(--mch-texto-secundario);
+}
+
+.mch-sitio-ficha__datos dd {
+  margin: 0;
+  font-size: var(--mch-txt-sm);
+}
+
+.mch-sitio-ficha__hora {
+  margin-left: 4px;
+  padding: 0 6px;
+  border-radius: var(--mch-radio-sm);
+  background: var(--mch-marca-tenue);
+  font-family: var(--mch-fuente-mono);
+  font-size: var(--mch-txt-xs);
+}
+
+.mch-sitio-ficha__pie {
+  font-size: var(--mch-txt-xs);
+  color: var(--mch-texto-secundario);
+  text-align: right;
+  opacity: 0.75;
+}
+
+/* --- Secciones --------------------------------------------------------- */
+
+.mch-sitio-seccion {
+  padding: clamp(3.5rem, 8vw, 5.5rem) 0;
+  scroll-margin-top: 64px;
+}
+
+.mch-sitio-seccion--tenue {
+  background: var(--mch-marca-tenue);
+}
+
+.mch-sitio-seccion__bajada {
+  margin: var(--mch-esp-4) 0 0;
+  max-width: 44rem;
+  color: var(--mch-texto-secundario);
+}
+
+.mch-sitio-recorrido {
+  list-style: none;
+  margin: var(--mch-esp-8) 0 0;
+  padding: 0;
+  display: grid;
+  /* Tres columnas en escritorio: con seis pasos, cuatro dejaban un hueco. */
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+  gap: var(--mch-esp-4);
+}
+
+.mch-sitio-recorrido__paso,
+.mch-sitio-pieza {
+  padding: var(--mch-esp-5);
+  background: var(--mch-panel);
+  border: 1px solid var(--mch-borde);
+  border-radius: var(--mch-radio-lg);
+}
+
+.mch-sitio-recorrido__numero {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: var(--mch-marca-tenue);
+  color: var(--mch-marca);
+  font-family: var(--mch-fuente-mono);
+  font-size: var(--mch-txt-sm);
+  font-weight: 700;
+}
+
+.mch-sitio-recorrido__paso h3,
+.mch-sitio-pieza h3 {
+  margin: var(--mch-esp-3) 0 var(--mch-esp-1);
+  font-size: var(--mch-txt-md);
+  font-weight: 650;
+}
+
+.mch-sitio-pieza h3 {
+  margin-top: 0;
+}
+
+.mch-sitio-recorrido__paso p,
+.mch-sitio-pieza p {
+  margin: 0;
+  font-size: var(--mch-txt-sm);
+  color: var(--mch-texto-secundario);
+}
+
+.mch-sitio-piezas {
+  margin-top: var(--mch-esp-8);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+  gap: var(--mch-esp-4);
+}
+
+.mch-sitio-sedes {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(2rem, 5vw, 3.5rem);
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .mch-sitio-sedes {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.mch-sitio-garantias {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--mch-esp-3);
+}
+
+.mch-sitio-garantias li {
+  padding: var(--mch-esp-4) var(--mch-esp-5);
+  background: var(--mch-panel);
+  border: 1px solid var(--mch-borde);
+  border-left: 3px solid var(--mch-marca);
+  border-radius: var(--mch-radio);
+  font-size: var(--mch-txt-sm);
+  color: var(--mch-texto-secundario);
+}
+
+.mch-sitio-garantias strong {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--mch-texto);
+  font-size: var(--mch-txt-md);
+}
+
+/* La franja final va sobre el petróleo profundo en los dos temas. */
+.mch-sitio-seccion--oscura {
+  background: var(--mch-rail);
+  color: var(--mch-rail-texto);
+}
+
+.mch-sitio-seccion--oscura h2,
+.mch-sitio-seccion--oscura h3 {
+  color: #fff;
+}
+
+.mch-sitio-seccion--oscura .mch-sitio-antetitulo {
+  color: var(--mch-ambar-600);
+}
+
+.mch-sitio-pasos {
+  list-style: none;
+  counter-reset: paso;
+  margin: var(--mch-esp-8) 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  gap: var(--mch-esp-6);
+}
+
+.mch-sitio-pasos li {
+  counter-increment: paso;
+  padding-top: var(--mch-esp-4);
+  border-top: 1px solid rgb(255 255 255 / 0.16);
+}
+
+.mch-sitio-pasos li::before {
+  content: counter(paso, decimal-leading-zero);
+  display: block;
+  margin-bottom: var(--mch-esp-2);
+  font-family: var(--mch-fuente-mono);
+  font-size: var(--mch-txt-sm);
+  font-weight: 700;
+  color: var(--mch-ambar-600);
+}
+
+.mch-sitio-pasos h3 {
+  font-size: var(--mch-txt-lg);
+}
+
+.mch-sitio-pasos p {
+  margin: var(--mch-esp-2) 0 0;
+  font-size: var(--mch-txt-sm);
+}
+
+.mch-sitio a.mch-sitio-boton-claro {
+  background: #fff;
+  color: var(--mch-petroleo-900);
+}
+
+.mch-sitio a.mch-sitio-boton-claro:hover {
+  background: var(--mch-petroleo-100);
+}
+
+/* --- Pie --------------------------------------------------------------- */
+
+.mch-sitio-pie {
+  padding: var(--mch-esp-6) 0;
+  border-top: 1px solid var(--mch-borde);
+  font-size: var(--mch-txt-xs);
+  color: var(--mch-texto-secundario);
+}
+
+.mch-sitio-pie__fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mch-esp-3);
+}
+
+/* --- Entrar y crear cuenta --------------------------------------------- */
+
+.mch-sitio-acceso {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  padding: clamp(2rem, 6vw, 4rem) var(--mch-esp-4);
+}
+
+.mch-sitio-pestanas {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: var(--mch-esp-4);
+  background: var(--mch-marca-tenue);
+  border: 1px solid var(--mch-borde);
+  border-radius: var(--mch-radio-lg);
+}
+
+.mch-sitio-pestana {
+  flex: 1;
+  padding: 0.5rem;
+  border: none;
+  border-radius: var(--mch-radio);
+  background: transparent;
+  color: var(--mch-texto-secundario);
+  font-weight: 560;
+  cursor: pointer;
+}
+
+.mch-sitio-pestana--activa {
+  background: var(--mch-panel);
+  color: var(--mch-texto);
+  box-shadow: var(--mch-sombra-sm);
+}
+
+.mch-sitio-acceso__formulario {
+  padding: var(--mch-esp-6);
+  display: grid;
+  gap: var(--mch-esp-4);
+}
+
+.mch-sitio-acceso__intro {
+  margin: 0;
+  font-size: var(--mch-txt-sm);
+  color: var(--mch-texto-secundario);
+}
+
+/* --- Cuenta ------------------------------------------------------------ */
+
+.mch-sitio-cuenta {
+  padding: clamp(2rem, 6vw, 3.5rem) 0 clamp(3rem, 8vw, 5rem);
+}
+
+.mch-sitio-ancho.mch-sitio-cuenta__columna {
+  width: min(780px, calc(100% - 2rem));
+}
+
+.mch-sitio-cuenta__cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--mch-esp-4);
+}
+
+.mch-sitio-cuenta__cabecera h1 {
+  font-size: clamp(1.6rem, 4vw, 2.1rem);
+}
+
+.mch-sitio-cuenta__correo {
+  margin: var(--mch-esp-1) 0 0;
+  font-size: var(--mch-txt-sm);
+  color: var(--mch-texto-secundario);
+  overflow-wrap: anywhere;
+}
+
+.mch-sitio-guia {
+  list-style: none;
+  margin: var(--mch-esp-8) 0 0;
+  padding: 0;
+  display: grid;
+  gap: var(--mch-esp-4);
+}
+
+.mch-sitio-guia__paso {
+  padding: var(--mch-esp-6);
+  display: grid;
+  gap: var(--mch-esp-4);
+  background: var(--mch-panel);
+  border: 1px solid var(--mch-borde);
+  border-radius: var(--mch-radio-lg);
+  box-shadow: var(--mch-sombra-sm);
+}
+
+.mch-sitio-guia__paso > p {
+  margin: 0;
+  color: var(--mch-texto-secundario);
+}
+
+.mch-sitio-guia__titulo {
+  display: flex;
+  align-items: center;
+  gap: var(--mch-esp-3);
+}
+
+.mch-sitio-guia__titulo h2 {
+  font-size: var(--mch-txt-lg);
+  letter-spacing: -0.015em;
+}
+
+.mch-sitio-guia__numero {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--mch-marca);
+  border-radius: 999px;
+  color: var(--mch-marca);
+  font-size: var(--mch-txt-sm);
+  font-weight: 700;
+}
+
+/* Paso cumplido: el número se vuelve una marca de hecho. */
+.mch-sitio-guia__paso--hecho .mch-sitio-guia__numero {
+  border-color: var(--mch-exito);
+  background: var(--mch-exito);
+  color: transparent;
+  position: relative;
+}
+
+.mch-sitio-guia__paso--hecho .mch-sitio-guia__numero::after {
+  content: '✓';
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #fff;
+}
+
+.mch-sitio-guia__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mch-esp-3);
+}
+
+.mch-sitio-guia__nota {
+  margin: 0;
+  font-size: var(--mch-txt-xs);
+  color: var(--mch-texto-secundario);
+}
+
+/* El formulario de incorporación va dentro de un paso que ya es un panel. */
+.mch-sitio-guia__paso .mch-incorporacion__formulario {
+  box-shadow: none;
+}
+
+.mch-sitio-organizacion {
+  display: grid;
+  gap: 2px;
+  padding: var(--mch-esp-3) var(--mch-esp-4);
+  background: var(--mch-marca-tenue);
+  border-radius: var(--mch-radio);
+}
+
+.mch-sitio-organizacion strong {
+  font-size: var(--mch-txt-lg);
+}
+
+.mch-sitio-organizacion span {
+  font-size: var(--mch-txt-sm);
+  color: var(--mch-texto-secundario);
+}

@@ -15,7 +15,7 @@ def test_salud_responde_ok() -> None:
     respuesta = cliente.get("/salud")
 
     assert respuesta.status_code == 200
-    assert respuesta.json() == {"estado": "ok", "servicio": "meseta-api"}
+    assert respuesta.json() == {"estado": "ok", "servicio": "mechanified-api"}
 
 
 def test_openapi_se_genera() -> None:
@@ -24,5 +24,5 @@ def test_openapi_se_genera() -> None:
 
     assert respuesta.status_code == 200
     esquema = respuesta.json()
-    assert esquema["info"]["title"] == "API de Grupo La Meseta"
+    assert esquema["info"]["title"] == "API de Mechanified"
     assert "/salud" in esquema["paths"]

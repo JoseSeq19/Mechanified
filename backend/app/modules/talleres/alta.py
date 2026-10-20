@@ -4,12 +4,20 @@ Es el único arranque posible del sistema: sin un taller no hay `taller_id` que
 poner en un token, y sin un administrador no hay quien dé de alta a nadie. El
 huevo y la gallina se rompen aquí, desde fuera de la API.
 
-Por qué esto no es un endpoint: `talleres` no tiene política de INSERT, así que
-la fila solo la puede escribir el rol de servicio. Exponerlo por HTTP sería
-poner esa llave detrás de una puerta, y aquí no hace falta ninguna puerta: este
-es un sistema interno y abrir una sede nueva es una decisión del grupo, no algo
-que nadie vaya a hacer solo. Vive en la línea de comandos de quien opera el
-despliegue, que es quien ya tiene las credenciales.
+Por qué esto no es un endpoint: además del taller crea la cuenta del
+administrador en Supabase Auth, y eso solo se hace con la llave de servicio.
+Exponerlo por HTTP sería poner esa llave detrás de una puerta. Es la herramienta
+del equipo de Mechanified —sumar una sede a una organización, o abrirle el
+taller a alguien que todavía no tiene cuenta— y vive en su línea de comandos,
+donde ya están las credenciales.
+
+Quien se registra en el sitio y funda su organización no pasa por aquí: su
+cuenta ya existe, y la alta la hace `mch_crear_mi_organizacion()` dentro de su
+propia sesión (ver `app/modules/organizaciones/service.py`).
+
+Todo taller pertenece a una organización. Con `organizacion` se suma a una que
+ya existe; con `organizacion_nombre` estrena una; sin ninguna, la base le
+funda una con su mismo nombre (trigger `mch_talleres_organizacion`).
 
 El alta son tres escrituras en dos sistemas distintos, y pueden fallar a medias:
 
@@ -30,9 +38,10 @@ from dataclasses import dataclass
 from uuid import UUID
 
 from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import sesion_servicio
-from app.core.exceptions import ErrorConflicto
+from app.core.exceptions import ErrorConflicto, ErrorNoEncontrado
 from app.core.roles import Rol
 from app.modules.talleres.schemas import TallerAlta
 from app.modules.usuarios.cuentas import AdministradorDeCuentas, CuentasSupabase, generar_clave
@@ -45,6 +54,7 @@ class TallerCreado:
     taller_id: UUID
     slug: str
     prefijo_orden: str
+    organizacion_nombre: str
     admin_id: UUID
     admin_email: str
     #: Se muestra una sola vez. No se guarda en ninguna parte en claro.
@@ -97,14 +107,20 @@ def derivar_prefijo(nombre: str) -> str:
 
 _INSERTAR_TALLER = """
     insert into public.talleres (
-      nombre, slug, identificacion_fiscal, direccion, telefono, email,
+      organizacion_id, nombre, slug, identificacion_fiscal, direccion, telefono, email,
       zona_horaria, moneda, tarifa_hora_default, impuesto_pct,
       prefijo_orden, dias_validez_presupuesto
     ) values (
-      :nombre, :slug, :identificacion_fiscal, :direccion, :telefono, :email,
+      :organizacion_id, :nombre, :slug, :identificacion_fiscal, :direccion, :telefono, :email,
       :zona_horaria, :moneda, :tarifa, :impuesto,
       :prefijo, :dias
     )
+    returning id, organizacion_id
+"""
+
+_INSERTAR_ORGANIZACION = """
+    insert into public.organizaciones (nombre, slug)
+    values (:nombre, public.mch_slug_libre(:slug, 'public.organizaciones'))
     returning id
 """
 
@@ -112,6 +128,36 @@ _INSERTAR_PERFIL = """
     insert into public.perfiles (id, taller_id, nombre_completo, email, telefono, rol)
     values (:id, :taller_id, :nombre, :email, :telefono, :rol)
 """
+
+
+async def _resolver_organizacion(sesion: AsyncSession, datos: TallerAlta) -> object | None:
+    """Id de la organización del taller, o None para que la base le funde una.
+
+    Si se estrena organización y el alta falla después, no hay que borrarla a
+    mano: se va con su último taller (trigger `mch_talleres_organizacion_vacia`).
+    """
+    if datos.organizacion:
+        organizacion_id = await sesion.scalar(
+            text("select id from public.organizaciones where slug = :slug"),
+            {"slug": datos.organizacion},
+        )
+        if organizacion_id is None:
+            raise ErrorNoEncontrado(
+                f"No hay ninguna organización con el identificador {datos.organizacion!r}.",
+                {"campo": "organizacion"},
+            )
+        return organizacion_id
+
+    if datos.organizacion_nombre:
+        return await sesion.scalar(
+            text(_INSERTAR_ORGANIZACION),
+            {
+                "nombre": datos.organizacion_nombre,
+                "slug": derivar_slug(datos.organizacion_nombre),
+            },
+        )
+
+    return None
 
 
 async def _borrar_taller(taller_id: object) -> None:
@@ -139,10 +185,13 @@ async def crear_taller(
                 {"campo": "slug"},
             )
 
-        taller_id = (
+        organizacion_id = await _resolver_organizacion(sesion, datos)
+
+        taller_id, organizacion_id = (
             await sesion.execute(
                 text(_INSERTAR_TALLER),
                 {
+                    "organizacion_id": organizacion_id,
                     "nombre": datos.nombre,
                     "slug": slug,
                     "identificacion_fiscal": datos.identificacion_fiscal,
@@ -157,7 +206,14 @@ async def crear_taller(
                     "dias": datos.dias_validez_presupuesto,
                 },
             )
-        ).scalar_one()
+        ).one()
+
+        # En sentencia aparte: si la organización la fundó el trigger, una
+        # subconsulta en el RETURNING del INSERT no la vería todavía.
+        organizacion_nombre = await sesion.scalar(
+            text("select nombre from public.organizaciones where id = :id"),
+            {"id": organizacion_id},
+        )
 
     clave = generar_clave()
     try:
@@ -194,6 +250,7 @@ async def crear_taller(
         taller_id=UUID(str(taller_id)),
         slug=slug,
         prefijo_orden=prefijo,
+        organizacion_nombre=organizacion_nombre,
         admin_id=cuenta_id,
         admin_email=correo,
         clave_temporal=clave,

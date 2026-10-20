@@ -19,13 +19,30 @@ ahí salen las métricas de tiempo del dashboard.
 
 ## Tablas
 
-### Tenant e identidad
+### Organización, tenant e identidad
 
 | Tabla | Propósito |
 |---|---|
-| `talleres` | Organización raíz. Configuración: moneda, tarifa por hora, impuesto, prefijo de folio, vigencia de presupuestos. |
+| `organizaciones` | El cliente de Mechanified: un grupo con varias sedes o un taller independiente. Da el nombre con el que se presenta el producto. No es unidad de aislamiento. |
+| `talleres` | El tenant: una sede. Lleva `organizacion_id`. Configuración: moneda, tarifa por hora, impuesto, prefijo de folio, vigencia de presupuestos. |
 | `perfiles` | Usuario de la aplicación, 1:1 con `auth.users`. Lleva `taller_id` y `rol`. Es la tabla que lee el hook de Auth. |
 | `secuencias_folio` | Contador de folios por taller. Tabla interna, sin políticas: la escriben solo funciones `security definer`. |
+| `solicitudes_organizacion` | Peticiones de alta que atiende el equipo de Mechanified. Pertenecen a una cuenta (`cuenta_id`), no a un taller: quien la manda todavía no tiene ninguno. |
+
+**La organización da identidad, no acceso.** Que dos sedes sean de la misma
+organización no les deja ver nada la una de la otra: RLS sigue comparando con
+`taller_id`. Lo único que una sede ve de su organización es su fila
+(`organizaciones_select`), para presentarse con su nombre.
+
+Un taller sin organización al insertarse funda una con su mismo nombre (trigger
+`mch_talleres_organizacion`), y una organización se va con su último taller. Así
+el caso más común, el taller independiente, no obliga a crear dos cosas, y nunca
+queda una organización vacía ocupando su `slug`.
+
+El alta por cuenta propia la hace `mch_crear_mi_organizacion()`: organización,
+primer taller y perfil de administrador en una transacción, para la cuenta del
+token. El equipo usa el mismo núcleo, `mch_crear_organizacion(cuenta, …)`, que
+no está al alcance de `authenticated`.
 
 ### Clientes y vehículos
 
@@ -77,6 +94,9 @@ ahí salen las métricas de tiempo del dashboard.
 ## Relaciones
 
 ```
+organizaciones ── talleres (1:n, una por sede)
+                └ solicitudes_organizacion ──? (la que se creó al atenderla)
+
 talleres ─┬─ perfiles
           ├─ secuencias_folio (1:1)
           ├─ clientes ── vehiculos
@@ -95,7 +115,7 @@ talleres ─┬─ perfiles
 
 ## Row Level Security
 
-Habilitada en las 21 tablas. `force row level security` en 19; las dos
+Habilitada en las 23 tablas. `force row level security` en 21; las dos
 excepciones son deliberadas y están documentadas en su migración:
 
 - **`orden_eventos`** — la escribe un trigger `security definer` que corre como
@@ -114,6 +134,19 @@ using (taller_id = public.mch_taller_actual())
 
 `mch_taller_actual()` lee `taller_id` de los claims del JWT, no de una consulta
 a `perfiles`. Ver [ADR 0001](decisiones/0001-rls-con-claims-jwt.md).
+
+Las tres tablas que están por encima del tenant no llevan `taller_id` y usan
+otra comparación, igual de simple:
+
+```sql
+-- organizaciones: la del taller de la sesión, y ninguna otra
+using (id = (select public.mch_organizacion_actual()))
+
+-- solicitudes_organizacion: las de la propia cuenta
+using (cuenta_id = (select auth.uid()))
+```
+
+Ver [ADR 0002](decisiones/0002-organizaciones-y-cliente-de-escritorio.md).
 
 ## Integridad entre tablas
 

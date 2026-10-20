@@ -1,4 +1,4 @@
-/* La Meseta · armazón de la aplicación. */
+/* Mechanified · armazón de la aplicación. */
 
 /* El armazón ocupa exactamente la ventana y no se desplaza: lo que se desplaza
    es el contenido, por dentro. Así el tablero puede ocupar el alto disponible
@@ -125,6 +125,16 @@
   background: rgb(255 255 255 / 0.09);
 }
 
+/* La firma del producto, al fondo de la barra. La marca de arriba es la de la
+   organización; esto es lo único que recuerda con qué está hecho. */
+.mch-rail__producto {
+  margin-top: calc(-1 * var(--mch-esp-3));
+  padding: 0 var(--mch-esp-2);
+  font-size: var(--mch-txt-xs);
+  letter-spacing: 0.02em;
+  opacity: 0.45;
+}
+
 /* Sin tope de ancho. Lo tenía en 1180px, que es una medida pensada para leer
    texto, y aquí no se lee texto: se mira un tablero. En una pantalla ancha eso
    dejaba casi la mitad del espacio vacío mientras el tablero se desplazaba
@@ -165,7 +175,8 @@
 
   .mch-nav__titulo,
   .mch-nav__enlace--inerte,
-  .mch-rail__taller {
+  .mch-rail__taller,
+  .mch-rail__producto {
     display: none;
   }
 

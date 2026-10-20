@@ -1,4 +1,6 @@
-# Configuración del entorno local de Supabase para Grupo La Meseta.
+# Configuración del entorno local de Supabase para Mechanified.
+# El project_id se queda en "meseta": es el que nombra los contenedores y el
+# volumen de Docker, y cambiarlo deja el entorno local vacío otra vez.
 project_id = "meseta"
 
 [api]
@@ -31,12 +33,19 @@ file_size_limit = "25MiB"
 
 [auth]
 enabled = true
-site_url = "http://localhost:5173"
-# Con comodín para que valga cualquier ruta de la aplicación, no solo la raíz.
-# La que importa es /clave, donde aterriza el correo de recuperación de
-# contraseña (ver RUTA_CLAVE_NUEVA en web/src/app/sesion.tsx): si no estuviera
-# autorizada, Auth mandaría a la persona a site_url y el enlace no serviría.
-additional_redirect_urls = ["http://localhost:5173", "http://localhost:5173/**"]
+# El sitio (npm run dev:sitio). Es a donde vuelven los correos de Auth.
+site_url = "http://localhost:5174"
+# Con comodín para que valga cualquier ruta, no solo la raíz. Las que importan
+# son /clave, donde aterriza el correo de recuperación de contraseña, y
+# /cuenta, a donde vuelve el de confirmación del registro (ver RUTA_CLAVE_NUEVA
+# y RUTA_CUENTA en web/src/app/sesion.tsx): si no estuvieran autorizadas, Auth
+# mandaría a la persona a site_url y el enlace no serviría.
+additional_redirect_urls = [
+  "http://localhost:5174",
+  "http://localhost:5174/**",
+  "http://localhost:5173",
+  "http://localhost:5173/**",
+]
 jwt_expiry = 3600
 enable_refresh_token_rotation = true
 
@@ -44,10 +53,11 @@ enable_refresh_token_rotation = true
 # apaga el proveedor de correo entero y nadie puede iniciar sesión, ni siquiera
 # los usuarios que el administrador ya creó ("Email logins are disabled").
 #
-# En Grupo La Meseta el autoregistro no debería existir —los usuarios los da de alta
-# el administrador del taller— pero eso se apaga desde el panel, en
-# Authentication > Sign In / Providers > Email > "Allow new users to sign up",
-# que es un interruptor distinto y más fino que este.
+# Y el registro tiene que estar abierto: quien funda una organización crea su
+# cuenta en el sitio. En el proyecto hospedado es el interruptor
+# Authentication > Sign In / Providers > Email > "Allow new users to sign up".
+# Una cuenta recién creada no tiene perfil, y sin perfil RLS no le deja ver
+# ningún dato de taller.
 enable_signup = true
 
 [auth.email]

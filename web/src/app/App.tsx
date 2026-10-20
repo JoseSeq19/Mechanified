@@ -12,6 +12,7 @@ import { PaginaPanel } from '@/features/metricas/PaginaPanel';
 import { PaginaOrden } from '@/features/ordenes/PaginaOrden';
 import { PaginaOrdenImpresa } from '@/features/ordenes/PaginaOrdenImpresa';
 import { PaginaOrdenes } from '@/features/ordenes/PaginaOrdenes';
+import { PaginaSinOrganizacion } from '@/features/organizaciones/PaginaSinOrganizacion';
 import { PaginaPresupuestoPublico } from '@/features/presupuestos/PaginaPresupuestoPublico';
 import { PaginaRepuestos } from '@/features/repuestos/PaginaRepuestos';
 import { PaginaTaller } from '@/features/taller/PaginaTaller';
@@ -36,10 +37,14 @@ const clienteConsultas = new QueryClient({
  * Rutas que exigen sesión. Todo lo de dentro pasa por el control de acceso.
  */
 function RutasPrivadas() {
-  const { sesion, cargando } = useSesion();
+  const { sesion, claims, cargando } = useSesion();
 
   if (cargando) return <Cargando texto="Abriendo sesión…" />;
   if (!sesion) return <PaginaLogin />;
+  // Con sesión pero sin taller en el token: una cuenta que todavía no tiene
+  // organización, o cuyo token es de antes de tenerla. Sin taller la API
+  // rechazaría todo lo de abajo, así que se resuelve eso primero.
+  if (!claims?.taller_id) return <PaginaSinOrganizacion />;
 
   return (
     <Routes>

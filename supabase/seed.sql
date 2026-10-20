@@ -1,8 +1,8 @@
 -- =============================================================================
--- La Meseta · seed de desarrollo
+-- Mechanified · seed de desarrollo
 --
--- Sede ficticia "La Meseta Centro" con datos suficientes para trabajar contra la
--- API sin capturar nada a mano.
+-- La organización "Grupo La Meseta" con su sede ficticia "La Meseta Centro", y
+-- datos suficientes para trabajar contra la API sin capturar nada a mano.
 --
 -- SOLO PARA DESARROLLO LOCAL. Crea usuarios directamente en auth.users con una
 -- contraseña conocida; nunca debe correr contra un entorno real.
@@ -16,6 +16,7 @@
 -- =============================================================================
 
 -- Identificadores fijos para que el seed sea reproducible entre reinicios.
+\set organizacion_id '''a0000000-0000-4000-8000-000000000001'''
 \set taller_id       '''a1000000-0000-4000-8000-000000000001'''
 \set u_admin         '''b1000000-0000-4000-8000-000000000001'''
 \set u_asesor        '''b1000000-0000-4000-8000-000000000002'''
@@ -23,15 +24,22 @@
 \set u_repuestos     '''b1000000-0000-4000-8000-000000000004'''
 
 -- -----------------------------------------------------------------------------
--- Taller
+-- Organización y taller
+--
+-- La organización se crea a mano para que sea el grupo y no la sede: un taller
+-- que llega sin organización funda una con su propio nombre, y aquí el producto
+-- tiene que llamarse "Grupo La Meseta", no "La Meseta Centro".
 -- -----------------------------------------------------------------------------
 
+insert into public.organizaciones (id, nombre, slug)
+values (:organizacion_id, 'Grupo La Meseta', 'grupo-la-meseta');
+
 insert into public.talleres (
-  id, nombre, slug, identificacion_fiscal, direccion, telefono, email,
+  id, organizacion_id, nombre, slug, identificacion_fiscal, direccion, telefono, email,
   zona_horaria, moneda, tarifa_hora_default, impuesto_pct, prefijo_orden,
   dias_validez_presupuesto
 ) values (
-  :taller_id, 'La Meseta Centro', 'meseta-centro', 'J-40123456-7',
+  :taller_id, :organizacion_id, 'La Meseta Centro', 'meseta-centro', 'J-40123456-7',
   'Av. Principal de Los Ruices, Galpón 14, Caracas',
   '+58 212 555 0142', 'contacto@lameseta.test',
   'America/Caracas', 'USD', 18.00, 16.00, 'MSC', 15
@@ -347,7 +355,7 @@ declare
 begin
   select count(*) into v_ordenes from public.ordenes_servicio;
   select count(*) into v_eventos from public.orden_eventos;
-  raise notice 'La Meseta · seed listo: sede La Meseta Centro, % ordenes, % eventos de bitacora.',
+  raise notice 'Mechanified · seed listo: Grupo La Meseta, sede La Meseta Centro, % ordenes, % eventos de bitacora.',
     v_ordenes, v_eventos;
 end;
 $$;

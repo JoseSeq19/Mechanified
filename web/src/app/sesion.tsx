@@ -12,11 +12,14 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import type { Session } from '@supabase/supabase-js';
 
+import { URL_SITIO } from '@/lib/marca';
 import { supabase } from '@/lib/supabase';
 
 export type Rol = 'admin_taller' | 'asesor_servicio' | 'tecnico' | 'encargado_repuestos';
@@ -36,11 +39,21 @@ interface Claims {
   email?: string;
 }
 
+/** Cómo termina un registro: con sesión, o esperando a que confirme el correo. */
+export type ResultadoRegistro = 'abierta' | 'confirmar-correo';
+
 interface ValorSesion {
   sesion: Session | null;
   claims: Claims | null;
   cargando: boolean;
   entrar: (correo: string, clave: string) => Promise<void>;
+  /** Crea una cuenta de Mechanified. Todavía sin organización. */
+  registrar: (correo: string, clave: string, nombre: string) => Promise<ResultadoRegistro>;
+  /**
+   * Pide un token nuevo. Hace falta después de crear la organización: el token
+   * en uso se emitió sin taller, y el siguiente ya lo trae.
+   */
+  renovar: () => Promise<void>;
   salir: () => Promise<void>;
   /** Cambia la contraseña de quien tiene la sesión abierta. */
   cambiarClave: (clave: string) => Promise<void>;
@@ -59,6 +72,13 @@ const Contexto = createContext<ValorSesion | null>(null);
  */
 export const RUTA_CLAVE_NUEVA = '/clave';
 
+/**
+ * La página del sitio donde una cuenta descarga Mechanified y crea su
+ * organización. Es también a donde vuelve el enlace de confirmación del
+ * registro, así que, como la de arriba, tiene que estar autorizada en Auth.
+ */
+export const RUTA_CUENTA = '/cuenta';
+
 /** Lee el cuerpo del JWT sin verificar la firma: la verifica el backend. */
 function leerClaims(token: string | undefined): Claims | null {
   if (!token) return null;
@@ -76,6 +96,24 @@ function leerClaims(token: string | undefined): Claims | null {
 export function ProveedorSesion({ children }: { children: ReactNode }) {
   const [sesion, setSesion] = useState<Session | null>(null);
   const [cargando, setCargando] = useState(true);
+  const clienteConsultas = useQueryClient();
+  const usuarioAnterior = useRef<string | null>(null);
+
+  // Cuando sale un usuario se vacía la caché de consultas. Si en el mismo equipo
+  // sale alguien de una organización y entra alguien de otra, lo guardado —el
+  // nombre de la organización, la configuración del taller, las órdenes— es
+  // del anterior, y se vería hasta que cada consulta se renovara.
+  //
+  // Solo al salir, no al entrar: este efecto corre después de los de las
+  // páginas, que para entonces ya lanzaron sus consultas. Vaciar ahí dejaba a
+  // la página esperando la respuesta de una consulta que ya no existía.
+  const usuario = sesion?.user.id ?? null;
+  useEffect(() => {
+    if (usuarioAnterior.current !== null && usuarioAnterior.current !== usuario) {
+      clienteConsultas.clear();
+    }
+    usuarioAnterior.current = usuario;
+  }, [usuario, clienteConsultas]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -101,6 +139,23 @@ export function ProveedorSesion({ children }: { children: ReactNode }) {
         });
         if (error) throw new Error(traducirErrorAuth(error.message));
       },
+      registrar: async (correo, clave, nombre) => {
+        const { data, error } = await supabase.auth.signUp({
+          email: correo.trim(),
+          password: clave,
+          options: {
+            data: { nombre_completo: nombre.trim() },
+            // Si el proyecto pide confirmar el correo, el enlace vuelve aquí.
+            emailRedirectTo: `${URL_SITIO}${RUTA_CUENTA}`,
+          },
+        });
+        if (error) throw new Error(traducirErrorAuth(error.message));
+        return data.session ? 'abierta' : 'confirmar-correo';
+      },
+      renovar: async () => {
+        const { error } = await supabase.auth.refreshSession();
+        if (error) throw new Error(traducirErrorAuth(error.message));
+      },
       salir: async () => {
         await supabase.auth.signOut();
       },
@@ -111,13 +166,16 @@ export function ProveedorSesion({ children }: { children: ReactNode }) {
         if (error) throw new Error(traducirErrorAuth(error.message));
       },
       // Este correo lo manda Supabase con su propia plantilla, no el worker de
-      // Grupo La Meseta. No es una inconsistencia: quien ha olvidado su contraseña
+      // Mechanified. No es una inconsistencia: quien ha olvidado su contraseña
       // no tiene sesión, y sin sesión RLS no le deja encolar nada en
       // `notificaciones`. Si pudiera, cualquiera podría provocar correos con el
       // remitente del producto.
+      //
+      // El enlace vuelve al sitio y no a `localhost`: desde la aplicación de
+      // escritorio, el correo se suele abrir en otro dispositivo.
       pedirRecuperacion: async (correo) => {
         const { error } = await supabase.auth.resetPasswordForEmail(correo.trim(), {
-          redirectTo: `${window.location.origin}${RUTA_CLAVE_NUEVA}`,
+          redirectTo: `${URL_SITIO}${RUTA_CLAVE_NUEVA}`,
         });
         if (error) throw new Error(traducirErrorAuth(error.message));
       },
@@ -148,6 +206,15 @@ function traducirErrorAuth(mensaje: string): string {
   }
   if (m.includes('should be different from the old password')) {
     return 'La contraseña nueva tiene que ser distinta de la actual.';
+  }
+  if (m.includes('user already registered')) {
+    return 'Ya hay una cuenta con ese correo. Inicia sesión con ella.';
+  }
+  if (m.includes('signups not allowed') || m.includes('signup is disabled')) {
+    return 'El registro de cuentas nuevas está cerrado en este momento.';
+  }
+  if (m.includes('invalid format') || (m.includes('email address') && m.includes('invalid'))) {
+    return 'Ese correo no tiene un formato válido.';
   }
   return mensaje;
 }

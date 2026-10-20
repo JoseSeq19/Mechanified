@@ -83,7 +83,7 @@ class PantallaCuenta extends ConsumerWidget {
           const Padding(
             padding: EdgeInsets.all(16),
             child: Text(
-              'La Meseta · app de campo',
+              'Mechanified · app de campo',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 12, color: Tonos.textoSecundario),
             ),

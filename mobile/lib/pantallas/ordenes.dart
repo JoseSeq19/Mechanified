@@ -47,7 +47,7 @@ class _PantallaOrdenesState extends ConsumerState<PantallaOrdenes> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(taller.maybeWhen(data: (t) => t.nombre, orElse: () => 'Grupo La Meseta')),
+        title: Text(taller.maybeWhen(data: (t) => t.nombre, orElse: () => 'Mechanified')),
         actions: [
           IconButton(
             onPressed: () => context.push('/cuenta'),

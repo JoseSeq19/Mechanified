@@ -1,4 +1,4 @@
-"""Punto de entrada de la API de La Meseta.
+"""Punto de entrada de la API de Mechanified.
 
 Los routers de cada entidad se registran conforme avanzan las fases.
 """
@@ -26,6 +26,8 @@ from app.modules.notificaciones.mensajeria import mensajero_de
 from app.modules.notificaciones.router import router as router_notificaciones
 from app.modules.notificaciones.worker import bucle as bucle_notificaciones
 from app.modules.ordenes.router import router as router_ordenes
+from app.modules.organizaciones.router import router as router_organizacion
+from app.modules.organizaciones.router import router_cuenta
 from app.modules.presupuestos.router import router as router_presupuestos
 from app.modules.presupuestos.router import router_publico as router_publico_presupuestos
 from app.modules.repuestos.router import router as router_repuestos
@@ -75,9 +77,11 @@ async def ciclo_de_vida(_: FastAPI) -> AsyncIterator[None]:
 
 app = FastAPI(
     lifespan=ciclo_de_vida,
-    title="API de Grupo La Meseta",
+    title="API de Mechanified",
     description=(
-        "API de gestión integral para talleres mecánicos.\n\n"
+        "API de gestión integral para talleres mecánicos. Cada cliente es una "
+        "organización con una o varias sedes, y cada sede es un inquilino "
+        "aislado.\n\n"
         "Todos los endpoints de datos exigen `Authorization: Bearer <token>` con un "
         "token de Supabase Auth. El aislamiento entre talleres lo aplica PostgreSQL "
         "mediante Row Level Security, no esta capa."
@@ -96,6 +100,8 @@ app.add_middleware(
 registrar_manejadores(app)
 
 app.include_router(router_taller)
+app.include_router(router_organizacion)
+app.include_router(router_cuenta)
 app.include_router(router_adjuntos)
 app.include_router(router_clientes)
 app.include_router(router_vehiculos)
@@ -115,7 +121,7 @@ app.include_router(router_metricas)
 @app.get("/salud", tags=["sistema"])
 async def salud() -> dict[str, str]:
     """Sonda de disponibilidad. No toca la base de datos."""
-    return {"estado": "ok", "servicio": "meseta-api"}
+    return {"estado": "ok", "servicio": "mechanified-api"}
 
 
 if not cfg.es_produccion:

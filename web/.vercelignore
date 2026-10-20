@@ -1,0 +1,8 @@
+# Lo que no se sube a Vercel (proyecto mechanified, el sitio).
+# La configuración de la compilación (VITE_*) son variables del proyecto.
+node_modules
+dist
+dist-sitio
+.env
+.env.*
+tsconfig.tsbuildinfo

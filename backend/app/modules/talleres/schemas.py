@@ -22,7 +22,7 @@ from decimal import Decimal
 from typing import Annotated
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator, model_validator
 
 #: Tope de `dias_validez_presupuesto`. La base solo exige que sea positivo; un
 #: año es el límite a partir del cual el dato deja de significar nada.
@@ -113,11 +113,14 @@ class TallerRespuesta(BaseModel):
 class TallerAlta(BaseModel):
     """Alta de un taller nuevo con su primer administrador.
 
-    No tiene endpoint y no debe tenerlo: crear un taller es escribir en una
-    tabla que ninguna sesión de usuario puede tocar —no hay política de INSERT
-    en `talleres`—, así que requiere el rol de servicio. Un endpoint con esa
-    llave detrás sería una puerta para darse de alta solo, y el producto no es
-    de registro abierto. Se usa desde `python -m app.alta_taller`.
+    Es el alta que hace el equipo de Mechanified desde `python -m
+    app.alta_taller`, y no tiene endpoint: crea también la cuenta del
+    administrador, con la llave de servicio, y le inventa una contraseña. Sirve
+    sobre todo para sumar una sede a una organización que ya existe.
+
+    Quien se registra en el sitio y funda su propia organización entra por otra
+    puerta, `mch_crear_mi_organizacion()`, que no necesita esa llave: la cuenta
+    ya existe y la función la saca del token.
 
     El `slug` y el prefijo de folio se derivan del nombre si no se indican, que
     es lo que hace que el alta quepa en una línea.
@@ -129,6 +132,13 @@ class TallerAlta(BaseModel):
     #: Del primer administrador. Es con esto con lo que entra.
     admin_email: EmailStr
     admin_nombre: Annotated[str, Field(min_length=2, max_length=120)]
+
+    #: A qué organización pertenece. Con `organizacion` (un slug) se suma como
+    #: sede a una que ya existe; con `organizacion_nombre` estrena una con ese
+    #: nombre. Sin ninguna de las dos, funda la suya con el nombre del taller,
+    #: que es el caso del taller independiente.
+    organizacion: Annotated[str, Field(pattern=r"^[a-z0-9][a-z0-9-]{1,48}[a-z0-9]$")] | None = None
+    organizacion_nombre: Annotated[str, Field(min_length=2, max_length=120)] | None = None
 
     identificacion_fiscal: Annotated[str, Field(max_length=40)] | None = None
     telefono: Annotated[str, Field(max_length=40)] | None = None
@@ -157,7 +167,20 @@ class TallerAlta(BaseModel):
     def _mayusculas(cls, v: object) -> object:
         return v.strip().upper() if isinstance(v, str) else v
 
-    @field_validator("slug", mode="before")
+    @field_validator("slug", "organizacion", mode="before")
     @classmethod
     def _minusculas(cls, v: object) -> object:
         return v.strip().lower() if isinstance(v, str) else v
+
+    @field_validator("organizacion_nombre", mode="before")
+    @classmethod
+    def _nombre_organizacion(cls, v: object) -> object:
+        return v.strip() if isinstance(v, str) else v
+
+    @model_validator(mode="after")
+    def _una_sola_organizacion(self) -> "TallerAlta":
+        if self.organizacion and self.organizacion_nombre:
+            raise ValueError(
+                "Indica la organización existente o el nombre de una nueva, no las dos cosas."
+            )
+        return self

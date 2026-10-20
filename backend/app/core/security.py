@@ -47,6 +47,30 @@ class UsuarioAutenticado:
         }
 
 
+@dataclass(frozen=True, slots=True)
+class CuentaAutenticada:
+    """Una cuenta con sesión, pertenezca o no a una organización.
+
+    Es la identidad de las rutas de `/cuenta`, las del sitio de Mechanified:
+    quien acaba de registrarse aún no tiene taller, y aun así tiene que poder
+    crear su organización o pedir que se la creen. Cualquier otra ruta exige
+    `UsuarioAutenticado`, que no existe sin taller.
+    """
+
+    id: UUID
+    email: str | None = None
+
+    @property
+    def claims_rls(self) -> dict[str, str]:
+        """Sin `taller_id` ni `rol`, aunque el token los traiga.
+
+        Así mch_taller_actual() es NULL y toda política de datos de taller
+        deniega: desde estas rutas solo se alcanza lo que se compara con
+        `auth.uid()`, que es lo de la propia cuenta.
+        """
+        return {"sub": str(self.id), "role": "authenticated"}
+
+
 @lru_cache
 def _cliente_jwks(url: str) -> PyJWKClient:
     return PyJWKClient(url, cache_keys=True, lifespan=3600)
@@ -131,12 +155,31 @@ esquema_bearer = HTTPBearer(
 )
 
 
+def cuenta_desde_claims(claims: dict[str, Any]) -> CuentaAutenticada:
+    """Identidad de la cuenta, sin exigir los claims de tenant."""
+    try:
+        return CuentaAutenticada(id=UUID(str(claims["sub"])), email=claims.get("email"))
+    except (KeyError, ValueError) as exc:
+        raise ErrorAutenticacion("El token no identifica a un usuario válido.") from exc
+
+
+def _token(credenciales: HTTPAuthorizationCredentials | None) -> str:
+    if credenciales is None or credenciales.scheme.lower() != "bearer":
+        raise ErrorAutenticacion("Falta el encabezado Authorization: Bearer <token>.")
+    return credenciales.credentials
+
+
 async def usuario_actual(
     credenciales: Annotated[HTTPAuthorizationCredentials | None, Depends(esquema_bearer)] = None,
     cfg: Configuracion = Depends(obtener_configuracion),
 ) -> UsuarioAutenticado:
     """Dependencia base: todo endpoint autenticado la usa."""
-    if credenciales is None or credenciales.scheme.lower() != "bearer":
-        raise ErrorAutenticacion("Falta el encabezado Authorization: Bearer <token>.")
+    return usuario_desde_claims(decodificar_token(_token(credenciales), cfg))
 
-    return usuario_desde_claims(decodificar_token(credenciales.credentials, cfg))
+
+async def cuenta_actual(
+    credenciales: Annotated[HTTPAuthorizationCredentials | None, Depends(esquema_bearer)] = None,
+    cfg: Configuracion = Depends(obtener_configuracion),
+) -> CuentaAutenticada:
+    """Dependencia de las rutas de `/cuenta`: sesión sí, taller no."""
+    return cuenta_desde_claims(decodificar_token(_token(credenciales), cfg))

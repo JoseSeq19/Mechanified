@@ -1,31 +1,62 @@
-# Grupo La Meseta
+# Mechanified
 
-Sistema interno del grupo para gestionar sus talleres: recepción de vehículos,
-diagnóstico, cotización de repuestos, aprobación de presupuestos, reparación,
-control de calidad y entrega.
+Gestión de talleres mecánicos: recepción de vehículos, diagnóstico, cotización
+de repuestos, aprobación de presupuestos, reparación, control de calidad y
+entrega.
 
-No es un producto que se venda a terceros. Quien entra es gente del grupo —
-administración, asesoría de servicio, técnicos y repuestos— y los clientes son
-los dueños de los vehículos, que no tienen cuenta: lo único que ven son dos
-enlaces que les llegan por correo, el del presupuesto y el de la encuesta.
+Quien usa Mechanified es una **organización**: un grupo con varias sedes, como
+Grupo La Meseta, que es el primer cliente, o un taller independiente con una
+sola. Para su gente el producto se presenta con el nombre de la organización
+—quien entra de Grupo La Meseta ve "Grupo La Meseta", no "Mechanified"—, y
+dentro trabajan administración, asesoría de servicio, técnicos y repuestos. Los
+dueños de los vehículos no tienen cuenta: lo único que ven son dos enlaces que
+les llegan por correo, el del presupuesto y el de la encuesta.
 
-Aun así, cada taller es un **inquilino** con sus propios usuarios y datos,
-aislados en la base de datos con Row Level Security de PostgreSQL. No es una
-herencia de haberlo pensado como SaaS: una sede no tiene por qué ver las
-órdenes, los precios ni la productividad de otra, y esa barrera es la que impide
-que un `WHERE` olvidado se convierta en una fuga entre sedes. Abrir un taller
-nuevo es dar de alta un inquilino más (ver
-[Dar de alta un taller](#dar-de-alta-un-taller)).
+Cada sede (cada taller) es un **inquilino** con sus propios usuarios y datos,
+aislados en la base de datos con Row Level Security de PostgreSQL. La
+organización está por encima y no cambia eso: dos sedes del mismo grupo siguen
+sin ver las órdenes, los precios ni la productividad de la otra, y esa barrera
+es la que impide que un `WHERE` olvidado se convierta en una fuga entre sedes,
+y con más razón entre clientes.
+
+## Cómo llega un cliente
+
+1. **Se registra en el sitio** de Mechanified, con su correo.
+2. **Descarga `Mechanified.exe`**. Solo se entrega con sesión: sale de un bucket
+   privado que solo leen las cuentas registradas.
+3. **Crea su organización** con su primera sede, y queda como administrador. O,
+   si prefiere, **pide que la cree el equipo** de Mechanified, que la atiende
+   desde la línea de comandos (ver [Organizaciones](#organizaciones)).
+4. **Abre `Mechanified.exe` y entra** con la misma cuenta. La aplicación pasa a
+   llamarse como su organización.
+5. Da de alta a su gente desde **Personal**. A ellos no les hace falta pasar por
+   el sitio.
+
+Los pasos 3 y 4 se pueden dar en cualquier orden: si alguien abre el ejecutable
+sin organización, la aplicación le ofrece crearla ahí mismo.
 
 ## Estructura
 
-| Carpeta     | Contenido                                                     |
-|-------------|---------------------------------------------------------------|
-| `backend/`  | API REST en FastAPI (Python 3.12), organizada por módulos      |
-| `web/`      | Aplicación web en React + Vite + TypeScript                    |
-| `mobile/`   | Aplicación Flutter para técnicos y asesores en campo           |
-| `supabase/` | Esquema SQL versionado, políticas RLS, seed y Edge Functions   |
-| `docs/`     | Modelo de datos, flujo de estados, matriz de permisos, ADRs    |
+| Carpeta       | Contenido                                                          |
+|---------------|--------------------------------------------------------------------|
+| `backend/`    | API REST en FastAPI (Python 3.12), organizada por módulos           |
+| `web/`        | React + Vite + TypeScript. Dos destinos del mismo código: la aplicación y el sitio |
+| `escritorio/` | `Mechanified.exe`: sirve la aplicación en el equipo y reenvía `/api` a la API central |
+| `mobile/`     | Aplicación Flutter para técnicos y asesores en campo                |
+| `supabase/`   | Esquema SQL versionado, políticas RLS, seed y Edge Functions        |
+| `docs/`       | Modelo de datos, flujo de estados, matriz de permisos, ADRs         |
+
+La web compila dos cosas distintas:
+
+- **La aplicación** (`npm run build`, sale en `web/dist/`): lo que usa la gente
+  de cada sede. Va dentro de `Mechanified.exe`.
+- **El sitio** (`npm run build:sitio`, sale en `web/dist-sitio/`): presentación,
+  registro, descarga y cuenta, más las dos páginas que abre el dueño del
+  vehículo. Es lo que se publica en internet.
+
+Comparten sistema de diseño, sesión y cliente de la API; cambia el punto de
+entrada (`src/main.tsx` o `src/sitio.tsx`, ver
+[web/vite.config.ts](web/vite.config.ts)).
 
 ## Requisitos
 
@@ -37,19 +68,20 @@ nuevo es dar de alta un inquilino más (ver
 
 ## Arrancar todo
 
-Desde la raíz del repositorio, un solo comando levanta la API y la web:
+Desde la raíz del repositorio, un solo comando levanta la API, la aplicación y
+el sitio:
 
 ```powershell
 npm run dev
 ```
 
 ```
-  API   http://localhost:8000        docs en /docs
-  Web   http://localhost:5173
+  API     http://localhost:8000        docs en /docs
+  Web     http://localhost:5173        la aplicación (lo que va en Mechanified.exe)
+  Sitio   http://localhost:5174        presentación, registro, descarga y cuenta
 ```
 
-Entra en la web con la cuenta que te dio tu administrador. `Ctrl+C` detiene los
-dos procesos.
+`Ctrl+C` detiene los tres procesos.
 
 > `npm run dev` **desde la raíz**. Dentro de `web/` también existe, pero solo
 > levanta la interfaz, y sin la API detrás no carga ningún dato.
@@ -61,6 +93,137 @@ paralelo fallan con `spawn cmd.exe ENOENT`.
 
 La primera vez hay que preparar cada parte (ver más abajo): entorno virtual y
 dependencias del backend, y `npm install` en `web/`.
+
+## Mechanified.exe
+
+```powershell
+copy escritorio\.env.example escritorio\.env    # MCH_API_URL y MCH_URL_SITIO
+npm run empaquetar                               # deja dist/Mechanified/Mechanified.exe
+npm run publicar                                 # lo pone a descargar en el sitio
+```
+
+Es un cliente ligero de unos 9 MB: lleva la aplicación web ya compilada y un
+servidor mínimo, escrito solo con la biblioteca estándar de Python
+([escritorio/mechanified.py](escritorio/mechanified.py)), que:
+
+- la sirve en http://127.0.0.1:5180, solo para ese equipo, y abre el navegador;
+- reenvía lo que empieza por `/api` a la API central, con el token de quien
+  tiene la sesión abierta. Es el mismo reparto que hace el proxy de Vite en
+  desarrollo, así que la aplicación se compila igual y nunca pide nada a otro
+  origen.
+
+**No lleva credenciales**, y es lo que permite dárselo a cualquier cliente. La
+primera versión llevaba la API dentro y, al lado, un `.env` con la cadena de
+conexión a Postgres y la llave de servicio, que se saltan RLS: repartirla era
+darle a cada cliente las llaves de los datos de todos los demás. Ahora todo eso
+vive solo en el servidor de la API.
+
+Otros detalles:
+
+- El puerto es fijo porque la sesión de Supabase se guarda por origen en el
+  navegador: con otro puerto en cada arranque habría que entrar cada vez.
+- Abrirlo dos veces no choca: la segunda copia reconoce a la primera y solo abre
+  el navegador.
+- Solo atiende peticiones dirigidas a `127.0.0.1` o `localhost` por su nombre,
+  para que una página de internet no pueda usarlo apuntando su dominio al equipo.
+- No está firmado: Windows SmartScreen avisa la primera vez ("Más información →
+  Ejecutar de todos modos"). La página de la cuenta lo explica.
+
+El icono lo dibuja [escritorio/generar_icono.py](escritorio/generar_icono.py); se
+versiona ya hecho. PyInstaller vive en el entorno del backend
+(`pip install -e ".[dev,empaquetado]"`) por no mantener otro.
+
+## Despliegue
+
+Producción vive en dos proyectos de Vercel y en el proyecto de Supabase:
+
+| Pieza | Dónde | Se actualiza con |
+|---|---|---|
+| Sitio | https://mechanified.vercel.app · proyecto `mechanified` (`web/`) | `npx vercel deploy --prod --cwd web` |
+| API | https://mechanified-api.vercel.app · proyecto `mechanified-api` (`backend/`) | `npx vercel deploy --prod --cwd backend` |
+| Base de datos, Auth y archivos | Supabase `ziajrnpghfjlvgpvazzw` | `supabase db push` |
+| `Mechanified.exe` | bucket `mch-descargas` | `npm run empaquetar` y `npm run publicar` |
+
+Los dos proyectos se despliegan desde este equipo con la CLI, no desde Git.
+Conectarlos a un repositorio (`vercel git connect`) haría que cada `push`
+desplegara solo.
+
+**La API** es una función de Python ([backend/vercel.json](backend/vercel.json)),
+en la región `pdx1` (Oregón), al lado de la base de datos de Supabase
+(`us-west-2`): cada petición hace varias idas y vueltas a Postgres, y con la
+función en la costa este cada una costaba decenas de milisegundos más. Su
+configuración son variables del proyecto en Vercel, no un archivo: la cadena
+de Postgres y la llave de servicio van como *sensitive*, que no se pueden volver
+a leer. `.vercelignore` impide que se suba el `.env` de este equipo. Además de lo
+habitual lleva:
+
+- `MCH_ENTORNO=produccion`, que oculta `/salud/base-datos`.
+- `MCH_URL_PUBLICA_WEB` = el sitio: ahí llevan los enlaces de presupuesto y
+  encuesta, y el dueño del vehículo los abre desde su móvil.
+- `MCH_WORKER_EMBEBIDO=false`: una función de Vercel no sigue viva entre
+  peticiones, así que el worker de correos no puede ir dentro (ver abajo).
+- `MCH_DB_POOL_TAMANO=2` y `MCH_DB_POOL_DESBORDE=3`: cada instancia abre su
+  propio pool contra el pooler de Supabase.
+
+**El sitio** ([web/vercel.json](web/vercel.json)) compila con
+`npm run build:sitio`, sirve `index.html` para cualquier ruta que no sea un
+archivo y reenvía `/api/*` a la API, sin caché: el navegador nunca sale de su
+dominio y no hace falta CORS. Sus `VITE_*` son variables del proyecto.
+
+**Supabase Auth** tiene el registro abierto, la confirmación por correo
+desactivada, *Site URL* = el sitio y, como direcciones de retorno, el sitio y
+las de desarrollo local. El hook `mch_hook_access_token` sigue activo.
+
+### Lo que falta para un uso comercial
+
+- **Los correos al cliente no salen.** En Vercel no hay proceso que viva entre
+  peticiones, así que nada vacía la cola de `notificaciones`: los avisos se
+  quedan pendientes. Mientras tanto, los enlaces de presupuesto y encuesta están
+  en la ficha de la orden para compartirlos a mano. Hace falta un servidor SMTP
+  (`MCH_EMAIL_MODO=smtp`) y algo que llame al worker con regularidad: un proceso
+  aparte, o una tarea programada.
+- **Supabase solo envía sus propios correos al equipo del proyecto**, y como
+  mucho dos por hora. Por eso el registro no pide confirmar el correo, y por eso
+  la recuperación de contraseña no le llega a un cliente. Hasta configurar un
+  SMTP propio en Authentication → Emails, a la gente de una sede le restablece
+  la contraseña su administrador desde Personal.
+- **El plan Hobby de Vercel es para uso personal, no comercial.** Para cobrar a
+  clientes hay que pasar los proyectos a Pro.
+
+## Organizaciones
+
+La organización da el nombre; el taller (la sede) es el inquilino. Todo taller
+pertenece a una organización, y una cuenta pertenece a un solo taller, así que
+también a una sola organización.
+
+Hay tres maneras de que nazca una:
+
+- **Por cuenta propia**, desde el sitio o desde la aplicación. La hace
+  `mch_crear_mi_organizacion()`, una función `security definer` que saca la
+  cuenta del token: no hace falta la llave de servicio, y nadie puede fundar
+  una organización a nombre de otro.
+- **Pidiéndosela al equipo.** Queda una fila en `solicitudes_organizacion`, y el
+  equipo la atiende:
+
+  ```powershell
+  cd backend
+  .venv\Scripts\python -m app.solicitudes                    # las pendientes
+  .venv\Scripts\python -m app.solicitudes atender 3f9a1c2e --sede "Taller Centro" --moneda VES
+  .venv\Scripts\python -m app.solicitudes descartar 3f9a1c2e
+  ```
+
+  Atenderla deja como administrador a quien la pidió, con su propia cuenta: no
+  hay contraseña que entregarle, pero **sí hay que avisarle**, porque el comando
+  no le escribe. Tampoco hay aviso automático al equipo cuando entra una
+  solicitud: hoy se consulta con el primer comando.
+- **Al dar de alta un taller** con `python -m app.alta_taller` sin indicar
+  organización: el taller funda una con su mismo nombre. Con
+  `--organizacion grupo-la-meseta` se suma como sede a una que ya existe (ver
+  [Dar de alta un taller](#dar-de-alta-un-taller)).
+
+Cambiarle el nombre a una organización o mover una sede de una a otra no tiene
+pantalla todavía: lo hace el equipo directamente en la base. Desde una sesión de
+usuario está bloqueado a propósito (trigger `mch_talleres_organizacion_guard`).
 
 ## Puesta en marcha (desarrollo local)
 
@@ -149,10 +312,11 @@ ruff format --check .
 cd web
 npm install
 copy .env.example .env
-npm run dev
+npm run dev          # la aplicación, en http://localhost:5173
+npm run dev:sitio    # el sitio, en http://localhost:5174
 ```
 
-Queda en http://localhost:5173, y necesita el backend corriendo en el 8000.
+Las dos necesitan el backend corriendo en el 8000.
 
 Lo que hay hoy: inicio de sesión contra Supabase Auth, tablero de órdenes y
 ficha con todo su flujo (fotos, diagnóstico, mano de obra, repuestos,
@@ -168,9 +332,16 @@ el taller, no el producto.
 
 Dos páginas se abren **sin sesión**, desde el enlace que recibe el cliente:
 `/presupuesto/:token` para aprobar o rechazar, y `/encuesta/:token` para
-calificar el servicio. Esas rutas son parte del contrato con el backend:
-`backend/app/shared/enlaces.py` las usa para componer los enlaces de los
-correos, así que cambiarlas rompe los mensajes ya enviados.
+calificar el servicio. Viven en el sitio, que es lo que está en internet, y por
+eso `MCH_URL_PUBLICA_WEB` es la dirección del sitio. Esas rutas son parte del
+contrato con el backend: `backend/app/shared/enlaces.py` las usa para componer
+los enlaces de los correos, así que cambiarlas rompe los mensajes ya enviados.
+
+El sitio tiene además `/` (la presentación), `/entrar` (entrar o crear cuenta),
+`/cuenta` (descargar el ejecutable y crear o pedir la organización) y `/clave`,
+donde aterriza el correo de recuperación de contraseña también cuando se pide
+desde el ejecutable: el correo suele abrirse en otro dispositivo, y ahí
+`localhost` no lleva a ninguna parte.
 
 Lo mismo que corre el CI:
 
@@ -178,6 +349,7 @@ Lo mismo que corre el CI:
 npm run lint
 npm run typecheck
 npm run build
+npm run build:sitio
 ```
 
 > La configuración del linter está en [web/eslint.config.js](web/eslint.config.js),
@@ -186,7 +358,7 @@ npm run build
 > que compile el proyecto entero en cada pasada solo lo haría lento.
 
 La autenticación la resuelve `@supabase/supabase-js` directamente contra
-Supabase; los datos de negocio siempre pasan por la API de La Meseta. El
+Supabase; los datos de negocio siempre pasan por la API de Mechanified. El
 navegador nunca consulta tablas por su cuenta.
 
 ### 4. Móvil
@@ -239,7 +411,7 @@ de la web en pequeño:
 Lo que no está es trabajo de mostrador —presupuestos, control de calidad,
 catálogo, panel—, y se hace mejor en una pantalla grande.
 
-La app habla con la API de La Meseta para todo lo que es dato de negocio, y
+La app habla con la API de Mechanified para todo lo que es dato de negocio, y
 con Supabase solo para dos cosas: la identidad y el almacén de las fotos. No usa
 el SDK de Supabase; son cuatro peticiones HTTP y están en
 [mobile/lib/nucleo/auth.dart](mobile/lib/nucleo/auth.dart) y
@@ -372,39 +544,49 @@ primero es el identificador global con el que se le nombra desde fuera, y la
 segunda todavía no la lee nadie —las fechas se formatean con la zona del
 navegador—, así que ofrecer el control daría a entender que cambia algo.
 
-El alta de un taller nuevo se hace con la herramienta de línea de comandos del
-backend (ver [Dar de alta un taller](#dar-de-alta-un-taller)), que es tarea de
-sistema: `talleres` no tiene política de INSERT, así que esa fila solo la puede
-escribir el rol de servicio.
+Una organización nueva nace con su primer taller (ver
+[Organizaciones](#organizaciones)). Las sedes siguientes las suma el equipo de
+Mechanified (ver [Dar de alta un taller](#dar-de-alta-un-taller)): `talleres` no
+tiene política de INSERT, así que fuera del alta de la organización esa fila
+solo la escribe el rol de servicio.
 
 ## Usuarios
 
-Las cuentas no se autoregistran: las crea el administrador de un taller, que es
-quien decide a qué taller pertenecen y con qué rol. Sin perfil asignado, un
-usuario puede autenticarse pero RLS le niega todo.
+Hay dos clases de cuenta, y conviene no confundirlas:
+
+- **Quien funda una organización** se registra solo, en el sitio. Su cuenta nace
+  sin taller y sirve para descargar y para crear o pedir la organización.
+- **El resto de la gente** no se registra: la crea el administrador de su sede
+  desde Personal, que es quien decide a qué taller pertenece y con qué rol.
+
+Sin perfil, una cuenta puede autenticarse pero RLS le niega todo dato de taller.
+Lo único que alcanza son las rutas `/cuenta` de la API, que comparan con
+`auth.uid()` y no con el taller.
 
 ### Dar de alta un taller
 
-Es lo que arranca un despliegue, y no tiene pantalla a propósito: `talleres` no
-tiene política de INSERT, así que la fila solo la escribe el rol de servicio.
-Exponerlo por HTTP sería poner esa llave detrás de una puerta, y aquí no hace
-falta ninguna puerta: abrir una sede es una decisión del grupo, no algo que
-nadie vaya a hacer por su cuenta.
+Es la herramienta del equipo de Mechanified, y no tiene pantalla a propósito:
+además del taller crea la cuenta de su administrador en Supabase Auth, y eso
+solo se hace con la llave de servicio. Exponerlo por HTTP sería poner esa llave
+detrás de una puerta. Su uso típico es sumar una sede a una organización:
 
 ```powershell
 cd backend
 .venv\Scripts\python -m app.alta_taller `
   --nombre "La Meseta Sur" `
-  --admin-correo marisol@lameseta.test `
-  --admin-nombre "Marisol Peñaranda" `
+  --organizacion grupo-la-meseta `
+  --admin-correo gerencia.sur@lameseta.test `
+  --admin-nombre "Óscar Rangel" `
   --moneda USD --tarifa 18 --impuesto 16
 ```
 
 Deja creados el taller, la cuenta de su primer administrador y su perfil, e
-imprime **una sola vez** la contraseña temporal. El identificador global
-(`--slug`) y el prefijo de folio (`--prefijo`) se derivan del nombre si no se
-indican: "La Meseta Sur" da `la-meseta-sur` y `LAM`. El resto de la configuración
-se ajusta después en la aplicación, en **Configuración**.
+imprime **una sola vez** la contraseña temporal. Sin `--organizacion`, el taller
+funda una organización con su mismo nombre; con `--organizacion-nombre` estrena
+una con otro. El identificador global (`--slug`) y el prefijo de folio
+(`--prefijo`) se derivan del nombre si no se indican: "La Meseta Sur" da
+`la-meseta-sur` y `LAM`. El resto de la configuración se ajusta después en la
+aplicación, en **Configuración**.
 
 Son tres escrituras en dos sistemas distintos —la fila del taller y el perfil en
 Postgres, la cuenta en Supabase Auth— y pueden fallar a medias, así que cada
@@ -417,9 +599,9 @@ para el segundo intento.
 Hay dos caminos, y conviene saber cuál es cuál:
 
 - **Por su cuenta**, desde *No recuerdo mi contraseña* en la pantalla de acceso.
-  Supabase manda un correo con un enlace que aterriza en `/clave`, donde se pone
-  la nueva. Ese correo lo manda Supabase con su propia plantilla, **no** el
-  worker de La Meseta: quien ha olvidado su contraseña no tiene sesión, y sin
+  Supabase manda un correo con un enlace que aterriza en `/clave` del sitio
+  (`VITE_URL_SITIO`), donde se pone la nueva. Ese correo lo manda Supabase con su propia plantilla, **no** el
+  worker de Mechanified: quien ha olvidado su contraseña no tiene sesión, y sin
   sesión RLS no le deja encolar nada en `notificaciones`. Si pudiera, cualquiera
   podría provocar correos con el remitente del producto.
 - **Por su administrador**, desde **Personal**, que le genera una temporal en el
@@ -456,8 +638,9 @@ renueva su sesión: como mucho en una hora, o al volver a entrar.
 
 ### En desarrollo local
 
-`supabase/seed.sql` crea la sede ficticia **La Meseta Centro** con cuatro
-usuarios, uno por rol, todos con la contraseña `LaMeseta123!`:
+`supabase/seed.sql` crea la organización **Grupo La Meseta** con su sede ficticia
+**La Meseta Centro** y cuatro usuarios, uno por rol, todos con la contraseña
+`LaMeseta123!`:
 
 | Correo                    | Rol                   |
 |---------------------------|-----------------------|

@@ -2,7 +2,19 @@ import { useState, type FormEvent } from 'react';
 
 import { Aviso, Boton, Campo, Marca } from '@/components/ui';
 import { useSesion } from '@/app/sesion';
+import { URL_SITIO } from '@/lib/marca';
 
+/**
+ * Acceso a la aplicación de Mechanified.
+ *
+ * Aquí la marca es la del producto: todavía no se sabe de qué organización es
+ * quien entra. En cuanto entra, la aplicación pasa a llamarse como la suya.
+ *
+ * No hay registro en esta pantalla. Las cuentas nacen de dos maneras: quien
+ * funda una organización se registra en el sitio, y al resto de la gente la da
+ * de alta la administración de su sede. Por eso el pie manda al sitio y no a un
+ * formulario de aquí.
+ */
 export function PaginaLogin() {
   const [recuperando, setRecuperando] = useState(false);
 
@@ -12,7 +24,7 @@ export function PaginaLogin() {
         <div style={{ marginBottom: 'var(--mch-esp-6)' }}>
           <Marca />
           <p className="mch-acceso__nota">
-            Sistema interno de gestión de talleres. Entra con la cuenta que te dieron.
+            Gestión de talleres mecánicos. Entra con tu cuenta de Mechanified.
           </p>
         </div>
 
@@ -23,7 +35,13 @@ export function PaginaLogin() {
         )}
 
         <p className="mch-acceso__pie">
-          Es un sistema interno: las cuentas las crea la administración de cada taller.
+          ¿Trabajas en un taller que ya usa Mechanified? Tu cuenta te la da su administración.
+          <br />
+          ¿Vas a empezar con tu organización?{' '}
+          <a href={`${URL_SITIO}/entrar?registro`} target="_blank" rel="noreferrer">
+            Crea tu cuenta en el sitio
+          </a>
+          .
         </p>
       </div>
     </main>
@@ -97,7 +115,7 @@ function Acceso({ onRecuperar }: { onRecuperar: () => void }) {
  * propósito: decir "ese correo no está registrado" convierte esta pantalla en
  * una forma de averiguar quién trabaja en qué taller.
  */
-function Recuperacion({ onVolver }: { onVolver: () => void }) {
+export function Recuperacion({ onVolver }: { onVolver: () => void }) {
   const { pedirRecuperacion } = useSesion();
   const [correo, setCorreo] = useState('');
   const [error, setError] = useState<string | null>(null);

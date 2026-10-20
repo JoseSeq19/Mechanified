@@ -1,0 +1,14 @@
+# Lo que no se sube a Vercel (proyecto mechanified-api).
+# Los secretos van como variables de entorno del proyecto, nunca como archivo:
+# el .env de este equipo no sale de aquí.
+.env
+.env.*
+.venv
+buzon
+tests
+scripts
+.pytest_cache
+.ruff_cache
+.mypy_cache
+**/__pycache__
+*.egg-info

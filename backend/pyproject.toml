@@ -1,7 +1,7 @@
 [project]
 name = "meseta-backend"
 version = "0.1.0"
-description = "API REST de La Meseta — gestión de talleres mecánicos"
+description = "API REST de Mechanified — gestión de talleres mecánicos"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.115",
@@ -22,6 +22,12 @@ dev = [
     "pytest-cov>=6.0",
     "ruff>=0.7",
     "mypy>=1.13",
+]
+# Para `npm run empaquetar`, que arma Mechanified.exe. El cliente de escritorio
+# (escritorio/mechanified.py) solo usa la biblioteca estándar; PyInstaller vive
+# aquí por no mantener un entorno virtual más.
+empaquetado = [
+    "pyinstaller>=6.16",
 ]
 
 [build-system]
@@ -65,3 +71,8 @@ python_version = "3.12"
 plugins = ["pydantic.mypy"]
 warn_unused_ignores = true
 disallow_untyped_defs = true
+
+[tool.vercel]
+# La API en Vercel (proyecto mechanified-api) es esta aplicación, como una
+# función de Python. Ver backend/vercel.json y README > Despliegue.
+entrypoint = "app.main:app"

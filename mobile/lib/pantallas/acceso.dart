@@ -178,7 +178,7 @@ class _Marca extends StatelessWidget {
         ),
         const SizedBox(width: 10),
         const Text(
-          'Grupo La Meseta',
+          'Mechanified',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
         ),
       ],

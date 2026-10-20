@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:sitio": "vite --mode sitio",
     "build": "tsc -b && vite build",
+    "build:sitio": "tsc -b && vite build --mode sitio",
     "preview": "vite preview",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit"

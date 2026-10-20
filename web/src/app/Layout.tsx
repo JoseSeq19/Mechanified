@@ -1,10 +1,12 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 
 import { Aviso, Boton, Campo, Dialogo, Marca } from '@/components/ui';
+import { CLAVE_ORGANIZACION, obtenerOrganizacion } from '@/features/organizaciones/api';
 import { CLAVE_TALLER, obtenerTaller } from '@/features/taller/api';
 import { fijarMoneda } from '@/lib/formato';
+import { PRODUCTO } from '@/lib/marca';
 import { ETIQUETA_ROL, useSesion } from './sesion';
 
 /** Módulos aún no construidos. Se listan para que el alcance quede visible. */
@@ -29,11 +31,30 @@ export function Layout() {
   // y las cifras de la página ya se habrían formateado sin moneda.
   fijarMoneda(taller.data?.moneda ?? null);
 
+  // El producto se presenta con el nombre de la organización: quien entra de
+  // Grupo La Meseta ve "Grupo La Meseta", también en la pestaña y la barra de
+  // tareas. Mientras llega, el del producto.
+  const organizacion = useQuery({
+    queryKey: CLAVE_ORGANIZACION,
+    queryFn: obtenerOrganizacion,
+    staleTime: 5 * 60_000,
+  });
+  const nombre = organizacion.data?.nombre ?? PRODUCTO;
+
+  useEffect(() => {
+    document.title = nombre;
+    return () => {
+      document.title = PRODUCTO;
+    };
+  }, [nombre]);
+
   return (
     <div className="mch-app">
       <aside className="mch-rail">
         <div>
-          <Marca />
+          <Marca nombre={nombre} />
+          {/* La sede, debajo. Dos sedes de la misma organización comparten
+              nombre de producto, y saber en cuál estás no es decoración. */}
           {taller.data && <div className="mch-rail__taller">{taller.data.nombre}</div>}
         </div>
 
@@ -96,18 +117,13 @@ export function Layout() {
             </button>
           </div>
         </div>
+
+        {organizacion.data && <div className="mch-rail__producto">con {PRODUCTO}</div>}
       </aside>
 
+      {/* Sin taller en el token no se llega aquí: App muestra antes la pantalla
+          de la cuenta sin organización (PaginaSinOrganizacion). */}
       <main className="mch-contenido">
-        {!claims?.taller_id && (
-          <div style={{ marginBottom: 'var(--mch-esp-6)' }}>
-            <Aviso tono="alerta">
-              Tu sesión no trae taller asignado, así que la API va a rechazar todo. Suele
-              significar que el hook de Auth está apagado en Supabase, o que tu usuario no
-              tiene perfil activo.
-            </Aviso>
-          </div>
-        )}
         <Outlet />
       </main>
 

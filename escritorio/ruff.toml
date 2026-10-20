@@ -1,0 +1,2 @@
+# Las mismas reglas que el backend: es Python del mismo equipo.
+extend = "../backend/pyproject.toml"

@@ -34,7 +34,12 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from app.core.config import obtener_configuracion
-from app.core.security import UsuarioAutenticado, usuario_actual
+from app.core.security import (
+    CuentaAutenticada,
+    UsuarioAutenticado,
+    cuenta_actual,
+    usuario_actual,
+)
 
 
 @lru_cache
@@ -58,7 +63,9 @@ def obtener_fabrica() -> async_sessionmaker[AsyncSession]:
 
 
 @asynccontextmanager
-async def sesion_rls(usuario: UsuarioAutenticado) -> AsyncIterator[AsyncSession]:
+async def sesion_rls(
+    usuario: UsuarioAutenticado | CuentaAutenticada,
+) -> AsyncIterator[AsyncSession]:
     """Transacción que corre bajo la identidad del usuario, con RLS activo."""
     async with obtener_fabrica()() as sesion, sesion.begin():
         await sesion.execute(text("SET LOCAL ROLE authenticated"))
@@ -77,6 +84,18 @@ async def sesion_usuario(
         yield sesion
 
 
+async def sesion_cuenta(
+    cuenta: CuentaAutenticada = Depends(cuenta_actual),
+) -> AsyncIterator[AsyncSession]:
+    """La de las rutas de `/cuenta`, que no exigen taller.
+
+    Es la misma barrera con menos llaves: RLS igual de activo, pero sin claims de
+    tenant, así que solo alcanza lo que las políticas comparan con `auth.uid()`.
+    """
+    async with sesion_rls(cuenta) as sesion:
+        yield sesion
+
+
 @asynccontextmanager
 async def sesion_servicio() -> AsyncIterator[AsyncSession]:
     """Transacción SIN RLS, con el rol de conexión.
@@ -87,7 +106,11 @@ async def sesion_servicio() -> AsyncIterator[AsyncSession]:
       1. Worker de notificaciones, que avanza la cola.
       2. Endpoints públicos por token (aprobar presupuesto, responder encuesta),
          donde no hay sesión y el token del enlace es la autorización.
-      3. Alta de un taller nuevo con su primer administrador.
+      3. Alta de un taller nuevo con su primer administrador, y la atención de
+         las solicitudes de organización, desde la línea de comandos del equipo.
+
+    El alta de una organización por cuenta propia **no** pasa por aquí: va por
+    `mch_crear_mi_organizacion()`, dentro de la sesión RLS de quien la pide.
 
     Cualquier otro uso es un error de diseño: significa que se está esquivando
     la barrera en lugar de darle al usuario el permiso que necesita.

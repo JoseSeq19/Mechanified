@@ -3,10 +3,17 @@
     python -m app.alta_taller --nombre "Delta Motors" \
         --admin-correo marisol@deltamotors.test --admin-nombre "Marisol Peñaranda"
 
-Es lo que arranca un despliegue: deja creado el taller, la cuenta de su primer
-administrador y su perfil, e imprime la contraseña temporal **una sola vez**.
-A partir de ahí todo lo demás se hace desde la aplicación, incluido dar de alta
-al resto de la gente.
+    python -m app.alta_taller --nombre "La Meseta Sur" --organizacion grupo-la-meseta \
+        --admin-correo gerencia.sur@lameseta.test --admin-nombre "Óscar Rangel"
+
+Es la herramienta del equipo de Mechanified: deja creado el taller, la cuenta
+de su primer administrador y su perfil, e imprime la contraseña temporal **una
+sola vez**. A partir de ahí todo lo demás se hace desde la aplicación, incluido
+dar de alta al resto de la gente.
+
+El segundo ejemplo es el caso más habitual: sumar una sede a una organización
+que ya existe. Quien funda una organización nueva suele hacerlo solo, desde el
+sitio, y las que piden al equipo se atienden con `python -m app.solicitudes`.
 
 Necesita `MCH_SUPABASE_SERVICE_ROLE_KEY` y `MCH_DATABASE_URL`, por las mismas
 razones por las que esto no es un endpoint: ver el docstring de
@@ -45,6 +52,21 @@ def _argumentos(argv: list[str] | None = None) -> argparse.Namespace:
         "--admin-nombre", required=True, help="Nombre completo del administrador"
     )
 
+    organizacion = analizador.add_argument_group(
+        "organización",
+        "Sin ninguna de las dos, el taller funda una organización con su mismo nombre.",
+    ).add_mutually_exclusive_group()
+    organizacion.add_argument(
+        "--organizacion",
+        metavar="SLUG",
+        help="Sumarlo como sede de una organización que ya existe (p. ej. grupo-la-meseta)",
+    )
+    organizacion.add_argument(
+        "--organizacion-nombre",
+        metavar="NOMBRE",
+        help="Estrenar una organización con este nombre, distinto del del taller",
+    )
+
     identidad = analizador.add_argument_group("identidad del taller")
     identidad.add_argument("--slug", help="Identificador global, en minúsculas y con guiones")
     identidad.add_argument("--rif", help="Identificación fiscal")
@@ -73,6 +95,8 @@ def _datos(args: argparse.Namespace) -> TallerAlta:
         slug=args.slug,
         admin_email=args.admin_correo,
         admin_nombre=args.admin_nombre,
+        organizacion=args.organizacion,
+        organizacion_nombre=args.organizacion_nombre,
         identificacion_fiscal=args.rif,
         telefono=args.telefono,
         email=args.correo,
@@ -89,10 +113,11 @@ def _datos(args: argparse.Namespace) -> TallerAlta:
 def _imprimir(creado: TallerCreado, nombre: str) -> None:
     print()
     print(f"  Taller creado: {nombre}")
+    print(f"  Organización: {creado.organizacion_nombre}")
     print(f"  Identificador: {creado.slug}")
     print(f"  Prefijo de folio: {creado.prefijo_orden}")
     print()
-    print("  Entra en la web con:")
+    print("  Entra en Mechanified con:")
     print(f"      correo:     {creado.admin_email}")
     print(f"      contraseña: {creado.clave_temporal}")
     print()

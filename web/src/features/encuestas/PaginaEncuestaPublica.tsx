@@ -176,7 +176,7 @@ export function PaginaEncuestaPublica() {
 
       <footer className="mch-publico__pie">
         <Marca compacta />
-        <span>Encuesta enviada por Grupo La Meseta</span>
+        <span>Gestionado con Mechanified</span>
       </footer>
     </main>
   );

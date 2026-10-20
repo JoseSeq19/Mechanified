@@ -19,12 +19,14 @@ jobs:
           python-version: '3.12'
           cache: pip
       - run: pip install -e ".[dev]"
-      - run: ruff check .
-      - run: ruff format --check .
+      - run: ruff check . ../escritorio
+      - run: ruff format --check . ../escritorio
       - run: pytest tests/unit -v
+      # El cliente de Mechanified.exe: solo biblioteca estándar, se prueba aquí.
+      - run: pytest ../escritorio/tests -v
 
   web:
-    name: Web · tipos y build
+    name: Web · tipos y build (aplicación y sitio)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -40,6 +42,7 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm run build
+      - run: npm run build:sitio
 
   base_datos:
     name: Base de datos · migraciones y RLS

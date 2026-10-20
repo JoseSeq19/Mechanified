@@ -1,5 +1,5 @@
 /**
- * Sistema de diseño de La Meseta.
+ * Sistema de diseño de Mechanified.
  *
  * Componentes propios sobre los tokens de `styles/tokens.css`. No se usa
  * ninguna librería de componentes con identidad visual propia: la apariencia de
@@ -8,15 +8,23 @@
 import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAttributes } from 'react';
 import { useEffect, useId } from 'react';
 
+import { iniciales, PRODUCTO } from '@/lib/marca';
+
 /* --- Marca -------------------------------------------------------------- */
 
-export function Marca({ compacta = false }: { compacta?: boolean }) {
+/**
+ * La marca: el producto, o la organización de la sesión cuando ya se sabe.
+ *
+ * Quien entra de Grupo La Meseta ve "Grupo La Meseta" y no "Mechanified": el
+ * nombre es el del cliente. Sin `nombre`, la marca es la del producto.
+ */
+export function Marca({ nombre = PRODUCTO, compacta = false }: { nombre?: string; compacta?: boolean }) {
   return (
     <span className="mch-marca">
       <span className="mch-marca__glifo" aria-hidden="true">
-        LM
+        {iniciales(nombre)}
       </span>
-      {!compacta && <span>Grupo La Meseta</span>}
+      {!compacta && <span>{nombre}</span>}
     </span>
   );
 }

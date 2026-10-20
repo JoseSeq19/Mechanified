@@ -2,12 +2,15 @@
   "name": "meseta",
   "private": true,
   "version": "0.1.0",
-  "description": "Arranque conjunto del monorepo. El código vive en backend/, web/ y mobile/.",
+  "description": "Arranque conjunto del monorepo de Mechanified. El código vive en backend/, web/, escritorio/ y mobile/.",
   "type": "module",
   "scripts": {
     "dev": "node scripts/dev.mjs",
     "build": "npm --prefix web run build",
+    "sitio": "npm --prefix web run build:sitio",
     "typecheck": "npm --prefix web run typecheck",
-    "instalar": "npm --prefix web install"
+    "instalar": "npm --prefix web install",
+    "empaquetar": "node scripts/empaquetar.mjs",
+    "publicar": "node scripts/publicar.mjs"
   }
 }

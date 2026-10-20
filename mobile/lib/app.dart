@@ -69,7 +69,7 @@ class AppMeseta extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp.router(
-      title: 'Grupo La Meseta',
+      title: 'Mechanified',
       debugShowCheckedModeBanner: false,
       theme: temaMeseta(),
       routerConfig: ref.watch(routerProvider),

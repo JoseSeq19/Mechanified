@@ -25,6 +25,7 @@ backend/buzon/
 # ---- Node / web ----
 node_modules/
 web/dist/
+web/dist-sitio/
 web/.vite/
 # Cache incremental de tsc: se regenera en cada compilacion.
 web/tsconfig.tsbuildinfo
@@ -51,3 +52,12 @@ supabase/.env
 .idea/
 .DS_Store
 Thumbs.db
+
+# ---- Paquetes ----
+# Un .zip en la raíz suele ser una carpeta dist/ comprimida para repartir, y el
+# ejecutable de la primera versión llevaba al lado un .env con credenciales.
+/*.zip
+
+# ---- Vercel ----
+# Enlace de cada carpeta con su proyecto (lo crea `vercel link`).
+.vercel/
