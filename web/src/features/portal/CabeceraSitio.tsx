@@ -1,10 +1,10 @@
 import { useEffect, useId, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
-import { Marca } from '@/components/ui';
 import { RUTA_CUENTA, useSesion } from '@/app/sesion';
 import { PRODUCTO } from '@/lib/marca';
 import { IconoCerrar, IconoMenu } from './iconos';
+import { LogoSitio } from './LogoSitio';
 
 /** Las secciones de la presentación a las que se puede saltar. */
 const SECCIONES = [
@@ -94,7 +94,7 @@ export function CabeceraSitio({
     <header className={clases.join(' ')}>
       <div className="mch-sitio-ancho mch-sitio-cabecera__fila">
         <Link to="/" className="mch-sitio-cabecera__marca" aria-label={`${PRODUCTO}, inicio`}>
-          <Marca />
+          <LogoSitio />
         </Link>
 
         {conSecciones && (
@@ -154,7 +154,7 @@ export function PieSitio() {
       <div className="mch-sitio-ancho mch-sitio-pie__contenido">
         <div className="mch-sitio-pie__fila">
           <div className="mch-sitio-pie__marca">
-            <Marca />
+            <LogoSitio conLema />
             <p>Gestión de talleres mecánicos, para un taller solo o para un grupo con varias sedes.</p>
           </div>
 

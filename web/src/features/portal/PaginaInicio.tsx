@@ -59,14 +59,14 @@ const RECORRIDO = [
   },
 ];
 
-type Tono = 'orquidea' | 'grafito' | 'esmeralda' | 'violeta' | 'ambar' | 'cielo';
+type Tono = 'azul' | 'orquidea' | 'grafito' | 'esmeralda' | 'ambar' | 'violeta';
 
 const PIEZAS: { titulo: string; texto: string; Icono: ComponentType; tono: Tono }[] = [
   {
     titulo: 'Tablero de órdenes',
     texto: 'Todo lo que está en el taller, por estado, con búsqueda por folio, placa o cliente.',
     Icono: IconoTablero,
-    tono: 'violeta',
+    tono: 'azul',
   },
   {
     titulo: 'Repuestos y catálogo',
@@ -96,7 +96,7 @@ const PIEZAS: { titulo: string; texto: string; Icono: ComponentType; tono: Tono 
     titulo: 'Personal y permisos',
     texto: 'Administración, asesoría, técnicos y repuestos: cada rol ve y hace lo que le toca.',
     Icono: IconoPersonas,
-    tono: 'cielo',
+    tono: 'violeta',
   },
 ];
 

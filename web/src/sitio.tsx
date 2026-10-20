@@ -9,6 +9,9 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import { Sitio } from './app/Sitio';
+// La letra del logo, solo en el sitio y servida desde él mismo.
+import '@fontsource/montserrat/400.css';
+import '@fontsource/montserrat/700.css';
 import './styles/tokens.css';
 import './styles/base.css';
 import './styles/publico.css';

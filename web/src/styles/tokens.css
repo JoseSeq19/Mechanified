@@ -9,7 +9,7 @@
    exige atención. Nada de azul corporativo genérico.
 
    El sitio de presentación tiene paleta aparte (`--mch-sitio-*`, al final):
-   blanco y negro con el violeta como color de acción.
+   blanco y negro, con el azul del logo como color de acción.
    --------------------------------------------------------------- */
 
 :root {
@@ -103,22 +103,24 @@
   --mch-sitio-blanco: #fff;
   --mch-sitio-gris-claro: #bebebe;
   --mch-sitio-gris-medio: #8a8a8a;
-  --mch-sitio-violeta: #6142ff;
-  --mch-sitio-violeta-hover: #4f30f0;
-  --mch-sitio-violeta-claro: #a594ff;
+  /* El azul del emblema: el de los botones aguanta texto blanco encima. */
+  --mch-sitio-azul: #2668d8;
+  --mch-sitio-azul-hover: #1d55b8;
+  --mch-sitio-azul-claro: #5cc0e4;
   --mch-sitio-orquidea: #d8a0df;
   --mch-sitio-rosa: #f6e2f8;
   --mch-sitio-menta: #ccfff0;
   --mch-sitio-verde: #0b7a52;
   --mch-sitio-coral: #ff7a59;
-  --mch-sitio-degradado: linear-gradient(135deg, #6142ff, #8b66ff);
+  --mch-sitio-degradado: linear-gradient(135deg, #2760b9, #47a7da);
   --mch-sitio-chip-orquidea: linear-gradient(160deg, #f3c6f5, #c77fd8);
   --mch-sitio-chip-grafito: linear-gradient(160deg, #a6a6a6, #5c5c5c);
   --mch-sitio-chip-esmeralda: linear-gradient(160deg, #4fd3a3, #19895f);
   --mch-sitio-chip-violeta: linear-gradient(160deg, #c4b5ff, #7b5cff);
   --mch-sitio-chip-ambar: linear-gradient(160deg, #ffd38f, #e2861c);
-  --mch-sitio-chip-cielo: linear-gradient(160deg, #a3d5ff, #3a86e0);
+  --mch-sitio-chip-azul: linear-gradient(160deg, #7fd0f2, #2760b9);
   --mch-sitio-sombra-tarjeta: 0 4px 24px rgb(20 20 20 / 0.08);
+  --mch-sitio-fuente-logo: 'Montserrat', system-ui, sans-serif;
   --mch-sitio-sombra-flotante: 0 30px 60px rgb(0 0 0 / 0.45);
 
   /* Con tema. */
@@ -130,8 +132,8 @@
   --mch-sitio-texto-tarjeta: #323232;
   --mch-sitio-texto-suave: #6e6e6e;
   --mch-sitio-linea: #e6e6e6;
-  --mch-sitio-acento-texto: #6142ff;
-  --mch-sitio-violeta-tenue: #efebff;
+  --mch-sitio-acento-texto: #2668d8;
+  --mch-sitio-azul-tenue: #e8f1fd;
   --mch-sitio-realce: #f6e2f8;
   --mch-sitio-franja: #ccfff0;
   --mch-sitio-franja-texto: #141414;
@@ -166,8 +168,8 @@
     --mch-sitio-texto-tarjeta: #e2e2e2;
     --mch-sitio-texto-suave: #a3a3a3;
     --mch-sitio-linea: #2b2b2e;
-    --mch-sitio-acento-texto: #a594ff;
-    --mch-sitio-violeta-tenue: #1d1838;
+    --mch-sitio-acento-texto: #6cc4f0;
+    --mch-sitio-azul-tenue: #10223d;
     --mch-sitio-realce: #251a2b;
     --mch-sitio-franja: #0f2a22;
     --mch-sitio-franja-texto: #ccfff0;
@@ -185,12 +187,12 @@
   --mch-texto-secundario: var(--mch-sitio-texto-suave);
   --mch-tinta-suave: var(--mch-sitio-texto-suave);
   --mch-borde: var(--mch-sitio-linea);
-  --mch-marca: var(--mch-sitio-violeta);
-  --mch-marca-hover: var(--mch-sitio-violeta-hover);
-  --mch-marca-tenue: var(--mch-sitio-violeta-tenue);
+  --mch-marca: var(--mch-sitio-azul);
+  --mch-marca-hover: var(--mch-sitio-azul-hover);
+  --mch-marca-tenue: var(--mch-sitio-azul-tenue);
   --mch-radio: 10px;
   --mch-radio-lg: 16px;
-  --mch-foco: 0 0 0 3px rgb(97 66 255 / 0.32);
+  --mch-foco: 0 0 0 3px rgb(38 104 216 / 0.32);
   --mch-fuente-base:
     'Inter Tight', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }

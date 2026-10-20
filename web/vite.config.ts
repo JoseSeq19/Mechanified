@@ -31,8 +31,13 @@ function entradaSegunDestino(mode: string): Plugin {
       order: 'pre',
       handler(html) {
         if (!ES_SITIO(mode)) return html;
+        // El sitio lleva el emblema del logo como icono de pestaña.
         return html
           .replace('/src/main.tsx', '/src/sitio.tsx')
+          .replace(
+            '<link rel="icon" type="image/svg+xml" href="/favicon.svg" />',
+            '<link rel="icon" type="image/png" href="/favicon-sitio.png" />',
+          )
           .replace(
             '<title>Mechanified</title>',
             '<title>Mechanified · gestión de talleres mecánicos</title>',
