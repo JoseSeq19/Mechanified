@@ -2,11 +2,9 @@
 
    Blanco y negro con el azul del logo como color de acción: franjas negras para
    abrir y cerrar, tarjetas grises sin borde, titulares grandes y apretados.
-   La paleta está en tokens.css (`--mch-sitio-*`) y solo existe aquí; la
-   aplicación conserva la suya.
-
-   Los botones, campos y avisos son los del sistema de diseño: dentro de
-   .mch-sitio toman este aspecto porque tokens.css les re-apunta los tokens. */
+   La paleta está en tokens.css (`--mch-sitio-*`) y es la misma de la
+   aplicación. Los botones, campos y avisos son los del sistema de diseño;
+   aquí solo cambian de tamaño, que en la presentación son más grandes. */
 
 /* --- Lienzo ------------------------------------------------------------ */
 
@@ -198,77 +196,16 @@ body:has(.mch-sitio) {
   line-height: 1.5;
 }
 
+/* En el sitio, los paneles del sistema (el formulario de la organización)
+   van en blanco: suelen estar dentro de una tarjeta gris. */
 .mch-sitio .mch-panel {
+  background: var(--mch-panel);
   border-radius: 16px;
   box-shadow: none;
 }
 
 .mch-sitio .mch-acceso__enlace {
   justify-self: center;
-}
-
-/* --- Logo -------------------------------------------------------------- */
-
-/* El emblema con el nombre al lado, en mayúsculas como en el logo. Va siempre
-   sobre negro: la cabecera y el pie. */
-.mch-sitio-logo {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--mch-sitio-blanco);
-}
-
-.mch-sitio-logo__emblema {
-  flex: none;
-  width: 40px;
-  height: 40px;
-}
-
-.mch-sitio-logo__texto {
-  display: grid;
-  gap: 2px;
-}
-
-.mch-sitio-logo__nombre {
-  font-family: var(--mch-sitio-fuente-logo);
-  font-size: 1.25rem;
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: 0.01em;
-  text-transform: uppercase;
-}
-
-.mch-sitio-logo__lema {
-  font-family: var(--mch-sitio-fuente-logo);
-  font-size: 0.6875rem;
-  font-weight: 400;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--mch-sitio-gris-claro);
-}
-
-.mch-sitio-logo--con-lema {
-  gap: 14px;
-}
-
-.mch-sitio-logo--con-lema .mch-sitio-logo__emblema {
-  width: 64px;
-  height: 64px;
-}
-
-.mch-sitio-logo--con-lema .mch-sitio-logo__nombre {
-  font-size: 1.875rem;
-}
-
-@media (max-width: 400px) {
-  .mch-sitio-logo__emblema {
-    width: 34px;
-    height: 34px;
-  }
-
-  .mch-sitio-logo__nombre {
-    font-size: 1.0625rem;
-  }
 }
 
 /* --- Fichas de color ---------------------------------------------------- */
@@ -736,7 +673,7 @@ body:has(.mch-sitio) {
 }
 
 .mch-sitio-tarjeta-orden__marca {
-  font-family: var(--mch-sitio-fuente-logo);
+  font-family: var(--mch-fuente-logo);
   font-size: 0.875rem;
   font-weight: 700;
   letter-spacing: 0.02em;

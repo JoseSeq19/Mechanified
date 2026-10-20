@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------
-   La Meseta · panel del taller
+   Mechanified · panel del taller
 
    Barras horizontales y tarjetas. Las reglas de los gráficos:
 
@@ -19,13 +19,13 @@
 
 /* --- Selector de periodo --- */
 
+/* Como las pestañas del sitio: pista gris y la opción elegida en blanco. */
 .mch-periodos {
   display: flex;
-  gap: 2px;
-  padding: 2px;
-  background: var(--mch-marca-tenue);
-  border: 1px solid var(--mch-borde);
-  border-radius: var(--mch-radio);
+  gap: 4px;
+  padding: 4px;
+  background: var(--mch-tarjeta);
+  border-radius: 12px;
 }
 
 .mch-periodo {
@@ -35,7 +35,7 @@
   color: var(--mch-texto-secundario);
   background: none;
   border: none;
-  border-radius: var(--mch-radio-sm);
+  border-radius: 9px;
   cursor: pointer;
 }
 
@@ -51,7 +51,7 @@
 .mch-periodo--activo {
   background: var(--mch-panel);
   color: var(--mch-texto);
-  font-weight: 560;
+  font-weight: 500;
   box-shadow: var(--mch-sombra-sm);
 }
 
@@ -65,8 +65,8 @@
 }
 
 .mch-bloque {
-  background: var(--mch-panel);
-  border: 1px solid var(--mch-borde);
+  background: var(--mch-tarjeta);
+  border: 1px solid transparent;
   border-radius: var(--mch-radio-lg);
   padding: var(--mch-esp-5);
   display: flex;

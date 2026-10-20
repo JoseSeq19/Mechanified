@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 
-import { Aviso, Boton, Campo, Marca } from '@/components/ui';
+import { Aviso, Boton, Campo, Logo } from '@/components/ui';
 import { useSesion } from '@/app/sesion';
 import { URL_SITIO } from '@/lib/marca';
 
@@ -19,15 +19,16 @@ export function PaginaLogin() {
   const [recuperando, setRecuperando] = useState(false);
 
   return (
-    <main className="mch-acceso">
-      <div className="mch-acceso__caja">
-        <div style={{ marginBottom: 'var(--mch-esp-6)' }}>
-          <Marca />
-          <p className="mch-acceso__nota">
-            Gestión de talleres mecánicos. Entra con tu cuenta de Mechanified.
-          </p>
+    <main className="mch-acceso mch-acceso--partido">
+      <section className="mch-acceso__lema" aria-labelledby="titulo-acceso">
+        <Logo conLema />
+        <div>
+          <h1 id="titulo-acceso">{recuperando ? 'Recupera tu contraseña' : 'Entra en tu taller'}</h1>
+          <p>Gestión de talleres mecánicos. Entra con tu cuenta de Mechanified.</p>
         </div>
+      </section>
 
+      <div className="mch-acceso__caja">
         {recuperando ? (
           <Recuperacion onVolver={() => setRecuperando(false)} />
         ) : (

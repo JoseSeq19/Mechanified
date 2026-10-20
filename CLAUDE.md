@@ -90,12 +90,13 @@ estilos: no se cambia por partes.
 - Una carpeta por dominio en `src/features/<entidad>/`.
 - Un mismo código, dos destinos: la aplicación (`src/main.tsx`, va dentro de
   `Mechanified.exe`) y el sitio (`src/sitio.tsx`, `vite --mode sitio`).
-- La marca: `Marca` sin nombre es Mechanified; dentro de la aplicación, con
-  sesión, es el nombre de la organización (`GET /organizacion`).
-- El sitio tiene paleta propia (`--mch-sitio-*` en `tokens.css`: blanco, negro
-  y el azul del logo) y la aplicación conserva el petróleo. Dentro de `.mch-sitio` los
-  componentes del sistema toman la del sitio porque `tokens.css` les re-apunta
-  los tokens: no se duplican componentes para el sitio.
+- Una sola identidad para el sitio y la aplicación: blanco y negro con el azul
+  del emblema del logo (`tokens.css`). Franjas negras, tarjetas grises sin
+  borde (`--mch-tarjeta`) y, encima, lo blanco (`--mch-panel`: campos,
+  diálogos, tarjetas del tablero).
+- La marca: `Logo` es la de Mechanified (emblema y nombre en Montserrat; va
+  sobre negro). Dentro de la aplicación, con sesión, la marca es la de la
+  organización (`Marca` con el nombre de `GET /organizacion`).
 
 ## Escritorio
 

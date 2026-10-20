@@ -15,7 +15,7 @@
 import { useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { Aviso, Boton, Cargando, Marca } from '@/components/ui';
+import { Aviso, Boton, Cargando, Logo } from '@/components/ui';
 import { useSesion } from '@/app/sesion';
 import { ErrorApi } from '@/lib/api';
 import { URL_SITIO } from '@/lib/marca';
@@ -63,14 +63,17 @@ export function PaginaSinOrganizacion() {
   const nombreRegistro = sesion?.user.user_metadata?.nombre_completo as string | undefined;
 
   return (
-    <main className="mch-bienvenida">
-      <div className="mch-bienvenida__caja">
-        <header className="mch-bienvenida__cabecera">
-          <Marca />
-          <button type="button" className="mch-acceso__enlace" onClick={() => void salir()}>
-            Cerrar sesión
-          </button>
-        </header>
+    <div className="mch-bienvenida">
+      {/* La misma franja negra que la cabecera del sitio: todavía no hay
+          organización, así que la marca es la de Mechanified. */}
+      <header className="mch-bienvenida__barra">
+        <Logo />
+        <button type="button" className="mch-bienvenida__salir" onClick={() => void salir()}>
+          Cerrar sesión
+        </button>
+      </header>
+
+      <main className="mch-bienvenida__caja">
 
         {cuenta.isPending && <Cargando texto="Revisando tu cuenta…" />}
 
@@ -146,7 +149,7 @@ export function PaginaSinOrganizacion() {
             Reintentar
           </Boton>
         )}
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

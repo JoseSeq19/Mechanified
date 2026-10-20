@@ -6,6 +6,7 @@ import { Aviso, Boton, Campo, Dialogo, Marca } from '@/components/ui';
 import { CLAVE_ORGANIZACION, obtenerOrganizacion } from '@/features/organizaciones/api';
 import { CLAVE_TALLER, obtenerTaller } from '@/features/taller/api';
 import { fijarMoneda } from '@/lib/formato';
+import emblema from '@/assets/mechanified-emblema.webp';
 import { PRODUCTO } from '@/lib/marca';
 import { ETIQUETA_ROL, useSesion } from './sesion';
 
@@ -118,7 +119,12 @@ export function Layout() {
           </div>
         </div>
 
-        {organizacion.data && <div className="mch-rail__producto">con {PRODUCTO}</div>}
+        {organizacion.data && (
+          <div className="mch-rail__producto">
+            <img src={emblema} alt="" width={20} height={20} />
+            con {PRODUCTO}
+          </div>
+        )}
       </aside>
 
       {/* Sin taller en el token no se llega aquí: App muestra antes la pantalla

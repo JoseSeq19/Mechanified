@@ -1,4 +1,7 @@
-/* Mechanified · armazón de la aplicación. */
+/* Mechanified · armazón de la aplicación.
+
+   La barra lateral es la franja negra del sitio puesta de pie: el mismo
+   negro que la cabecera, y la sección en curso en gris grafito. */
 
 /* El armazón ocupa exactamente la ventana y no se desplaza: lo que se desplaza
    es el contenido, por dentro. Así el tablero puede ocupar el alto disponible
@@ -23,6 +26,7 @@
 .mch-rail .mch-marca {
   color: #fff;
   padding: 0 var(--mch-esp-2);
+  font-size: var(--mch-txt-md);
 }
 
 /* El nombre del taller debajo de la marca. En un producto donde cada taller es
@@ -41,11 +45,11 @@
 }
 
 .mch-nav__titulo {
-  padding: var(--mch-esp-2);
+  padding: var(--mch-esp-2) var(--mch-esp-3);
   font-size: var(--mch-txt-xs);
   text-transform: uppercase;
   letter-spacing: 0.07em;
-  opacity: 0.55;
+  color: var(--mch-sitio-gris-medio);
 }
 
 .mch-nav__enlace {
@@ -53,22 +57,25 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--mch-esp-2);
-  padding: 0.45rem var(--mch-esp-3);
+  padding: 0.55rem var(--mch-esp-3);
   border-radius: var(--mch-radio);
   color: inherit;
   text-decoration: none;
   font-size: var(--mch-txt-sm);
-  transition: background var(--mch-transicion);
+  transition:
+    background var(--mch-transicion),
+    color var(--mch-transicion);
 }
 
 .mch-nav__enlace:hover {
-  background: rgb(255 255 255 / 0.07);
+  background: rgb(255 255 255 / 0.06);
+  color: #fff;
 }
 
 .mch-nav__enlace[aria-current='page'] {
-  background: var(--mch-petroleo-700);
+  background: var(--mch-rail-activo);
   color: #fff;
-  font-weight: 560;
+  font-weight: 500;
 }
 
 .mch-nav__enlace--inerte {
@@ -99,7 +106,7 @@
 
 .mch-rail__usuario {
   color: #fff;
-  font-weight: 560;
+  font-weight: 500;
   overflow-wrap: anywhere;
 }
 
@@ -108,31 +115,41 @@
   opacity: 0.7;
 }
 
+/* Como el botón oscuro de la cabecera del sitio. */
 .mch-rail__salir {
-  margin-top: var(--mch-esp-3);
+  margin-top: var(--mch-esp-2);
   width: 100%;
-  background: transparent;
-  border: 1px solid rgb(255 255 255 / 0.18);
-  color: inherit;
-  padding: 0.4rem;
-  border-radius: var(--mch-radio);
+  background: var(--mch-sitio-carbon);
+  border: 1px solid rgb(255 255 255 / 0.08);
+  color: #fff;
+  padding: 0.55rem;
+  border-radius: 12px;
   font-size: var(--mch-txt-sm);
+  font-weight: 500;
   cursor: pointer;
   transition: background var(--mch-transicion);
 }
 
 .mch-rail__salir:hover {
-  background: rgb(255 255 255 / 0.09);
+  background: var(--mch-rail-activo);
 }
 
 /* La firma del producto, al fondo de la barra. La marca de arriba es la de la
    organización; esto es lo único que recuerda con qué está hecho. */
 .mch-rail__producto {
+  display: flex;
+  align-items: center;
+  gap: var(--mch-esp-2);
   margin-top: calc(-1 * var(--mch-esp-3));
   padding: 0 var(--mch-esp-2);
   font-size: var(--mch-txt-xs);
   letter-spacing: 0.02em;
-  opacity: 0.45;
+  color: var(--mch-sitio-gris-medio);
+}
+
+.mch-rail__producto img {
+  width: 20px;
+  height: 20px;
 }
 
 /* Sin tope de ancho. Lo tenía en 1180px, que es una medida pensada para leer

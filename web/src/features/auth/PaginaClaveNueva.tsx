@@ -15,7 +15,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { Aviso, Boton, Campo, Cargando, Marca } from '@/components/ui';
+import { Aviso, Boton, Campo, Cargando, Logo } from '@/components/ui';
 import { ES_SITIO } from '@/lib/marca';
 import { supabase } from '@/lib/supabase';
 import { RUTA_CUENTA, useSesion } from '@/app/sesion';
@@ -123,7 +123,7 @@ export function PaginaClaveNueva() {
             <h1 className="mch-sitio-titulo-pagina">Contraseña nueva</h1>
           ) : (
             <>
-              <Marca />
+              <Logo />
               <p className="mch-acceso__nota">Contraseña nueva</p>
             </>
           )}

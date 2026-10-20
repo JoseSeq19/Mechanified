@@ -69,12 +69,12 @@ export function CampoInventario({
       <span className="mch-campo__etiqueta">Inventario recibido</span>
 
       {disponibles.length > 0 && (
-        <div className="mch-fichas">
+        <div className="mch-sugerencias">
           {disponibles.map((nombre) => (
             <button
               key={nombre}
               type="button"
-              className="mch-ficha"
+              className="mch-sugerencia"
               onClick={() => publicar([...pares, [nombre, PRESENTE]])}
             >
               + {nombre}

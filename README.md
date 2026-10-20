@@ -129,7 +129,8 @@ Otros detalles:
 - No está firmado: Windows SmartScreen avisa la primera vez ("Más información →
   Ejecutar de todos modos"). La página de la cuenta lo explica.
 
-El icono lo dibuja [escritorio/generar_icono.py](escritorio/generar_icono.py); se
+El icono es el emblema del logo: lo arma
+[escritorio/generar_icono.py](escritorio/generar_icono.py) (necesita Pillow) y se
 versiona ya hecho. PyInstaller vive en el entorno del backend
 (`pip install -e ".[dev,empaquetado]"`) por no mantener otro.
 

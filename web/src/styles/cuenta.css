@@ -7,26 +7,46 @@
 .mch-bienvenida {
   min-height: 100dvh;
   display: flex;
-  justify-content: center;
-  padding: var(--mch-esp-8) var(--mch-esp-4);
+  flex-direction: column;
+}
+
+.mch-bienvenida__barra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mch-esp-4);
+  min-height: 72px;
+  padding: 0 clamp(1rem, 4vw, 2.5rem);
+  background: var(--mch-rail);
+  color: var(--mch-sitio-blanco);
+}
+
+.mch-bienvenida__salir {
+  padding: 0.55rem 1rem;
+  border: none;
+  border-radius: 12px;
+  background: var(--mch-sitio-carbon);
+  color: var(--mch-sitio-blanco);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--mch-transicion);
+}
+
+.mch-bienvenida__salir:hover {
+  background: var(--mch-rail-activo);
 }
 
 .mch-bienvenida__caja {
-  width: min(760px, 100%);
+  width: min(800px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: clamp(2rem, 6vw, 4rem) 0;
   display: grid;
   gap: var(--mch-esp-6);
   align-content: start;
 }
 
-.mch-bienvenida__cabecera {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--mch-esp-4);
-}
-
 .mch-bienvenida__texto h1 {
-  font-size: var(--mch-txt-xl);
+  font-size: clamp(2rem, 1rem + 3vw, 3rem);
 }
 
 .mch-bienvenida__texto p {
@@ -41,7 +61,7 @@
 }
 
 .mch-bienvenida__pie a {
-  color: var(--mch-marca);
+  color: var(--mch-enlace);
 }
 
 /* --- Incorporación: crearla o pedirla ---------------------------------- */
@@ -70,8 +90,8 @@
   gap: 2px;
   padding: var(--mch-esp-4);
   text-align: left;
-  background: var(--mch-panel);
-  border: 1px solid var(--mch-borde);
+  background: var(--mch-tarjeta);
+  border: 1px solid transparent;
   border-radius: var(--mch-radio-lg);
   cursor: pointer;
   transition:
@@ -80,7 +100,7 @@
 }
 
 .mch-camino:hover {
-  border-color: var(--mch-tinta-suave);
+  border-color: var(--mch-borde);
 }
 
 .mch-camino--activo,
@@ -91,7 +111,7 @@
 }
 
 .mch-camino__titulo {
-  font-weight: 620;
+  font-weight: 600;
 }
 
 .mch-camino__detalle {

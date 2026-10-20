@@ -8,6 +8,7 @@
 import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAttributes } from 'react';
 import { useEffect, useId } from 'react';
 
+import emblema from '@/assets/mechanified-emblema.webp';
 import { iniciales, PRODUCTO } from '@/lib/marca';
 
 /* --- Marca -------------------------------------------------------------- */
@@ -25,6 +26,26 @@ export function Marca({ nombre = PRODUCTO, compacta = false }: { nombre?: string
         {iniciales(nombre)}
       </span>
       {!compacta && <span>{nombre}</span>}
+    </span>
+  );
+}
+
+/**
+ * El logo de Mechanified: el emblema y el nombre, con el lema si se pide.
+ *
+ * El emblema es una imagen sin fondo pensada para ir sobre negro; el nombre y
+ * el lema son texto en Montserrat, la letra del logo, para que se lean nítidos
+ * a cualquier tamaño. Es la marca del producto: donde ya se sabe de qué
+ * organización es la sesión, va `Marca` con su nombre.
+ */
+export function Logo({ conLema = false }: { conLema?: boolean }) {
+  return (
+    <span className={conLema ? 'mch-logo mch-logo--con-lema' : 'mch-logo'}>
+      <img className="mch-logo__emblema" src={emblema} alt="" width={256} height={256} />
+      <span className="mch-logo__texto">
+        <span className="mch-logo__nombre">{PRODUCTO}</span>
+        {conLema && <span className="mch-logo__lema">Gestión moderna de talleres</span>}
+      </span>
     </span>
   );
 }

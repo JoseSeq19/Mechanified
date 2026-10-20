@@ -3,38 +3,27 @@
    Punto único de verdad del sistema visual. Ningún componente declara
    un color literal: todos salen de aquí.
 
-   La identidad de la aplicación es propia: petróleo como color de marca (un
-   verde azulado profundo, sobrio, que aguanta bien las superficies claras de
-   un panel de trabajo) y ámbar como color de señal, reservado para lo que
-   exige atención. Nada de azul corporativo genérico.
+   Una sola identidad para el sitio y la aplicación: blanco y negro, con el
+   azul del emblema del logo como color de acción. Franjas negras (la
+   cabecera y el pie del sitio, la barra lateral de la aplicación),
+   tarjetas grises sin borde sobre fondo blanco y titulares apretados. El
+   ámbar queda como color de señal, reservado para lo que exige atención.
 
-   El sitio de presentación tiene paleta aparte (`--mch-sitio-*`, al final):
-   blanco y negro, con el azul del logo como color de acción.
+   Los tokens `--mch-sitio-*` son la paleta; los de rol (`--mch-marca`,
+   `--mch-panel`…) la reparten entre los componentes.
    --------------------------------------------------------------- */
 
 :root {
   color-scheme: light;
 
-  /* --- Marca --- */
-  --mch-petroleo-900: #06282c;
-  --mch-petroleo-800: #0a4046;
-  --mch-petroleo-700: #0f5c63;
-  --mch-petroleo-600: #167b83;
-  --mch-petroleo-100: #dceceb;
-  --mch-petroleo-050: #eff6f5;
-
+  /* --- Señal --- */
   --mch-ambar-700: #a35a11;
   --mch-ambar-600: #c9761a;
   --mch-ambar-100: #fbeed8;
 
   /* --- Neutros --- */
-  --mch-tinta: #10191c;
-  --mch-tinta-media: #4a5a5e;
-  --mch-tinta-suave: #7a8b8f;
-  --mch-linea: #dde4e4;
-  --mch-linea-suave: #ebefef;
-  --mch-superficie: #ffffff;
-  --mch-lienzo: #f4f7f6;
+  --mch-tinta-suave: #a0a0a0;
+  --mch-linea-suave: #efefef;
 
   /* --- Semánticos --- */
   --mch-exito: #1f7a4d;
@@ -45,28 +34,37 @@
   --mch-error-fondo: #f8e5e5;
 
   /* --- Roles --- */
-  --mch-fondo: var(--mch-lienzo);
-  --mch-texto: var(--mch-tinta);
-  --mch-texto-secundario: var(--mch-tinta-media);
-  --mch-marca: var(--mch-petroleo-700);
-  --mch-marca-hover: var(--mch-petroleo-800);
-  --mch-marca-tenue: var(--mch-petroleo-050);
-  --mch-borde: var(--mch-linea);
-  --mch-panel: var(--mch-superficie);
-  --mch-rail: var(--mch-petroleo-900);
-  --mch-rail-texto: #c9dedd;
+  --mch-fondo: var(--mch-sitio-fondo);
+  /* Lo que va encima: campos, diálogos, las tarjetas del tablero. */
+  --mch-panel: var(--mch-sitio-panel);
+  /* Las tarjetas grises sin borde: paneles, columnas, indicadores. */
+  --mch-tarjeta: var(--mch-sitio-superficie);
+  --mch-texto: var(--mch-sitio-texto);
+  --mch-texto-secundario: var(--mch-sitio-texto-suave);
+  --mch-borde: var(--mch-sitio-linea);
+  --mch-marca: var(--mch-sitio-azul);
+  --mch-marca-hover: var(--mch-sitio-azul-hover);
+  --mch-marca-tenue: var(--mch-sitio-azul-tenue);
+  /* El azul como texto: en oscuro, más claro para que se lea. */
+  --mch-enlace: var(--mch-sitio-acento-texto);
+  --mch-glifo: var(--mch-sitio-degradado);
+  --mch-rail: var(--mch-sitio-negro);
+  --mch-rail-texto: var(--mch-sitio-gris-claro);
+  --mch-rail-activo: var(--mch-sitio-grafito);
 
   /* --- Tipografía --- */
   --mch-fuente-base:
-    'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    'Inter Tight', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --mch-fuente-mono:
     'JetBrains Mono', ui-monospace, 'Cascadia Code', 'Consolas', monospace;
+  /* La del logo: el nombre de Mechanified y su lema. */
+  --mch-fuente-logo: 'Montserrat', system-ui, sans-serif;
 
   --mch-txt-xs: 0.75rem;
   --mch-txt-sm: 0.8125rem;
   --mch-txt-md: 0.9375rem;
   --mch-txt-lg: 1.125rem;
-  --mch-txt-xl: 1.5rem;
+  --mch-txt-xl: 1.875rem;
 
   /* --- Espaciado, escala de 4px --- */
   --mch-esp-1: 0.25rem;
@@ -79,20 +77,18 @@
   --mch-esp-12: 3rem;
 
   /* --- Forma --- */
-  --mch-radio-sm: 4px;
-  --mch-radio: 7px;
-  --mch-radio-lg: 12px;
+  --mch-radio-sm: 6px;
+  --mch-radio: 10px;
+  --mch-radio-lg: 16px;
 
-  --mch-sombra-sm: 0 1px 2px rgb(16 25 28 / 0.06);
-  --mch-sombra: 0 2px 8px rgb(16 25 28 / 0.08);
-  --mch-sombra-lg: 0 12px 32px rgb(16 25 28 / 0.18);
+  --mch-sombra-sm: 0 1px 2px rgb(20 20 20 / 0.05);
+  --mch-sombra: 0 4px 24px rgb(20 20 20 / 0.08);
+  --mch-sombra-lg: 0 20px 60px rgb(20 20 20 / 0.18);
 
-  --mch-foco: 0 0 0 3px rgb(22 123 131 / 0.28);
+  --mch-foco: 0 0 0 3px rgb(38 104 216 / 0.32);
   --mch-transicion: 130ms ease;
 
-  /* --- Sitio ---------------------------------------------------------
-     Solo los usa lo que va dentro de .mch-sitio (src/sitio.tsx). Se
-     declaran en la raíz para que el fondo de la página pueda tomarlos. */
+  /* --- Paleta ---------------------------------------------------------- */
 
   /* Fijos: las franjas negras y las ilustraciones son iguales en los dos
      temas. */
@@ -120,7 +116,6 @@
   --mch-sitio-chip-ambar: linear-gradient(160deg, #ffd38f, #e2861c);
   --mch-sitio-chip-azul: linear-gradient(160deg, #7fd0f2, #2760b9);
   --mch-sitio-sombra-tarjeta: 0 4px 24px rgb(20 20 20 / 0.08);
-  --mch-sitio-fuente-logo: 'Montserrat', system-ui, sans-serif;
   --mch-sitio-sombra-flotante: 0 30px 60px rgb(0 0 0 / 0.45);
 
   /* Con tema. */
@@ -144,24 +139,15 @@
   :root {
     color-scheme: dark;
 
-    --mch-fondo: #0c1416;
-    --mch-panel: #131e21;
-    --mch-texto: #e6efee;
-    --mch-texto-secundario: #9bb0b1;
-    --mch-borde: #243437;
-    --mch-marca: #2a9aa2;
-    --mch-marca-hover: #35b3bb;
-    --mch-marca-tenue: #14282b;
-    --mch-rail: #081114;
-    --mch-rail-texto: #9bb9b8;
-
+    --mch-tinta-suave: #6a6a6e;
+    --mch-linea-suave: #232326;
     --mch-exito-fondo: #102b1f;
     --mch-alerta-fondo: #2e1c10;
     --mch-error-fondo: #2e1414;
     --mch-ambar-600: #d98c33;
 
     --mch-sitio-fondo: #0b0b0c;
-    --mch-sitio-panel: #121214;
+    --mch-sitio-panel: #1e1e21;
     --mch-sitio-superficie: #161618;
     --mch-sitio-pista: #1b1b1e;
     --mch-sitio-texto: #f2f2f2;
@@ -176,23 +162,4 @@
     /* En oscuro el fondo ya es casi negro: una línea separa las franjas. */
     --mch-sitio-separacion: #1f1f22;
   }
-}
-
-/* Dentro del sitio, los componentes del sistema (botones, campos, avisos,
-   paneles) toman la paleta del sitio: son los mismos, con otro aspecto. */
-.mch-sitio {
-  --mch-fondo: var(--mch-sitio-fondo);
-  --mch-panel: var(--mch-sitio-panel);
-  --mch-texto: var(--mch-sitio-texto);
-  --mch-texto-secundario: var(--mch-sitio-texto-suave);
-  --mch-tinta-suave: var(--mch-sitio-texto-suave);
-  --mch-borde: var(--mch-sitio-linea);
-  --mch-marca: var(--mch-sitio-azul);
-  --mch-marca-hover: var(--mch-sitio-azul-hover);
-  --mch-marca-tenue: var(--mch-sitio-azul-tenue);
-  --mch-radio: 10px;
-  --mch-radio-lg: 16px;
-  --mch-foco: 0 0 0 3px rgb(38 104 216 / 0.32);
-  --mch-fuente-base:
-    'Inter Tight', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }

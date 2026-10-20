@@ -1,4 +1,7 @@
-/* La Meseta · tablero de órdenes y ficha. */
+/* Mechanified · tablero de órdenes y ficha.
+
+   Columnas grises sin borde y, encima, las órdenes en blanco: las mismas
+   tarjetas que la presentación del sitio. */
 
 .mch-tablero {
   display: flex;
@@ -20,8 +23,7 @@
      preferible a estrujar las tarjetas hasta que no se lean. */
   flex: 1 0 200px;
   min-width: 200px;
-  background: var(--mch-panel);
-  border: 1px solid var(--mch-borde);
+  background: var(--mch-tarjeta);
   border-radius: var(--mch-radio-lg);
   display: flex;
   flex-direction: column;
@@ -37,7 +39,7 @@
   border-bottom: 1px solid var(--mch-borde);
   position: sticky;
   top: 0;
-  background: var(--mch-panel);
+  background: var(--mch-tarjeta);
   border-radius: var(--mch-radio-lg) var(--mch-radio-lg) 0 0;
 }
 
@@ -59,7 +61,7 @@
 .mch-columna__conteo {
   font-size: var(--mch-txt-xs);
   color: var(--mch-texto-secundario);
-  background: var(--mch-marca-tenue);
+  background: var(--mch-panel);
   border-radius: 999px;
   padding: 0.05rem 0.45rem;
   min-width: 22px;
@@ -80,7 +82,7 @@
 
 /* Franja de color por momento del flujo. Ver features/ordenes/estados.ts. */
 .mch-pip--taller {
-  background: var(--mch-petroleo-600);
+  background: var(--mch-marca);
 }
 .mch-pip--espera {
   background: var(--mch-ambar-600);
@@ -95,9 +97,9 @@
   display: block;
   text-decoration: none;
   color: inherit;
-  border: 1px solid var(--mch-borde);
-  border-left: 3px solid var(--mch-petroleo-600);
-  border-radius: var(--mch-radio);
+  border: 1px solid transparent;
+  border-left: 3px solid var(--mch-marca);
+  border-radius: 12px;
   padding: var(--mch-esp-3);
   background: var(--mch-panel);
   transition:
@@ -366,8 +368,8 @@
 }
 
 .mch-indicador {
-  background: var(--mch-panel);
-  border: 1px solid var(--mch-borde);
+  background: var(--mch-tarjeta);
+  border: 1px solid transparent;
   border-radius: var(--mch-radio-lg);
   padding: var(--mch-esp-4) var(--mch-esp-5);
   display: grid;
@@ -386,8 +388,9 @@
   color: var(--mch-texto-secundario);
 }
 
+/* Más pequeño que un título de página: las cifras con moneda no caben a 30px. */
 .mch-indicador__valor {
-  font-size: var(--mch-txt-xl);
+  font-size: 1.5rem;
   font-weight: 650;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
